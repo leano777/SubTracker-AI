@@ -1,6 +1,7 @@
 import { useCallback } from "react";
-import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+
 import type { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 
 interface UseAppHandlersProps {
   subscriptions: FullSubscription[];
@@ -358,6 +359,7 @@ export const useAppHandlers = ({
   }, [setIsFormOpen, setEditingSubscription, setIsWatchlistMode]);
 
   const openAddForm = useCallback(() => {
+    console.log("🔥 openAddForm called - opening subscription form");
     setEditingSubscription(null);
     setIsWatchlistMode(false);
     setIsFormOpen(true);

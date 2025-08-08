@@ -250,7 +250,7 @@ const AppContent = () => {
       }
     };
 
-    loadData();
+    void loadData();
 
     return () => {
       isEffectMounted = false;
@@ -493,8 +493,8 @@ const AppContent = () => {
     (data: {
       subscriptions?: FullSubscription[];
       paymentCards?: FullPaymentCard[];
-      notifications?: any[];
-      appSettings?: any;
+      notifications?: Notification[];
+      appSettings?: Partial<AppSettings>;
     }) => {
       if (!isMountedRef.current) return;
 
@@ -510,7 +510,7 @@ const AppContent = () => {
           setNotifications?.(data.notifications);
         }
         if (data.appSettings && typeof data.appSettings === "object") {
-          setAppSettings?.(data.appSettings);
+          setAppSettings?.(data.appSettings as Partial<AppSettings>);
         }
 
         modalHandlers.closeDataRecovery();
@@ -557,9 +557,9 @@ const AppContent = () => {
             .map((card, index) => ({
               ...card,
               id: `import-card-${currentTime}-${index}`,
-              dateAdded: card.dateAdded || new Date().toISOString().split("T")[0],
-              name: card.name || "Imported Card",
-              lastFour: card.lastFour || "0000",
+              dateAdded: card.dateAdded ?? new Date().toISOString().split("T")[0],
+              name: card.name ?? "Imported Card",
+              lastFour: card.lastFour ?? "0000",
             }));
 
           setPaymentCards?.((prev) => [...(prev || []), ...importedCards]);

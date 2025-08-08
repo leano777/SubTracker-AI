@@ -1,35 +1,27 @@
+import { DollarSign, AlertTriangle, Calculator, Clock, ChevronRight, Info } from "lucide-react";
 import { useState, useMemo } from "react";
-import {
-  Calendar,
-  DollarSign,
-  TrendingUp,
-  AlertTriangle,
-  Calculator,
-  Clock,
-  ChevronRight,
-  Info,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Alert, AlertDescription } from "./ui/alert";
+
+import type { Subscription } from "../types/subscription";
+import { formatCurrency } from "../utils/helpers";
 import {
   calculatePayPeriodRequirements,
   getSubscriptionStatistics,
 } from "../utils/payPeriodCalculations";
-import { formatCurrency } from "../utils/helpers";
-import type { Subscription } from "../types/subscription";
+
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface PayPeriodCalculatorTabProps {
   subscriptions: Subscription[];
 }
 
-export function PayPeriodCalculatorTab({ subscriptions }: PayPeriodCalculatorTabProps) {
+export const PayPeriodCalculatorTab = ({ subscriptions }: PayPeriodCalculatorTabProps) => {
   const [weeks, setWeeks] = useState(8);
   const [selectedWeek, setSelectedWeek] = useState<any>(null);
 
   // Detect mobile screen
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   // Calculate pay period requirements
   const payPeriodData = useMemo(() => {
@@ -172,7 +164,7 @@ export function PayPeriodCalculatorTab({ subscriptions }: PayPeriodCalculatorTab
         <CardContent>
           {requirements.length > 0 ? (
             <div className="space-y-3">
-              {requirements.map((period, index) => {
+              {requirements.map((period) => {
                 const isHighest = period.requiredAmount === highestWeek && highestWeek > 0;
                 const urgency =
                   period.requiredAmount > averageWeekly * 1.5
@@ -341,4 +333,4 @@ export function PayPeriodCalculatorTab({ subscriptions }: PayPeriodCalculatorTab
       )}
     </div>
   );
-}
+};

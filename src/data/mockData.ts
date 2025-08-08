@@ -1,6 +1,6 @@
-import { getServiceLogo } from "../utils/faviconUtils";
 import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+import { getServiceLogo } from "../utils/faviconUtils";
 
 // Card color constants
 export const CARD_COLORS = [

@@ -1,13 +1,15 @@
 import { Building2, User, DollarSign, CreditCard } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
+
 import type { FullSubscription as Subscription } from "../types/subscription";
+
+import { Badge } from "./ui/badge";
+import { Card, CardContent } from "./ui/card";
 
 interface SubscriptionOverviewProps {
   subscriptions: Subscription[];
 }
 
-export function SubscriptionOverview({ subscriptions }: SubscriptionOverviewProps) {
+export const SubscriptionOverview = ({ subscriptions }: SubscriptionOverviewProps) => {
   const activeSubscriptions = subscriptions.filter(
     (sub) => sub.isActive && sub.status === "active"
   );
@@ -173,4 +175,4 @@ export function SubscriptionOverview({ subscriptions }: SubscriptionOverviewProp
       </CardContent>
     </Card>
   );
-}
+};

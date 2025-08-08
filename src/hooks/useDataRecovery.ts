@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+
+import { INITIAL_APP_SETTINGS } from "../data/mockData";
 import type { RecoverySource, RecoveryStatus } from "../types/recovery";
 import { RECOVERY_SOURCES_TEMPLATE } from "../types/recovery";
 import { loadUserDataFromCache, saveUserDataToCache } from "../utils/cache";
@@ -9,7 +11,6 @@ import {
   createRecoveryBackup,
   selectBestRecoverySource,
 } from "../utils/recoveryUtils";
-import { INITIAL_APP_SETTINGS } from "../data/mockData";
 
 export function useDataRecovery(user: any) {
   const [recoveryProgress, setRecoveryProgress] = useState(0);
@@ -142,7 +143,7 @@ export function useDataRecovery(user: any) {
 
   // Perform data recovery
   const performRecovery = async (onDataRecovered: (data: any) => void) => {
-    if (!selectedSource || !selectedSource.data) return;
+    if (!selectedSource?.data) return;
 
     setRecoveryStatus("recovering");
     setRecoveryProgress(0);

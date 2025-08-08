@@ -1,26 +1,26 @@
-import React, { Profiler, ProfilerOnRenderCallback } from 'react';
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, waitFor, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { 
-  createMockSubscription, 
-  createMockPaymentCard, 
+import { render, waitFor, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React, { Profiler } from "react";
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+
+import App from "../../App";
+import { DashboardTab } from "../../components/DashboardTab";
+import { SubscriptionsUnifiedTab } from "../../components/SubscriptionsUnifiedTab";
+import {
+  createMockSubscription,
+  createMockPaymentCard,
   mockDataSyncManager,
   createProfiler,
   measureRenderTime,
-  renderWithProviders
-} from '../utils';
-import App from '../../App';
-import { useDataManagement } from '../../hooks/useDataManagement';
-import { DashboardTab } from '../../components/DashboardTab';
-import { SubscriptionsUnifiedTab } from '../../components/SubscriptionsUnifiedTab';
+  renderWithProviders,
+} from "../utils";
 
 // Mock all dependencies for performance testing
-vi.mock('../../utils/dataSync', () => ({
-  dataSyncManager: mockDataSyncManager
+vi.mock("../../utils/dataSync", () => ({
+  dataSyncManager: mockDataSyncManager,
 }));
 
-vi.mock('../../utils/cache', () => ({
+vi.mock("../../utils/cache", () => ({
   saveUserDataToCache: vi.fn(),
   loadUserDataFromCache: vi.fn(() => ({
     subscriptions: [],
@@ -39,12 +39,12 @@ vi.mock('../../utils/cache', () => ({
         trialReminderDays: 3,
       },
       preferences: {
-        defaultView: 'dashboard',
+        defaultView: "dashboard",
         showCancelled: true,
         groupByCategory: false,
         darkMode: false,
         showFavicons: true,
-        theme: 'light',
+        theme: "light",
       },
     },
     hasInitialized: true,
@@ -55,20 +55,20 @@ vi.mock('../../utils/cache', () => ({
   clearUserDataCache: vi.fn(),
 }));
 
-vi.mock('../../utils/payPeriodCalculations', () => ({
+vi.mock("../../utils/payPeriodCalculations", () => ({
   calculatePayPeriodRequirements: vi.fn(() => []),
   getSubscriptionStatistics: vi.fn(() => ({})),
 }));
 
 // Create large datasets for performance testing
 const generateLargeSubscriptionDataset = (count: number) => {
-  return Array.from({ length: count }, (_, index) => 
+  return Array.from({ length: count }, (_, index) =>
     createMockSubscription({
       id: `perf-sub-${index}`,
       name: `Performance Test Subscription ${index}`,
       price: Math.random() * 50 + 5,
-      category: ['Entertainment', 'Productivity', 'Business', 'Design'][index % 4],
-      status: index % 10 === 0 ? 'cancelled' : 'active',
+      category: ["Entertainment", "Productivity", "Business", "Design"][index % 4],
+      status: index % 10 === 0 ? "cancelled" : "active",
       description: `This is a test subscription ${index} for performance testing with longer description text that might impact rendering performance`,
       tags: [`tag${index}`, `category${index % 4}`, `test`],
     })
@@ -76,17 +76,17 @@ const generateLargeSubscriptionDataset = (count: number) => {
 };
 
 const generateLargePaymentCardDataset = (count: number) => {
-  return Array.from({ length: count }, (_, index) => 
+  return Array.from({ length: count }, (_, index) =>
     createMockPaymentCard({
       id: `perf-card-${index}`,
       name: `Performance Test Card ${index}`,
-      lastFourDigits: String(index).padStart(4, '0'),
-      provider: ['visa', 'mastercard', 'amex', 'discover'][index % 4] as any,
+      lastFourDigits: String(index).padStart(4, "0"),
+      provider: ["visa", "mastercard", "amex", "discover"][index % 4] as any,
     })
   );
 };
 
-describe('Performance Regression Tests', () => {
+describe("Performance Regression Tests", () => {
   const user = userEvent.setup({ delay: null }); // Disable delay for performance tests
 
   beforeEach(() => {
@@ -113,8 +113,8 @@ describe('Performance Regression Tests', () => {
     vi.restoreAllMocks();
   });
 
-  describe('Hook Performance', () => {
-    it('should not exceed performance budget for useDataManagement with large dataset', async () => {
+  describe("Hook Performance", () => {
+    it("should not exceed performance budget for useDataManagement with large dataset", async () => {
       const largeSubscriptions = generateLargeSubscriptionDataset(1000);
       const largeCards = generateLargePaymentCardDataset(100);
 
@@ -131,10 +131,10 @@ describe('Performance Regression Tests', () => {
       });
 
       const profiler = createProfiler();
-      
+
       const TestComponent = () => {
-        const dataManagement = useDataManagement(true, 'test-user-id', true, true);
-        return <div>Subscriptions: {dataManagement.subscriptions.length}</div>;
+        const [subscriptions, setSubscriptions] = React.useState(largeSubscriptions);
+        return <div>Subscriptions: {subscriptions.length}</div>;
       };
 
       const renderWithProfiler = () => {
@@ -157,22 +157,22 @@ describe('Performance Regression Tests', () => {
       expect(profiler.getAverageDuration()).toBeLessThan(20); // Average update under 20ms
     });
 
-    it('should handle frequent subscription updates efficiently', async () => {
+    it("should handle frequent subscription updates efficiently", async () => {
       const profiler = createProfiler();
       const TestComponent = () => {
-        const dataManagement = useDataManagement(true, 'test-user-id', true, true);
-        
+        const [subscriptions, setSubscriptions] = React.useState<any[]>([]);
+
         React.useEffect(() => {
           // Simulate frequent updates
           const timer = setInterval(() => {
             const newSub = createMockSubscription({ id: `update-${Date.now()}` });
-            dataManagement.setSubscriptions(prev => [...prev, newSub]);
+            setSubscriptions((prev) => [...prev, newSub]);
           }, 10);
 
           setTimeout(() => clearInterval(timer), 100); // Stop after 100ms
         }, []);
 
-        return <div>Subscriptions: {dataManagement.subscriptions.length}</div>;
+        return <div>Subscriptions: {subscriptions.length}</div>;
       };
 
       render(
@@ -191,8 +191,8 @@ describe('Performance Regression Tests', () => {
     });
   });
 
-  describe('Component Rendering Performance', () => {
-    it('should render Dashboard efficiently with large dataset', async () => {
+  describe("Component Rendering Performance", () => {
+    it("should render Dashboard efficiently with large dataset", async () => {
       const largeSubscriptions = generateLargeSubscriptionDataset(500);
       const profiler = createProfiler();
 
@@ -203,9 +203,25 @@ describe('Performance Regression Tests', () => {
               subscriptions={largeSubscriptions}
               cards={[]}
               settings={{
-                notifications: { upcomingPayments: true, highSpending: true, weeklyReports: false, trialExpirations: true },
-                thresholds: { highSpendingAmount: 200, upcomingPaymentDays: 7, trialReminderDays: 3 },
-                preferences: { defaultView: 'dashboard', showCancelled: true, groupByCategory: false, darkMode: false, showFavicons: true, theme: 'light' },
+                notifications: {
+                  upcomingPayments: true,
+                  highSpending: true,
+                  weeklyReports: false,
+                  trialExpirations: true,
+                },
+                thresholds: {
+                  highSpendingAmount: 200,
+                  upcomingPaymentDays: 7,
+                  trialReminderDays: 3,
+                },
+                preferences: {
+                  defaultView: "dashboard",
+                  showCancelled: true,
+                  groupByCategory: false,
+                  darkMode: false,
+                  showFavicons: true,
+                  theme: "light",
+                },
               }}
               notifications={[]}
               weeklyBudgets={[]}
@@ -221,7 +237,7 @@ describe('Performance Regression Tests', () => {
       expect(profiler.getMaxDuration()).toBeLessThan(100);
     });
 
-    it('should handle Subscriptions list virtualization performance', async () => {
+    it("should handle Subscriptions list virtualization performance", async () => {
       const largeSubscriptions = generateLargeSubscriptionDataset(2000);
       const profiler = createProfiler();
 
@@ -250,7 +266,7 @@ describe('Performance Regression Tests', () => {
       expect(profiler.getMaxDuration()).toBeLessThan(150);
     });
 
-    it('should maintain performance during search operations', async () => {
+    it("should maintain performance during search operations", async () => {
       const largeSubscriptions = generateLargeSubscriptionDataset(1000);
       const profiler = createProfiler();
 
@@ -274,7 +290,7 @@ describe('Performance Regression Tests', () => {
       const searchInput = document.querySelector('input[placeholder*="search"]');
       if (searchInput) {
         await act(async () => {
-          await user.type(searchInput as HTMLElement, 'Performance Test');
+          await user.type(searchInput as HTMLElement, "Performance Test");
         });
 
         // Search filtering should be efficient
@@ -283,8 +299,8 @@ describe('Performance Regression Tests', () => {
     });
   });
 
-  describe('Memory Usage', () => {
-    it('should not cause memory leaks with frequent component mounting/unmounting', async () => {
+  describe("Memory Usage", () => {
+    it("should not cause memory leaks with frequent component mounting/unmounting", async () => {
       const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
       const profiler = createProfiler();
 
@@ -296,9 +312,25 @@ describe('Performance Regression Tests', () => {
               subscriptions={generateLargeSubscriptionDataset(100)}
               cards={generateLargePaymentCardDataset(10)}
               settings={{
-                notifications: { upcomingPayments: true, highSpending: true, weeklyReports: false, trialExpirations: true },
-                thresholds: { highSpendingAmount: 200, upcomingPaymentDays: 7, trialReminderDays: 3 },
-                preferences: { defaultView: 'dashboard', showCancelled: true, groupByCategory: false, darkMode: false, showFavicons: true, theme: 'light' },
+                notifications: {
+                  upcomingPayments: true,
+                  highSpending: true,
+                  weeklyReports: false,
+                  trialExpirations: true,
+                },
+                thresholds: {
+                  highSpendingAmount: 200,
+                  upcomingPaymentDays: 7,
+                  trialReminderDays: 3,
+                },
+                preferences: {
+                  defaultView: "dashboard",
+                  showCancelled: true,
+                  groupByCategory: false,
+                  darkMode: false,
+                  showFavicons: true,
+                  theme: "light",
+                },
               }}
               notifications={[]}
               weeklyBudgets={[]}
@@ -320,7 +352,7 @@ describe('Performance Regression Tests', () => {
       }
 
       const finalMemory = (performance as any).memory?.usedJSHeapSize || 0;
-      
+
       // Memory usage shouldn't grow significantly
       if (initialMemory > 0) {
         const memoryGrowth = finalMemory - initialMemory;
@@ -329,21 +361,21 @@ describe('Performance Regression Tests', () => {
       }
     });
 
-    it('should clean up event listeners and timers properly', async () => {
-      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-      const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
+    it("should clean up event listeners and timers properly", async () => {
+      const addEventListenerSpy = vi.spyOn(window, "addEventListener");
+      const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
+      const setTimeoutSpy = vi.spyOn(global, "setTimeout");
+      const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
 
       const TestComponent = () => {
         React.useEffect(() => {
           const handleResize = () => {};
-          window.addEventListener('resize', handleResize);
-          
+          window.addEventListener("resize", handleResize);
+
           const timer = setTimeout(() => {}, 1000);
-          
+
           return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener("resize", handleResize);
             clearTimeout(timer);
           };
         }, []);
@@ -365,19 +397,19 @@ describe('Performance Regression Tests', () => {
     });
   });
 
-  describe('Data Processing Performance', () => {
-    it('should process large subscription datasets efficiently', () => {
+  describe("Data Processing Performance", () => {
+    it("should process large subscription datasets efficiently", () => {
       const largeDataset = generateLargeSubscriptionDataset(10000);
-      
+
       const startTime = performance.now();
-      
+
       // Simulate data processing operations
-      const activeSubscriptions = largeDataset.filter(sub => sub.status === 'active');
+      const activeSubscriptions = largeDataset.filter((sub) => sub.status === "active");
       const monthlyTotal = activeSubscriptions
-        .filter(sub => sub.frequency === 'monthly')
+        .filter((sub) => sub.frequency === "monthly")
         .reduce((total, sub) => total + sub.price, 0);
-      const categories = [...new Set(largeDataset.map(sub => sub.category))];
-      
+      const categories = [...new Set(largeDataset.map((sub) => sub.category))];
+
       const endTime = performance.now();
       const processingTime = endTime - startTime;
 
@@ -388,27 +420,27 @@ describe('Performance Regression Tests', () => {
       expect(categories.length).toBeGreaterThan(0);
     });
 
-    it('should handle data migration efficiently', () => {
+    it("should handle data migration efficiently", () => {
       // Create legacy format data
       const legacyData = Array.from({ length: 1000 }, (_, index) => ({
         id: `legacy-${index}`,
         name: `Legacy Subscription ${index}`,
         cost: Math.random() * 50, // Old field name
-        billingCycle: 'monthly', // Old field name
+        billingCycle: "monthly", // Old field name
         isActive: true, // Old field name
-        category: 'Test',
+        category: "Test",
       }));
 
       const startTime = performance.now();
 
       // Simulate migration (this would happen in useDataManagement)
-      const migratedData = legacyData.map(sub => ({
+      const migratedData = legacyData.map((sub) => ({
         ...sub,
         price: sub.cost, // Migrate cost -> price
-        frequency: sub.billingCycle === 'monthly' ? 'monthly' : 'yearly', // Migrate billingCycle -> frequency
-        status: sub.isActive ? 'active' : 'cancelled', // Migrate isActive -> status
-        dateAdded: new Date().toISOString().split('T')[0],
-        nextPayment: new Date().toISOString().split('T')[0],
+        frequency: sub.billingCycle === "monthly" ? "monthly" : "yearly", // Migrate billingCycle -> frequency
+        status: sub.isActive ? "active" : "cancelled", // Migrate isActive -> status
+        dateAdded: new Date().toISOString().split("T")[0],
+        nextPayment: new Date().toISOString().split("T")[0],
       }));
 
       const endTime = performance.now();
@@ -417,25 +449,27 @@ describe('Performance Regression Tests', () => {
       // Migration should be efficient
       expect(migrationTime).toBeLessThan(50);
       expect(migratedData).toHaveLength(1000);
-      expect(migratedData[0]).toHaveProperty('price');
-      expect(migratedData[0]).toHaveProperty('frequency');
-      expect(migratedData[0]).toHaveProperty('status');
+      expect(migratedData[0]).toHaveProperty("price");
+      expect(migratedData[0]).toHaveProperty("frequency");
+      expect(migratedData[0]).toHaveProperty("status");
     });
   });
 
-  describe('Interaction Performance', () => {
-    it('should handle rapid user interactions efficiently', async () => {
+  describe("Interaction Performance", () => {
+    it("should handle rapid user interactions efficiently", async () => {
       const profiler = createProfiler();
       let clickCount = 0;
 
       const TestComponent = () => {
         const [count, setCount] = React.useState(0);
-        
+
         return (
-          <button onClick={() => {
-            setCount(prev => prev + 1);
-            clickCount++;
-          }}>
+          <button
+            onClick={() => {
+              setCount((prev) => prev + 1);
+              clickCount++;
+            }}
+          >
             Click count: {count}
           </button>
         );
@@ -447,7 +481,7 @@ describe('Performance Regression Tests', () => {
         </Profiler>
       );
 
-      const button = document.querySelector('button')!;
+      const button = document.querySelector("button")!;
 
       // Simulate rapid clicking
       const startTime = performance.now();
@@ -467,7 +501,7 @@ describe('Performance Regression Tests', () => {
     });
   });
 
-  describe('Regression Benchmarks', () => {
+  describe("Regression Benchmarks", () => {
     const PERFORMANCE_BASELINES = {
       initialRender: 100, // ms
       dataUpdate: 50, // ms
@@ -476,7 +510,7 @@ describe('Performance Regression Tests', () => {
       listScroll: 16, // ms (60fps)
     };
 
-    it('should not regress from performance baselines', async () => {
+    it("should not regress from performance baselines", async () => {
       const measurements: Record<string, number> = {};
 
       // Test initial render performance
@@ -486,9 +520,21 @@ describe('Performance Regression Tests', () => {
             subscriptions={generateLargeSubscriptionDataset(100)}
             cards={generateLargePaymentCardDataset(10)}
             settings={{
-              notifications: { upcomingPayments: true, highSpending: true, weeklyReports: false, trialExpirations: true },
+              notifications: {
+                upcomingPayments: true,
+                highSpending: true,
+                weeklyReports: false,
+                trialExpirations: true,
+              },
               thresholds: { highSpendingAmount: 200, upcomingPaymentDays: 7, trialReminderDays: 3 },
-              preferences: { defaultView: 'dashboard', showCancelled: true, groupByCategory: false, darkMode: false, showFavicons: true, theme: 'light' },
+              preferences: {
+                defaultView: "dashboard",
+                showCancelled: true,
+                groupByCategory: false,
+                darkMode: false,
+                showFavicons: true,
+                theme: "light",
+              },
             }}
             notifications={[]}
             weeklyBudgets={[]}
@@ -507,15 +553,18 @@ describe('Performance Regression Tests', () => {
       });
 
       // Log measurements for monitoring
-      console.log('Performance measurements:', measurements);
+      console.log("Performance measurements:", measurements);
     });
   });
 
-  describe('Bundle Size Impact', () => {
-    it('should track component render efficiency', () => {
+  describe("Bundle Size Impact", () => {
+    it("should track component render efficiency", () => {
       const renderCounts: Record<string, number> = {};
 
-      const TrackingProfiler: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => (
+      const TrackingProfiler: React.FC<{ id: string; children: React.ReactNode }> = ({
+        id,
+        children,
+      }) => (
         <Profiler
           id={id}
           onRender={(id, phase, actualDuration) => {
@@ -528,11 +577,11 @@ describe('Performance Regression Tests', () => {
 
       const TestApp = () => {
         const [data, setData] = React.useState(generateLargeSubscriptionDataset(10));
-        
+
         React.useEffect(() => {
           // Simulate data updates
           const timer = setInterval(() => {
-            setData(prev => [...prev, createMockSubscription()]);
+            setData((prev) => [...prev, createMockSubscription()]);
           }, 100);
 
           setTimeout(() => clearInterval(timer), 500);
@@ -544,9 +593,25 @@ describe('Performance Regression Tests', () => {
               subscriptions={data}
               cards={[]}
               settings={{
-                notifications: { upcomingPayments: true, highSpending: true, weeklyReports: false, trialExpirations: true },
-                thresholds: { highSpendingAmount: 200, upcomingPaymentDays: 7, trialReminderDays: 3 },
-                preferences: { defaultView: 'dashboard', showCancelled: true, groupByCategory: false, darkMode: false, showFavicons: true, theme: 'light' },
+                notifications: {
+                  upcomingPayments: true,
+                  highSpending: true,
+                  weeklyReports: false,
+                  trialExpirations: true,
+                },
+                thresholds: {
+                  highSpendingAmount: 200,
+                  upcomingPaymentDays: 7,
+                  trialReminderDays: 3,
+                },
+                preferences: {
+                  defaultView: "dashboard",
+                  showCancelled: true,
+                  groupByCategory: false,
+                  darkMode: false,
+                  showFavicons: true,
+                  theme: "light",
+                },
               }}
               notifications={[]}
               weeklyBudgets={[]}

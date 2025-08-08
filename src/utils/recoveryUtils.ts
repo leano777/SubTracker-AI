@@ -1,7 +1,8 @@
-import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 import type { Notification } from "../types/constants";
 import type { RecoveryData } from "../types/recovery";
 import { LEGACY_STORAGE_KEYS } from "../types/recovery";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
+
 import { getUserStorageKey } from "./cache";
 
 // Check legacy browser storage for recoverable data
@@ -33,7 +34,7 @@ export const checkLegacyBrowserStorage = (): RecoveryData => {
         }
 
         // Try to get timestamp
-        const timestampKey = key + "_timestamp";
+        const timestampKey = `${key}_timestamp`;
         const storedTimestamp = localStorage.getItem(timestampKey);
         if (storedTimestamp && !timestamp) {
           timestamp = storedTimestamp;

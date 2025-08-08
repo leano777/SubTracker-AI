@@ -1,5 +1,6 @@
+import { CreditCard, Calendar, Brain, Home } from "lucide-react";
 import { useState } from "react";
-import { BarChart3, CreditCard, Calendar, Brain, Settings, Home } from "lucide-react";
+
 import { cn } from "../components/ui/utils";
 
 interface DockItem {
@@ -16,12 +17,12 @@ interface GlassmorphicDockProps {
   aiInsightsCount: number;
 }
 
-export function GlassmorphicDock({
+export const GlassmorphicDock = ({
   activeTab,
   onTabChange,
   subscriptionsCount,
   aiInsightsCount,
-}: GlassmorphicDockProps) {
+}: GlassmorphicDockProps) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const dockItems: DockItem[] = [
@@ -69,7 +70,7 @@ export function GlassmorphicDock({
 
           {/* Dock */}
           <div className="flex items-center space-x-2 bg-white/10 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl p-3 shadow-2xl">
-            {dockItems.map((item, index) => {
+            {dockItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
 
@@ -119,4 +120,4 @@ export function GlassmorphicDock({
       </div>
     </>
   );
-}
+};

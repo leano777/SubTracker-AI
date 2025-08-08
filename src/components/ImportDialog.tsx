@@ -1,30 +1,32 @@
-import { useState, useCallback } from "react";
 import {
   Upload,
   FileText,
   AlertCircle,
   CheckCircle,
   X,
-  Eye,
-  EyeOff,
   Download,
   AlertTriangle,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Checkbox } from "./ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label";
-import { ScrollArea } from "./ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Alert, AlertDescription } from "./ui/alert";
-import { Separator } from "./ui/separator";
+import { useState, useCallback } from "react";
+
+import type {
+  FullSubscription as Subscription,
+  FullPaymentCard as PaymentCard,
+} from "../types/subscription";
+import { formatCurrency } from "../utils/helpers";
 import { processImportFile, applyImport } from "../utils/importUtils";
 import type { ImportPreview } from "../utils/importUtils";
-import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
-import { formatCurrency } from "../utils/helpers";
+
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { ScrollArea } from "./ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface ImportDialogProps {
   open: boolean;
@@ -34,13 +36,13 @@ interface ImportDialogProps {
   existingCards: PaymentCard[];
 }
 
-export function ImportDialog({
+export const ImportDialog = ({
   open,
   onOpenChange,
   onImport,
   existingSubscriptions,
   existingCards,
-}: ImportDialogProps) {
+}: ImportDialogProps) => {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -116,17 +118,19 @@ export function ImportDialog({
     try {
       // Create import data from selected items
       const importData = {
-        subscriptions: preview.subscriptions.filter(sub => selectedSubscriptions.includes(sub._importId)),
-        cards: preview.cards.filter(card => selectedCards.includes(card._importId)),
+        subscriptions: preview.subscriptions.filter((sub) =>
+          selectedSubscriptions.includes(sub._importId)
+        ),
+        cards: preview.cards.filter((card) => selectedCards.includes(card._importId)),
         errors: [],
         warnings: [],
-        duplicates: []
+        duplicates: [],
       };
 
       const { subscriptions, cards } = applyImport(
         importData,
-        existingSubscriptions.map(sub => sub.name),
-        existingCards.map(card => card.name)
+        existingSubscriptions.map((sub) => sub.name),
+        existingCards.map((card) => card.name || card.nickname || `Card ${card.id}`).filter(Boolean)
       );
 
       onImport({ subscriptions, cards });
@@ -676,4 +680,4 @@ export function ImportDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};

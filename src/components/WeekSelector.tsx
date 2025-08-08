@@ -1,9 +1,11 @@
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
+
 import type { WeeklyBudget } from "../types/subscription";
 import { formatDateRange } from "../utils/weekCalculations";
+
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 
 interface WeekSelectorProps {
   availableWeeks: WeeklyBudget[];
@@ -11,7 +13,11 @@ interface WeekSelectorProps {
   onWeekChange: (weekId: string) => void;
 }
 
-export function WeekSelector({ availableWeeks, selectedWeekId, onWeekChange }: WeekSelectorProps) {
+export const WeekSelector = ({
+  availableWeeks,
+  selectedWeekId,
+  onWeekChange,
+}: WeekSelectorProps) => {
   const selectedWeek = availableWeeks.find((week) => week.id === selectedWeekId);
   const currentWeekIndex = availableWeeks.findIndex((week) => week.id === selectedWeekId);
 
@@ -82,4 +88,4 @@ export function WeekSelector({ availableWeeks, selectedWeekId, onWeekChange }: W
       </CardContent>
     </Card>
   );
-}
+};

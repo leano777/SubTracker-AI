@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Brain,
   BarChart3,
@@ -11,14 +10,17 @@ import {
   Info,
   ExternalLink,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Alert, AlertDescription } from "./ui/alert";
-import { AuthModal } from "./AuthModal";
+import { useState } from "react";
+
 import { useAuth } from "../contexts/AuthContext";
 
-export function LandingPage() {
+import { AuthModal } from "./AuthModal";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+
+export const LandingPage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { googleAuthAvailable } = useAuth();
 
@@ -312,4 +314,4 @@ export function LandingPage() {
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
-}
+};

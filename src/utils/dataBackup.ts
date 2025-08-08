@@ -1,8 +1,5 @@
-import type {
-  FullSubscription,
-  PaymentCard as FullPaymentCard,
-} from "../types/subscription";
 import type { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 
 // Define WeeklyBudget locally
 interface WeeklyBudget {
@@ -50,7 +47,7 @@ export const createAutoBackup = (
     // Keep only the last 5 backups to prevent storage bloat
     cleanupOldBackups(userId, type);
 
-    console.log(`📦 Auto backup created (${type}):`, backupKey);
+    // Auto backup created successfully
     return backupKey;
   } catch (error) {
     console.error("Failed to create auto backup:", error);
@@ -135,7 +132,7 @@ export const detectDataLossAndRecover = (
 ): BackupData | null => {
   // If current data is empty, try to find a recent backup with data
   if (currentData.subscriptions.length === 0 && currentData.paymentCards.length === 0) {
-    console.log("🔍 Empty data detected, checking for recent backups...");
+    // Empty data detected, checking for recent backups
 
     const recentBackup = getLatestBackup(userId);
     if (

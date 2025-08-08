@@ -1,11 +1,13 @@
-import { useState } from "react";
 import { Bell, X, Check, AlertCircle, Info, AlertTriangle, Sparkles } from "lucide-react";
+import { useState } from "react";
+
+import type { Notification } from "../types/constants";
+
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import type { Notification } from "../types/constants";
+import { Separator } from "./ui/separator";
 
 interface NotificationsPanelProps {
   notifications: Notification[];
@@ -14,12 +16,12 @@ interface NotificationsPanelProps {
   onDeleteNotification: (notificationId: string) => void;
 }
 
-export function NotificationsPanel({
+export const NotificationsPanel = ({
   notifications,
   onMarkAsRead,
   onMarkAllAsRead,
   onDeleteNotification,
-}: NotificationsPanelProps) {
+}: NotificationsPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const unreadNotifications = notifications.filter((n) => !n.read);
@@ -243,4 +245,4 @@ export function NotificationsPanel({
       </PopoverContent>
     </Popover>
   );
-}
+};

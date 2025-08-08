@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Settings,
   Bell,
@@ -14,16 +13,19 @@ import {
   Zap,
   Lightbulb,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
+import { useState } from "react";
+
+import type { AppSettings } from "../types/constants";
+
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Switch } from "./ui/switch";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Separator } from "./ui/separator";
-import { Badge } from "./ui/badge";
 import { Slider } from "./ui/slider";
-import type { AppSettings } from "../types/constants";
+import { Switch } from "./ui/switch";
 
 interface AdvancedSettingsTabProps {
   settings: AppSettings;
@@ -33,13 +35,13 @@ interface AdvancedSettingsTabProps {
   onResetApp: () => void;
 }
 
-export function AdvancedSettingsTab({
+export const AdvancedSettingsTab = ({
   settings,
   onUpdateSettings,
   onExportData,
   onImportData,
   onResetApp,
-}: AdvancedSettingsTabProps) {
+}: AdvancedSettingsTabProps) => {
   const [localSettings, setLocalSettings] = useState<AppSettings>(settings);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -938,4 +940,4 @@ export function AdvancedSettingsTab({
       </div>
     </div>
   );
-}
+};

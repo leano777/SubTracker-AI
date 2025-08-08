@@ -1,7 +1,8 @@
+import type { AuthError, User as SupabaseUser } from "@supabase/supabase-js";
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
+
 import { supabase } from "../utils/supabase/client"; // Use shared singleton
-import type { AuthError, User as SupabaseUser } from "@supabase/supabase-js";
 
 interface User {
   id: string;
@@ -39,7 +40,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +49,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Helper function to clear corrupted auth data (ONLY auth tokens, NOT user data)
   const clearCorruptedAuthData = () => {
-    console.log("🧹 Clearing corrupted auth tokens only...");
     try {
       // Clear ONLY Supabase auth-related localStorage items, preserve user data cache
       const keysToRemove: string[] = [];
@@ -72,7 +72,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       keysToRemove.forEach((key) => {
         localStorage.removeItem(key);
-        console.log(`🗑️ Removed corrupted auth key: ${key}`);
       });
 
       // Clear sessionStorage (but preserve any user data)
@@ -87,10 +86,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       sessionKeysToRemove.forEach((key) => {
         sessionStorage.removeItem(key);
       });
-
-      console.log("✅ Corrupted auth tokens cleared, user data preserved");
     } catch (error) {
-      console.error("❌ Failed to clear corrupted auth data:", error);
+      // Silent cleanup failure - auth will handle gracefully
     }
   };
 
@@ -115,28 +112,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Get initial session with enhanced error handling
     const getInitialSession = async () => {
       try {
-        console.log("🔍 Initializing auth state...");
-
         // Check if supabase client is available
-        if (!supabase || !supabase.auth) {
-          console.error("❌ Supabase client or auth module not available");
+        if (!supabase?.auth) {
           setError("Authentication service not available");
           setLoading(false);
           return;
         }
 
-        console.log("✅ Supabase client available, checking session...");
         const {
           data: { session },
           error,
         } = await supabase.auth.getSession();
 
         if (error) {
-          console.error("❌ Session check error:", error);
-
           // Check if this is an auth session error
           if (isAuthSessionError(error)) {
-            console.log("🔄 Auth session error detected, clearing corrupted data...");
             clearCorruptedAuthData();
             setUser(null);
             setSession(null);
@@ -151,7 +141,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (session?.user) {
-          console.log("✅ Active session found:", session.user.email);
           const userData: User = {
             id: session.user.id,
             email: session.user.email || "",
@@ -166,7 +155,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(userData);
           setSession(session);
         } else {
-          console.log("ℹ️ No active session found");
           setUser(null);
           setSession(null);
         }
@@ -174,11 +162,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         setLoading(false);
       } catch (err) {
-        console.error("💥 Auth initialization error:", err);
-
         // Check if this is an auth session error
         if (isAuthSessionError(err)) {
-          console.log("🔄 Auth session error in catch block, clearing corrupted data...");
           clearCorruptedAuthData();
           setUser(null);
           setSession(null);
@@ -203,10 +188,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           data: { subscription: authSubscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
           try {
-            console.log("🔄 Auth state change:", event);
-
             if (event === "SIGNED_IN" && session?.user) {
-              console.log("✅ User signed in:", session.user.email);
               const userData: User = {
                 id: session.user.id,
                 email: session.user.email || "",
@@ -221,32 +203,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
               setUser(userData);
               setSession(session);
               setError(null);
-
-              // Check if this is a new user (email confirmation)
-              const isNewUser =
-                session.user.email_confirmed_at &&
-                new Date(session.user.email_confirmed_at).getTime() > Date.now() - 60000; // Within last minute
-
-              if (isNewUser) {
-                console.log("🎉 New user email confirmed successfully:", session.user.email);
-              }
             } else if (event === "SIGNED_OUT") {
-              console.log("✅ User signed out");
               setUser(null);
               setSession(null);
               setError(null);
             } else if (event === "TOKEN_REFRESHED" && session) {
-              console.log("🔄 Token refreshed successfully");
               setSession(session);
               setError(null);
             }
             setLoading(false);
           } catch (err) {
-            console.error("💥 Auth state change error:", err);
-
             // Check if this is an auth session error
             if (isAuthSessionError(err)) {
-              console.log("🔄 Auth session error in state change, clearing corrupted data...");
               clearCorruptedAuthData();
               setUser(null);
               setSession(null);
@@ -263,11 +231,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         subscription = authSubscription;
       }
     } catch (err) {
-      console.error("💥 Error setting up auth listener:", err);
-
       // Check if this is an auth session error
       if (isAuthSessionError(err)) {
-        console.log("🔄 Auth session error in listener setup, clearing corrupted data...");
         clearCorruptedAuthData();
         setUser(null);
         setSession(null);
@@ -327,7 +292,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password,
         options: {
           data: {
-            name: name,
+            name,
             full_name: name,
           },
         },
@@ -417,38 +382,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signOut = async () => {
-    console.log("🚪 Starting signOut process...");
     setLoading(true);
 
     try {
       // Check if supabase and auth are available
       if (!supabase) {
-        console.error("❌ Supabase client not available");
         throw new Error("Authentication service not available - supabase client missing");
       }
 
       if (!supabase.auth) {
-        console.error("❌ Supabase auth module not available");
         throw new Error("Authentication service not available - auth module missing");
       }
 
-      console.log("🔄 Calling supabase.auth.signOut()...");
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        console.error("❌ Supabase signOut error:", error);
         setError(error.message);
         setLoading(false);
         return { success: false, error: error.message };
       }
 
-      console.log("✅ Supabase signOut successful");
       setUser(null);
       setError(null);
       setLoading(false);
       return { success: true };
     } catch (err) {
-      console.error("💥 SignOut exception:", err);
       const errorMessage = err instanceof Error ? err.message : "Failed to sign out";
       setError(errorMessage);
       setLoading(false);
@@ -458,7 +416,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Force sign out - bypasses Supabase and clears everything locally
   const forceSignOut = async () => {
-    console.log("🔧 Starting force signOut...");
     setLoading(true);
 
     try {
@@ -467,7 +424,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(null);
 
       // Clear all browser storage
-      console.log("🧹 Clearing storage...");
       try {
         localStorage.clear();
         sessionStorage.clear();
@@ -477,35 +433,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
           (key) => key.includes("supabase") || key.includes("auth")
         );
         supabaseKeys.forEach((key) => localStorage.removeItem(key));
-
-        console.log("✅ Storage cleared");
       } catch (storageError) {
-        console.error("⚠️ Storage clearing failed:", storageError);
+        // Storage clearing failed, continue anyway
       }
 
       // Try to call Supabase signOut if available, but don't fail if it doesn't work
       try {
         if (supabase?.auth) {
-          console.log("🔄 Attempting Supabase signOut as backup...");
           await supabase.auth.signOut();
-          console.log("✅ Backup Supabase signOut successful");
         }
       } catch (supabaseError) {
-        console.warn("⚠️ Supabase signOut failed during force logout:", supabaseError);
         // Continue anyway since we're forcing logout
       }
 
       setLoading(false);
 
       // Force reload to ensure clean state
-      console.log("🔄 Reloading page to ensure clean state...");
       setTimeout(() => {
         window.location.reload();
       }, 100);
 
       return { success: true };
     } catch (err) {
-      console.error("💥 Force signOut failed:", err);
       setLoading(false);
 
       // Even if force logout fails, try to reload the page
@@ -554,7 +503,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);

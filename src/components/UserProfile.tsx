@@ -1,7 +1,11 @@
-import { useState } from "react";
 import { User, LogOut, Settings, CreditCard, Bell, HelpCircle, ChevronDown } from "lucide-react";
-import { Button } from "./ui/button";
+import { useState } from "react";
+
+import { useAuth } from "../contexts/AuthContext"; // Updated import
+
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,15 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Badge } from "./ui/badge";
-import { useAuth } from "../contexts/AuthContext"; // Updated import
 
 interface UserProfileProps {
   onOpenSettings?: () => void;
   onOpenManagement?: () => void;
 }
 
-export function UserProfile({ onOpenSettings, onOpenManagement }: UserProfileProps) {
+export const UserProfile = ({ onOpenSettings, onOpenManagement }: UserProfileProps) => {
   const { user, signOut, loading } = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -146,4 +148,4 @@ export function UserProfile({ onOpenSettings, onOpenManagement }: UserProfilePro
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

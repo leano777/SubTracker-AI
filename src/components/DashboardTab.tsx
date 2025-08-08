@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import {
   DollarSign,
   CreditCard,
@@ -6,58 +5,96 @@ import {
   TrendingDown,
   AlertCircle,
   Calendar,
-  Eye,
   ArrowRight,
   Plus,
   Bell,
   Zap,
+  Eye,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+import { useState, useMemo } from "react";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+
 import type { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+import { getDaysUntil, parseStoredDate } from "../utils/dateUtils";
 import {
   calculateMonthlyAmount,
   formatCurrency,
-  validateSubscriptionForCalculations,
   safeCalculateMonthlyAmount,
 } from "../utils/helpers";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { getDaysUntil, parseStoredDate } from "../utils/dateUtils";
+
+import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Progress } from "./ui/progress";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface DashboardTabProps {
   subscriptions: FullSubscription[];
   cards: FullPaymentCard[];
   settings: AppSettings;
   notifications: Notification[];
+  weeklyBudgets?: any[];
 }
 
-export function DashboardTab({ subscriptions, cards, settings, notifications }: DashboardTabProps) {
+export const DashboardTab = ({
+  subscriptions,
+  settings,
+  notifications,
+  cards,
+}: DashboardTabProps) => {
+  console.log("🏠 DashboardTab rendered with:", {
+    subscriptionsCount: subscriptions?.length || 0,
+    cardsCount: cards?.length || 0,
+    firstSub: subscriptions?.[0]?.name || "none",
+  });
+
+  // Safety checks
+  if (!subscriptions) {
+    console.warn("DashboardTab: subscriptions is null/undefined");
+    return <div className="p-4">Loading dashboard...</div>;
+  }
+
+  if (!settings) {
+    console.warn("DashboardTab: settings is null/undefined");
+    return <div className="p-4">Loading dashboard...</div>;
+  }
+
   const [selectedTimeframe, setSelectedTimeframe] = useState<"month" | "quarter" | "year">("month");
 
   // Detect mobile screen
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const isTablet =
-    typeof window !== "undefined" && window.innerWidth >= 768 && window.innerWidth < 1024;
 
   // Detect current theme
   const currentTheme = settings.preferences.theme || "light";
   const isDarkMode = currentTheme === "dark";
   const isStealthOps = currentTheme === "stealth-ops";
 
-  // Calculate key metrics
-  const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
-  const cancelledSubscriptions = subscriptions.filter((sub) => sub.status === "cancelled");
-  const watchlistItems = subscriptions.filter((sub) => sub.status === "watchlist");
+  // Calculate key metrics with error handling
+  let activeSubscriptions = [];
+  let cancelledSubscriptions = [];
+  let totalMonthlySpend = 0;
+  let totalYearlySpend = 0;
 
-  const totalMonthlySpend = activeSubscriptions.reduce((total, sub) => {
-    return total + safeCalculateMonthlyAmount(sub);
-  }, 0);
-  const totalYearlySpend = totalMonthlySpend * 12;
+  try {
+    activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
+    cancelledSubscriptions = subscriptions.filter((sub) => sub.status === "cancelled");
+
+    totalMonthlySpend = activeSubscriptions.reduce((total, sub) => {
+      return total + safeCalculateMonthlyAmount(sub);
+    }, 0);
+    totalYearlySpend = totalMonthlySpend * 12;
+
+    console.log("💰 Calculations:", {
+      activeCount: activeSubscriptions.length,
+      totalMonthly: totalMonthlySpend,
+      totalYearly: totalYearlySpend,
+    });
+  } catch (error) {
+    console.error("Error calculating metrics:", error);
+    return <div className="p-4">Error calculating dashboard metrics. Check console.</div>;
+  }
 
   // Upcoming payments (next 7 days) - using centralized date utilities
   const upcomingPayments = activeSubscriptions
@@ -68,8 +105,8 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
     })
     .sort((a, b) => {
       // Use centralized date parsing for consistent sorting
-      const dateA = parseStoredDate(a.nextPayment!);
-      const dateB = parseStoredDate(b.nextPayment!);
+      const dateA = parseStoredDate(a.nextPayment);
+      const dateB = parseStoredDate(b.nextPayment);
       return dateA.getTime() - dateB.getTime();
     });
 
@@ -108,9 +145,6 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
     { month: "May", amount: totalMonthlySpend * 1.05 },
     { month: "Jun", amount: totalMonthlySpend },
   ];
-
-  // Recent activity (based on notifications)
-  const recentActivity = notifications.slice(0, 3);
 
   // High spending items
   const highSpendingItems = activeSubscriptions
@@ -206,74 +240,6 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
         </div>
       </CardContent>
     </Card>
-  );
-
-  // Subscription card component
-  const SubscriptionCard = ({
-    subscription,
-    showCategory = false,
-  }: {
-    subscription: FullSubscription;
-    showCategory?: boolean;
-  }) => (
-    <div
-      className={`flex items-center gap-3 p-3 transition-colors ${
-        isStealthOps
-          ? "tactical-surface border border-gray-600 hover:border-green-400 hover:bg-gray-800"
-          : "rounded-lg bg-secondary/30 hover:bg-secondary/50"
-      }`}
-      style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-    >
-      {(subscription as any).logoUrl ? (
-        <ImageWithFallback
-          src={(subscription as any).logoUrl}
-          alt={`${subscription.name} logo`}
-          className={`w-10 h-10 object-cover flex-shrink-0 ${
-            isStealthOps ? "border border-green-400" : "rounded-lg"
-          }`}
-          style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-        />
-      ) : (
-        <div
-          className={`w-10 h-10 flex items-center justify-center flex-shrink-0 ${
-            isStealthOps ? "tactical-surface border border-green-400" : "rounded-lg bg-primary/10"
-          }`}
-          style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-        >
-          <DollarSign className={`w-5 h-5 ${isStealthOps ? "text-green-400" : "text-primary"}`} />
-        </div>
-      )}
-
-      <div className="flex-1 min-w-0">
-        <div
-          className={`font-medium truncate ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-        >
-          {subscription.name}
-        </div>
-        <div
-          className={`text-sm ${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-        >
-          {isStealthOps
-            ? `[${(showCategory ? subscription.category : subscription.frequency).toUpperCase()}]`
-            : showCategory
-              ? subscription.category
-              : subscription.frequency}
-        </div>
-      </div>
-
-      <div className="text-right">
-        <div
-          className={`font-medium ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""}`}
-        >
-          {formatCurrency(safeCalculateMonthlyAmount(subscription))}
-        </div>
-        <div
-          className={`text-xs ${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-        >
-          {isStealthOps ? "[PER MONTH]" : "per month"}
-        </div>
-      </div>
-    </div>
   );
 
   return (
@@ -754,7 +720,7 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
                 <div className="space-y-3">
                   {upcomingPayments.slice(0, 3).map((subscription) => {
                     const daysUntil = Math.ceil(
-                      (new Date(subscription.nextPayment!).getTime() - new Date().getTime()) /
+                      (new Date(subscription.nextPayment).getTime() - new Date().getTime()) /
                         (1000 * 60 * 60 * 24)
                     );
 
@@ -916,7 +882,13 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
                         isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""
                       }`}
                     >
-                      {formatCurrency(calculateMonthlyAmount(subscription.cost, subscription.frequency || subscription.billingCycle || "monthly", subscription.variablePricing))}
+                      {formatCurrency(
+                        calculateMonthlyAmount(
+                          subscription.cost,
+                          subscription.frequency || subscription.billingCycle || "monthly",
+                          subscription.variablePricing
+                        )
+                      )}
                     </div>
                   </div>
                 ))}
@@ -927,4 +899,4 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
       </div>
     </div>
   );
-}
+};

@@ -1,11 +1,13 @@
-import { useState } from "react";
 import { Plus, Filter, Star, TrendingUp, Clock } from "lucide-react";
+import { useState } from "react";
+
+import type { Subscription } from "../types/subscription";
+
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { WatchlistCard } from "./WatchlistCard";
-import type { Subscription } from "../types/subscription";
 
 interface WatchlistProps {
   watchlistItems: Subscription[];
@@ -16,14 +18,14 @@ interface WatchlistProps {
   onAddNew: () => void;
 }
 
-export function Watchlist({
+export const Watchlist = ({
   watchlistItems,
   onEdit,
   onDelete,
   onViewDetails,
   onActivate,
   onAddNew,
-}: WatchlistProps) {
+}: WatchlistProps) => {
   const [sortBy, setSortBy] = useState<"date" | "priority" | "cost" | "name">("date");
   const [filterPriority, setFilterPriority] = useState<"all" | "high" | "medium" | "low">("all");
   const [filterType, setFilterType] = useState<"all" | "personal" | "business">("all");
@@ -79,19 +81,17 @@ export function Watchlist({
         case "date":
           return new Date(b.dateAdded || "").getTime() - new Date(a.dateAdded || "").getTime();
         case "priority":
-          const priorityOrder: Record<string, number> = { 
-            high: 3, 
-            medium: 2, 
+          const priorityOrder: Record<string, number> = {
+            high: 3,
+            medium: 2,
             low: 1,
             essential: 5,
             important: 4,
-            "nice-to-have": 1
+            "nice-to-have": 1,
           };
           const priorityA = a.priority || "low";
           const priorityB = b.priority || "low";
-          return (
-            (priorityOrder[priorityB] || 1) - (priorityOrder[priorityA] || 1)
-          );
+          return (priorityOrder[priorityB] || 1) - (priorityOrder[priorityA] || 1);
         case "cost":
           const getMonthlyCost = (item: Subscription) => {
             if (item.planType === "free") return 0;
@@ -258,4 +258,4 @@ export function Watchlist({
       )}
     </div>
   );
-}
+};

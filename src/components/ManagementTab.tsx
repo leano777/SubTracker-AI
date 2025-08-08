@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Settings,
   CreditCard,
@@ -9,16 +8,17 @@ import {
   Bell,
   Moon,
   Sun,
-  RotateCcw,
   AlertTriangle,
   FileText,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Switch } from "./ui/switch";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
+import { useState } from "react";
+
+import type { AppSettings } from "../types/constants";
+import type { FullSubscription, PaymentCard } from "../types/subscription";
+import { formatCurrency } from "../utils/helpers";
+
+import { ImportDialog } from "./ImportDialog";
+import { ManageCards } from "./ManageCards";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,11 +30,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-import { ManageCards } from "./ManageCards";
-import { ImportDialog } from "./ImportDialog";
-import type { FullSubscription, PaymentCard } from "../types/subscription";
-import type { AppSettings } from "../types/constants";
-import { formatCurrency } from "../utils/helpers";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
 
 interface ManagementTabProps {
   subscriptions: FullSubscription[];
@@ -54,7 +55,7 @@ interface ManagementTabProps {
   onConflictResolution: (conflicts: any[]) => void;
 }
 
-export function ManagementTab({
+export const ManagementTab = ({
   subscriptions,
   cards,
   settings,
@@ -62,15 +63,11 @@ export function ManagementTab({
   onEditCard,
   onDeleteCard,
   onSetDefaultCard,
-  onBulkEdit,
-  onBulkDelete,
   onImportData,
   onExportData,
   onUpdateSettings,
   onResetApp,
-  onDataSync,
-  onConflictResolution,
-}: ManagementTabProps) {
+}: ManagementTabProps) => {
   const [activeSection, setActiveSection] = useState("overview");
   const [showImportDialog, setShowImportDialog] = useState(false);
 
@@ -115,7 +112,10 @@ export function ManagementTab({
   };
 
   // Enhanced import handler for the new dialog system
-  const handleEnhancedImport = (data: { subscriptions: FullSubscription[]; cards: PaymentCard[] }) => {
+  const handleEnhancedImport = (data: {
+    subscriptions: FullSubscription[];
+    cards: PaymentCard[];
+  }) => {
     console.log("📥 Enhanced import received:", data);
 
     // Convert to the format expected by the existing handler
@@ -581,4 +581,4 @@ export function ManagementTab({
       />
     </>
   );
-}
+};

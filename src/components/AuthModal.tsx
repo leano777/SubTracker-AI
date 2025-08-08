@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Mail,
   Lock,
@@ -11,20 +10,23 @@ import {
   Info,
   ExternalLink,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { useState } from "react";
+
+import { useAuth } from "../contexts/AuthContext";
+
+import { Alert, AlertDescription } from "./ui/alert";
 import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Alert, AlertDescription } from "./ui/alert";
 import { Separator } from "./ui/separator";
-import { useAuth } from "../contexts/AuthContext";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,16 +44,24 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("🔐 AuthModal: Starting", mode, "for email:", email);
     setLocalError(null);
     setLocalLoading(true);
 
     try {
       if (mode === "signin") {
+        console.log("🔐 AuthModal: Attempting sign in...");
         const result = await signIn(email, password);
+        console.log("🔐 AuthModal: Sign in result:", {
+          success: result.success,
+          error: result.error,
+        });
         if (result.success) {
+          console.log("🔐 AuthModal: Sign in successful, closing modal");
           onClose();
           resetForm();
         } else {
+          console.log("🔐 AuthModal: Sign in failed:", result.error);
           setLocalError(result.error || "Failed to sign in");
         }
       } else if (mode === "signup") {
@@ -399,4 +409,4 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       </DialogContent>
     </Dialog>
   );
-}
+};

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Upload,
   Download,
@@ -10,17 +9,20 @@ import {
   Trash2,
   Edit,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Badge } from "./ui/badge";
-import { Checkbox } from "./ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Alert, AlertDescription } from "./ui/alert";
+import { useState } from "react";
+
 import type { Subscription, PaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
+
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
 interface BulkOperationsTabProps {
   subscriptions: Subscription[];
@@ -31,14 +33,14 @@ interface BulkOperationsTabProps {
   onExport: (format: "json" | "csv") => void;
 }
 
-export function BulkOperationsTab({
+export const BulkOperationsTab = ({
   subscriptions,
   cards,
   onBulkEdit,
   onBulkDelete,
   onImport,
   onExport,
-}: BulkOperationsTabProps) {
+}: BulkOperationsTabProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -544,4 +546,4 @@ Managed with Subscription Tracker Pro ✨`;
       </Card>
     </div>
   );
-}
+};

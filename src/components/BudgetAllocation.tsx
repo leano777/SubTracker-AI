@@ -1,11 +1,13 @@
+import { Plus, Wallet, TrendingUp, DollarSign } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+
+import type { WeeklyBudget } from "../types/subscription";
+
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Progress } from "./ui/progress";
-import { Plus, Wallet, TrendingUp, DollarSign } from "lucide-react";
-import type { WeeklyBudget } from "../types/subscription";
 import { WeekSelector } from "./WeekSelector";
 
 interface BudgetAllocationProps {
@@ -16,13 +18,13 @@ interface BudgetAllocationProps {
   totalMonthlySubscriptions: number;
 }
 
-export function BudgetAllocation({
+export const BudgetAllocation = ({
   availableWeeks,
   selectedWeekId,
   onWeekChange,
   onUpdateBudget,
   totalMonthlySubscriptions,
-}: BudgetAllocationProps) {
+}: BudgetAllocationProps) => {
   const [allocationAmount, setAllocationAmount] = useState<number>(0);
   const [isAllocating, setIsAllocating] = useState(false);
   const [budgetAmount, setBudgetAmount] = useState<number>(0);
@@ -231,4 +233,4 @@ export function BudgetAllocation({
       </Card>
     </div>
   );
-}
+};

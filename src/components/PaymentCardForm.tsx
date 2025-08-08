@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+
+import type { PaymentCard } from "../types/subscription";
+
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import type { PaymentCard } from "../types/subscription";
 
 interface PaymentCardFormProps {
   card?: PaymentCard;
@@ -85,7 +87,7 @@ const cardIssuers = [
   "Other",
 ];
 
-export function PaymentCardForm({ card, onSave, onCancel }: PaymentCardFormProps) {
+export const PaymentCardForm = ({ card, onSave, onCancel }: PaymentCardFormProps) => {
   const [formData, setFormData] = useState<CardFormData>({
     nickname: "",
     lastFour: "",
@@ -99,7 +101,13 @@ export function PaymentCardForm({ card, onSave, onCancel }: PaymentCardFormProps
 
   const mapCardTypeToFormType = (cardType?: string): "credit" | "debit" | "other" => {
     if (cardType === "debit") return "debit";
-    if (cardType === "visa" || cardType === "mastercard" || cardType === "amex" || cardType === "discover" || cardType === "credit") {
+    if (
+      cardType === "visa" ||
+      cardType === "mastercard" ||
+      cardType === "amex" ||
+      cardType === "discover" ||
+      cardType === "credit"
+    ) {
       return "credit";
     }
     return "other";
@@ -345,4 +353,4 @@ export function PaymentCardForm({ card, onSave, onCancel }: PaymentCardFormProps
       </div>
     </form>
   );
-}
+};

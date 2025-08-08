@@ -1,4 +1,5 @@
 import type { FullSubscription, PaymentCard } from "../types/subscription";
+
 import { generateFavicon } from "./faviconUtils";
 
 // CSV column mappings
@@ -327,7 +328,13 @@ export function importJSONData(
             name: sub.name,
             price: parseFloat(sub.cost) || parseFloat(sub.price) || 0,
             cost: parseFloat(sub.cost) || parseFloat(sub.price) || 0,
-            frequency: sub.frequency || (sub.billingCycle === "monthly" ? "monthly" : sub.billingCycle === "yearly" ? "yearly" : "monthly"),
+            frequency:
+              sub.frequency ||
+              (sub.billingCycle === "monthly"
+                ? "monthly"
+                : sub.billingCycle === "yearly"
+                  ? "yearly"
+                  : "monthly"),
             billingCycle: sub.billingCycle || "monthly",
             nextPayment: sub.nextPayment || new Date().toISOString().split("T")[0],
             category: sub.category || "Other",

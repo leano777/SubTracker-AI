@@ -1,8 +1,9 @@
-import { useState } from "react";
 import { Bell, X } from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import { useState } from "react";
+
 import type { Notification } from "../types/constants";
+
+import { Button } from "./ui/button";
 
 interface FloatingNotificationsProps {
   notifications: Notification[];
@@ -11,12 +12,12 @@ interface FloatingNotificationsProps {
   isDarkMode: boolean;
 }
 
-export function FloatingNotifications({
+export const FloatingNotifications = ({
   notifications,
   onMarkAsRead,
   onMarkAllAsRead,
   isDarkMode,
-}: FloatingNotificationsProps) {
+}: FloatingNotificationsProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -208,12 +209,14 @@ export function FloatingNotifications({
                             }`}
                           >
                             {isStealthOps ? "[" : ""}
-                            {notification.date ? new Date(notification.date).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }) : "Unknown date"}
+                            {notification.date
+                              ? new Date(notification.date).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "Unknown date"}
                             {isStealthOps ? "]" : ""}
                           </div>
                         </div>
@@ -287,4 +290,4 @@ export function FloatingNotifications({
       </Button>
     </div>
   );
-}
+};

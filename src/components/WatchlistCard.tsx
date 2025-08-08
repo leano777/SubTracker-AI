@@ -9,16 +9,18 @@ import {
   Plus,
   Star,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "./ui/card";
+
+import type { Subscription } from "../types/subscription";
+
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import type { Subscription } from "../types/subscription";
 
 interface WatchlistCardProps {
   subscription: Subscription;
@@ -28,13 +30,13 @@ interface WatchlistCardProps {
   onActivate: (subscription: Subscription) => void;
 }
 
-export function WatchlistCard({
+export const WatchlistCard = ({
   subscription,
   onEdit,
   onDelete,
   onViewDetails,
   onActivate,
-}: WatchlistCardProps) {
+}: WatchlistCardProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -252,4 +254,4 @@ export function WatchlistCard({
       </CardContent>
     </Card>
   );
-}
+};

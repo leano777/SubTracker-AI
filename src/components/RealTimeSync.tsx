@@ -1,4 +1,3 @@
-import { useState, useEffect, useRef } from "react";
 import {
   Wifi,
   WifiOff,
@@ -7,15 +6,17 @@ import {
   Users,
   Shield,
   RefreshCw,
-  CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { useState, useEffect, useRef } from "react";
+
+import type { Subscription, PaymentCard } from "../types/subscription";
+
+import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Progress } from "./ui/progress";
-import { Alert, AlertDescription } from "./ui/alert";
-import type { Subscription, PaymentCard } from "../types/subscription";
 
 interface RealTimeSyncProps {
   subscriptions: Subscription[];
@@ -38,12 +39,7 @@ interface SyncStatus {
   }>;
 }
 
-export function RealTimeSync({
-  subscriptions,
-  cards,
-  onDataSync,
-  onConflictResolution,
-}: RealTimeSyncProps) {
+export const RealTimeSync = ({ onDataSync, onConflictResolution }: RealTimeSyncProps) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isOnline: navigator.onLine,
     lastSync: new Date(),
@@ -283,7 +279,7 @@ export function RealTimeSync({
                     {syncStatus.collaborators
                       .filter((c) => c.status === "online")
                       .slice(0, 3)
-                      .map((collaborator, index) => (
+                      .map((collaborator) => (
                         <div
                           key={collaborator.id}
                           className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center border-2 border-background"
@@ -425,4 +421,4 @@ export function RealTimeSync({
       </Card>
     </div>
   );
-}
+};

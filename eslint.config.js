@@ -11,7 +11,17 @@ import prettierConfig from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: ["dist", "build", "node_modules", ".eslintrc.*", "vite.config.ts.timestamp-*"],
+    ignores: [
+      "dist",
+      "build",
+      "node_modules",
+      ".eslintrc.*",
+      "vite.config.ts.timestamp-*",
+      "supabase/**",
+      "tailwind.config.ts",
+      "vitest.config.ts",
+      "vite.config.ts",
+    ],
   },
   {
     files: ["**/*.{js,jsx}"],

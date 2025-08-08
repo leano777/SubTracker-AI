@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   X,
   Calendar,
@@ -14,14 +13,17 @@ import {
   Clock,
   Tag,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useState, useEffect } from "react";
+
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
+
+import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Separator } from "./ui/separator";
 
 interface SubscriptionSidePeekProps {
   subscription: FullSubscription | null;
@@ -35,7 +37,7 @@ interface SubscriptionSidePeekProps {
   onActivateFromWatchlist: (id: string) => void;
 }
 
-export function SubscriptionSidePeek({
+export const SubscriptionSidePeek = ({
   subscription,
   cards,
   isOpen,
@@ -45,7 +47,7 @@ export function SubscriptionSidePeek({
   onCancel,
   onReactivate,
   onActivateFromWatchlist,
-}: SubscriptionSidePeekProps) {
+}: SubscriptionSidePeekProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   // Detect dark mode
@@ -479,7 +481,9 @@ export function SubscriptionSidePeek({
                           </p>
                           <p
                             className={`text-xs ${
-                              parseFloat(change.cost) > subscription.price ? "text-red-500" : "text-green-500"
+                              parseFloat(change.cost) > subscription.price
+                                ? "text-red-500"
+                                : "text-green-500"
                             }`}
                           >
                             {parseFloat(change.cost) > subscription.price ? "+" : ""}
@@ -561,4 +565,4 @@ export function SubscriptionSidePeek({
       </div>
     </>
   );
-}
+};

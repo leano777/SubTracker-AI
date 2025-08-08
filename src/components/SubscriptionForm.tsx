@@ -1,16 +1,18 @@
+import { Plus, Trash2, Calendar, DollarSign, CreditCard, AlertCircle, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Switch } from "./ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Checkbox } from "./ui/checkbox";
+
 import type { FullSubscription, PaymentCard } from "../types/subscription";
 import { getFaviconUrl } from "../utils/faviconUtils";
-import { Plus, Trash2, Calendar, DollarSign, CreditCard, AlertCircle, Zap } from "lucide-react";
+
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Switch } from "./ui/switch";
+import { Textarea } from "./ui/textarea";
 
 interface SubscriptionFormProps {
   subscription?: FullSubscription;
@@ -42,14 +44,14 @@ const categories = [
   "Health & Wellness",
 ];
 
-export function SubscriptionForm({
+export const SubscriptionForm = ({
   subscription,
   onSave,
   onCancel,
   isWatchlistMode = false,
   cards,
   onManageCards,
-}: SubscriptionFormProps) {
+}: SubscriptionFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
     cost: "",
@@ -92,13 +94,17 @@ export function SubscriptionForm({
         cardId: subscription.cardId || "",
         hasLinkedCard: subscription.hasLinkedCard ?? Boolean(subscription.cardId),
         automationEnabled: false, // Always defaults to false as requested
-        variablePricing: subscription.variablePricing?.isVariable ? {
-          isVariable: true,
-          upcomingChanges: subscription.variablePricing.upcomingChanges || [{ date: "", cost: "", description: "" }],
-        } : {
-          isVariable: false,
-          upcomingChanges: [{ date: "", cost: "", description: "" }],
-        },
+        variablePricing: subscription.variablePricing?.isVariable
+          ? {
+              isVariable: true,
+              upcomingChanges: subscription.variablePricing.upcomingChanges || [
+                { date: "", cost: "", description: "" },
+              ],
+            }
+          : {
+              isVariable: false,
+              upcomingChanges: [{ date: "", cost: "", description: "" }],
+            },
       });
       setLogoUrl(subscription.logoUrl || "");
     }
@@ -131,7 +137,14 @@ export function SubscriptionForm({
       name: formData.name,
       cost: parseFloat(formData.cost),
       price: parseFloat(formData.cost), // Add price property for compatibility
-      frequency: formData.billingCycle === "variable" ? "monthly" : formData.billingCycle === "quarterly" ? "monthly" : formData.billingCycle === "yearly" ? "yearly" : "monthly", // Map billingCycle to frequency
+      frequency:
+        formData.billingCycle === "variable"
+          ? "monthly"
+          : formData.billingCycle === "quarterly"
+            ? "monthly"
+            : formData.billingCycle === "yearly"
+              ? "yearly"
+              : "monthly", // Map billingCycle to frequency
       billingCycle: formData.billingCycle,
       nextPayment: formData.nextPayment,
       category: formData.category,
@@ -638,4 +651,4 @@ export function SubscriptionForm({
       </div>
     </form>
   );
-}
+};

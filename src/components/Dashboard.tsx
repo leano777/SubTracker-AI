@@ -1,5 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Calendar, DollarSign, TrendingUp, Clock, AlertTriangle } from "lucide-react";
 import {
   PieChart,
   Pie,
@@ -12,20 +11,17 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import {
-  Calendar,
-  DollarSign,
-  TrendingUp,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
+
 import type { FullSubscription as Subscription } from "../types/subscription";
+
+import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface DashboardProps {
   subscriptions: Subscription[];
 }
 
-export function Dashboard({ subscriptions }: DashboardProps) {
+export const Dashboard = ({ subscriptions }: DashboardProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -67,7 +63,6 @@ export function Dashboard({ subscriptions }: DashboardProps) {
           return total;
       }
     }, 0);
-
 
   // Upcoming renewals (next 7 days)
   const today = new Date();
@@ -361,4 +356,4 @@ export function Dashboard({ subscriptions }: DashboardProps) {
       )}
     </div>
   );
-}
+};

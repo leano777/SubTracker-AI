@@ -20,7 +20,7 @@ export const createTrackedTimeout = (
         console.error("Error in tracked timeout callback:", error);
       }
     }
-    
+
     // Remove from tracker
     if (timeoutTracker) {
       timeoutTracker.delete(timeoutId);
@@ -47,13 +47,13 @@ export const createTrackedAbortController = (
   controllerTracker?: Set<AbortController>
 ): AbortController => {
   const controller = new AbortController();
-  
+
   if (controllerTracker) {
     controllerTracker.add(controller);
   }
 
   // Auto-cleanup after signal is aborted
-  controller.signal.addEventListener('abort', () => {
+  controller.signal.addEventListener("abort", () => {
     if (controllerTracker) {
       controllerTracker.delete(controller);
     }
@@ -69,13 +69,13 @@ export const cleanupTrackedResources = (
 ) => {
   // Clear all timeouts
   if (timeoutTracker) {
-    timeoutTracker.forEach(timeout => clearTimeout(timeout));
+    timeoutTracker.forEach((timeout) => clearTimeout(timeout));
     timeoutTracker.clear();
   }
 
   // Abort all controllers
   if (controllerTracker) {
-    controllerTracker.forEach(controller => {
+    controllerTracker.forEach((controller) => {
       if (!controller.signal.aborted) {
         controller.abort();
       }

@@ -14,18 +14,20 @@ import {
   CreditCard,
   Zap,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "./ui/card";
+
+import type { FullSubscription } from "../types/subscription";
+import { getDisplayDate, getDaysUntil } from "../utils/dateUtils";
+
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import type { FullSubscription } from "../types/subscription";
-import { getDisplayDate, getDaysUntil } from "../utils/dateUtils";
 
 interface SubscriptionCardProps {
   subscription: FullSubscription;
@@ -34,12 +36,12 @@ interface SubscriptionCardProps {
   onViewDetails: (subscription: FullSubscription) => void;
 }
 
-export function SubscriptionCard({
+export const SubscriptionCard = ({
   subscription,
   onEdit,
   onDelete,
   onViewDetails,
-}: SubscriptionCardProps) {
+}: SubscriptionCardProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -346,4 +348,4 @@ export function SubscriptionCard({
       </CardContent>
     </Card>
   );
-}
+};

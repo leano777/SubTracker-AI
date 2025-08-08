@@ -1,8 +1,5 @@
-import type {
-  FullSubscription,
-  PaymentCard as FullPaymentCard,
-} from "../types/subscription";
 import type { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 
 // Define WeeklyBudget locally
 interface WeeklyBudget {
@@ -105,7 +102,7 @@ export const loadUserDataFromCache = (userId: string) => {
       hasInitialized,
       dataCleared,
       cacheAge: cacheTimestamp
-        ? Math.round((Date.now() - new Date(cacheTimestamp).getTime()) / 1000) + "s"
+        ? `${Math.round((Date.now() - new Date(cacheTimestamp).getTime()) / 1000)}s`
         : "unknown",
     });
 

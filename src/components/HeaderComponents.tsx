@@ -1,32 +1,27 @@
-import { useState } from "react";
 import {
   Sun,
   Moon,
   Search,
   Brain,
   Menu,
-  Bell,
   BarChart3,
-  Bot,
   Calendar,
-  Clock,
   CreditCard,
-  RotateCcw,
-  Star,
-  FileDown,
-  Wifi,
   Settings,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { UserProfile } from "./UserProfile";
+import { useState } from "react";
+
+import type { Notification } from "../types/constants";
 import type {
   Subscription as FullSubscription,
   PaymentCard as FullPaymentCard,
 } from "../types/subscription";
-import type { Notification } from "../types/constants";
+
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { UserProfile } from "./UserProfile";
 
 interface ThemeToggleProps {
   darkMode: boolean;
@@ -84,15 +79,12 @@ interface MobileNavProps {
 export const MobileNav = ({
   activeTab,
   subscriptions,
-  paymentCards,
   notifications,
   onTabChange,
 }: MobileNavProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
-  const cancelledSubscriptions = subscriptions.filter((sub) => sub.status === "cancelled");
-  const watchlistSubscriptions = subscriptions.filter((sub) => sub.status === "watchlist");
 
   const tabs = [
     { id: "overview", label: "Overview", icon: BarChart3, count: null },

@@ -87,12 +87,14 @@ npm run ci:test
 **Purpose**: Test individual functions, hooks, and components in isolation.
 
 **Examples**:
+
 - `useDataManagement.test.ts`: Tests data loading, caching, sync operations
 - `AuthContext.test.tsx`: Tests authentication state management
 
 **Key Features**:
+
 - Mock external dependencies
-- Test edge cases and error conditions  
+- Test edge cases and error conditions
 - Validate data transformations and migrations
 - Test performance characteristics
 
@@ -101,9 +103,11 @@ npm run ci:test
 **Purpose**: Test complete user workflows and component interactions.
 
 **Examples**:
+
 - `AppFlow.test.tsx`: Tests navigation, form submissions, data persistence
 
 **Key Features**:
+
 - Test real user interactions
 - Validate end-to-end workflows
 - Test responsive design adaptations
@@ -114,6 +118,7 @@ npm run ci:test
 **Purpose**: Prevent performance regressions using React Profiler.
 
 **Key Features**:
+
 - Render time benchmarks
 - Memory usage monitoring
 - Component re-render optimization
@@ -153,39 +158,43 @@ const { result } = renderHook(() => useMyHook(), {
 ### Best Practices
 
 1. **Arrange-Act-Assert Pattern**:
+
 ```typescript
-it('should update subscription price', async () => {
+it("should update subscription price", async () => {
   // Arrange
   const initialSub = createMockSubscription({ price: 10.99 });
-  
+
   // Act
   const updatedSub = { ...initialSub, price: 12.99 };
-  
+
   // Assert
   expect(updatedSub.price).toBe(12.99);
 });
 ```
 
 2. **Descriptive Test Names**:
+
 ```typescript
 // Good
-it('should migrate legacy subscription data format to new schema')
+it("should migrate legacy subscription data format to new schema");
 
-// Bad  
-it('should migrate data')
+// Bad
+it("should migrate data");
 ```
 
 3. **Test Both Happy Path and Edge Cases**:
+
 ```typescript
-describe('useDataManagement', () => {
-  it('should load data successfully when authenticated');
-  it('should handle network errors gracefully');
-  it('should migrate legacy data format');
-  it('should validate data integrity');
+describe("useDataManagement", () => {
+  it("should load data successfully when authenticated");
+  it("should handle network errors gracefully");
+  it("should migrate legacy data format");
+  it("should validate data integrity");
 });
 ```
 
 4. **Use Custom Matchers**:
+
 ```typescript
 expect(subscription).toHaveValidSubscriptionData();
 expect(price).toBeValidCurrency();
@@ -203,6 +212,7 @@ expect(price).toBeValidCurrency();
 ### GitHub Actions Workflow
 
 The test suite runs automatically on:
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop`
 - Manual workflow dispatch
@@ -228,6 +238,7 @@ The test suite runs automatically on:
 ### React Profiler Integration
 
 Performance tests use React's built-in Profiler to measure:
+
 - **Render Time**: Initial and update render duration
 - **Memory Usage**: Heap size monitoring
 - **Re-render Frequency**: Component update patterns
@@ -236,17 +247,18 @@ Performance tests use React's built-in Profiler to measure:
 
 ```typescript
 const PERFORMANCE_BASELINES = {
-  initialRender: 100,    // ms - First render budget
-  dataUpdate: 50,        // ms - Data update budget  
-  searchFilter: 30,      // ms - Search operations
-  componentMount: 20,    // ms - Component mounting
-  listScroll: 16,        // ms - 60fps scrolling
+  initialRender: 100, // ms - First render budget
+  dataUpdate: 50, // ms - Data update budget
+  searchFilter: 30, // ms - Search operations
+  componentMount: 20, // ms - Component mounting
+  listScroll: 16, // ms - 60fps scrolling
 };
 ```
 
 ### Large Dataset Testing
 
 Performance tests include scenarios with:
+
 - 1000+ subscriptions for data management
 - 2000+ items for list virtualization
 - Rapid user interactions (100+ events)
@@ -277,13 +289,13 @@ npm run test:ui
 ### Visual Debugging
 
 ```typescript
-import { screen } from '@testing-library/react';
+import { screen } from "@testing-library/react";
 
 // Debug what's rendered
 screen.debug();
 
 // Debug specific element
-screen.debug(screen.getByRole('button'));
+screen.debug(screen.getByRole("button"));
 ```
 
 ## Contributing to Tests

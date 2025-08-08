@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import {
   Search,
   Filter,
@@ -22,21 +21,8 @@ import {
   Zap,
   Link,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "./ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useState, useMemo } from "react";
+
 import type { FullSubscription, PaymentCard } from "../types/subscription";
 import {
   calculateMonthlyAmount,
@@ -44,6 +30,22 @@ import {
   validateSubscriptionForCalculations,
   safeCalculateMonthlyAmount,
 } from "../utils/helpers";
+
+import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "./ui/dropdown-menu";
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface SubscriptionsUnifiedTabProps {
   subscriptions: FullSubscription[];
@@ -57,7 +59,7 @@ interface SubscriptionsUnifiedTabProps {
   onAddToWatchlist: () => void;
 }
 
-export function SubscriptionsUnifiedTab({
+export const SubscriptionsUnifiedTab = ({
   subscriptions,
   cards,
   onEdit,
@@ -67,7 +69,16 @@ export function SubscriptionsUnifiedTab({
   onActivateFromWatchlist,
   onAddNew,
   onAddToWatchlist,
-}: SubscriptionsUnifiedTabProps) {
+}: SubscriptionsUnifiedTabProps) => {
+  console.log("SubscriptionsUnifiedTab rendering with:", {
+    subscriptionsLength: subscriptions?.length,
+    cardsLength: cards?.length,
+    hasHandlers: {
+      onEdit: !!onEdit,
+      onDelete: !!onDelete,
+      onAddNew: !!onAddNew,
+    },
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -90,7 +101,7 @@ export function SubscriptionsUnifiedTab({
 
   // Filter and sort subscriptions
   const filteredSubscriptions = useMemo(() => {
-    let filtered = subscriptions.filter((sub) => {
+    const filtered = subscriptions.filter((sub) => {
       // Filter by search term
       if (searchTerm && !sub.name.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false;
@@ -958,4 +969,4 @@ export function SubscriptionsUnifiedTab({
       </Tabs>
     </div>
   );
-}
+};

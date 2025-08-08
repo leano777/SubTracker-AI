@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,10 +15,17 @@ import {
   MousePointer2,
   Navigation,
 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+
+import type { FullSubscription as Subscription, WeeklyBudget } from "../types/subscription";
+import { parseStoredDate, formatDateForStorage } from "../utils/dateUtils";
+import { getThursdayWeeksForMonth } from "../utils/weekCalculations";
+
+import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Sheet,
   SheetContent,
@@ -28,14 +34,7 @@ import {
   SheetTrigger,
   SheetDescription,
 } from "./ui/sheet";
-import { toast } from "sonner";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import type { FullSubscription as Subscription, WeeklyBudget } from "../types/subscription";
-import { getThursdayWeeksForMonth } from "../utils/weekCalculations";
-import {
-  parseStoredDate,
-  formatDateForStorage,
-} from "../utils/dateUtils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface CalendarViewProps {
   subscriptions: Subscription[];
@@ -61,11 +60,11 @@ interface DragState {
   offset: { x: number; y: number };
 }
 
-export function CalendarView({
+export const CalendarView = ({
   subscriptions,
   onViewSubscription,
   onUpdateSubscriptionDate,
-}: CalendarViewProps) {
+}: CalendarViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showCancelledSubscriptions, setShowCancelledSubscriptions] = useState(true);
   const [showWatchlistItems, setShowWatchlistItems] = useState(true);
@@ -82,7 +81,6 @@ export function CalendarView({
     currentPosition: { x: 0, y: 0 },
     offset: { x: 0, y: 0 },
   });
-
 
   // Detect theme
   const isDarkMode =
@@ -415,7 +413,7 @@ export function CalendarView({
           console.log("✅ Calling update handler with:", {
             subscriptionId: dragState.subscription.id,
             subscriptionName: dragState.subscription.name,
-            targetDate: targetDate,
+            targetDate,
             targetDateKey: getDateKey(targetDate),
           });
 
@@ -1633,7 +1631,7 @@ export function CalendarView({
       {/* Enhanced Debug Info */}
       {process.env.NODE_ENV === "development" && (
         <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded space-y-1">
-          <div>Drag enabled: {!!onUpdateSubscriptionDate ? "YES" : "NO"}</div>
+          <div>Drag enabled: {onUpdateSubscriptionDate ? "YES" : "NO"}</div>
           <div>
             Dragging: {dragState.isDragging ? dragState.subscription?.name || "Unknown" : "None"}
           </div>
@@ -1663,4 +1661,4 @@ export function CalendarView({
       </Tabs>
     </div>
   );
-}
+};

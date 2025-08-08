@@ -1,23 +1,18 @@
-import { useState } from "react";
 import { Brain, Bot, Zap, TrendingUp, Target, Sparkles, Loader2, CheckCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Progress } from "./ui/progress";
-import { Alert, AlertDescription } from "./ui/alert";
+import { useState } from "react";
+
+import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+import { formatCurrency } from "../utils/helpers";
+
 import { AIInsightsTab } from "./AIInsightsTab";
 import { SmartAutomationTab } from "./SmartAutomationTab";
-import type {
-  FullSubscription,
-  FullPaymentCard,
-} from "../types/subscription";
-import {
-  formatCurrency,
-  calculateMonthlyAmount,
-  validateSubscriptionForCalculations,
-} from "../utils/helpers";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Progress } from "./ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface IntelligenceTabProps {
   subscriptions: FullSubscription[];
@@ -25,11 +20,18 @@ interface IntelligenceTabProps {
   onAutomationTrigger: (automation: any) => void;
 }
 
-export function IntelligenceTab({
+export const IntelligenceTab = ({
   subscriptions,
   cards,
   onAutomationTrigger,
-}: IntelligenceTabProps) {
+}: IntelligenceTabProps) => {
+  console.log("IntelligenceTab rendering with:", {
+    subscriptionsLength: subscriptions?.length,
+    cardsLength: cards?.length,
+    hasHandlers: {
+      onAutomationTrigger: !!onAutomationTrigger,
+    },
+  });
   const [activeView, setActiveView] = useState("insights");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
@@ -44,17 +46,6 @@ export function IntelligenceTab({
     typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
   const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
-  const totalMonthly = activeSubscriptions.reduce((total, sub) => {
-    const validatedSub = validateSubscriptionForCalculations(sub);
-    return (
-      total +
-      calculateMonthlyAmount(
-        validatedSub.price,
-        validatedSub.frequency,
-        validatedSub.variablePricing
-      )
-    );
-  }, 0);
 
   // Mock AI stats
   const aiStats = {
@@ -982,4 +973,4 @@ export function IntelligenceTab({
       </Dialog>
     </div>
   );
-}
+};

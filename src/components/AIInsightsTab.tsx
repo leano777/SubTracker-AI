@@ -1,4 +1,3 @@
-import { useState, useEffect, useMemo } from "react";
 import {
   Brain,
   TrendingUp,
@@ -11,14 +10,20 @@ import {
   BarChart3,
   Sparkles,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
-import { Button } from "./ui/button";
+import { useState, useEffect, useMemo } from "react";
+
+import type {
+  FullSubscription as Subscription,
+  FullPaymentCard as PaymentCard,
+} from "../types/subscription";
+import { formatCurrency } from "../utils/helpers";
+
+import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Alert, AlertDescription } from "./ui/alert";
-import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
-import { formatCurrency } from "../utils/helpers";
 
 interface AIInsightsTabProps {
   subscriptions: Subscription[];
@@ -52,7 +57,7 @@ interface CategoryAnalysis {
   recommendations: string[];
 }
 
-export function AIInsightsTab({ subscriptions, cards }: AIInsightsTabProps) {
+export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedInsightType, setSelectedInsightType] = useState<string>("all");
@@ -1267,4 +1272,4 @@ export function AIInsightsTab({ subscriptions, cards }: AIInsightsTabProps) {
       </Tabs>
     </div>
   );
-}
+};

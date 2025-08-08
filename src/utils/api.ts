@@ -1,6 +1,7 @@
+import type { FullSubscription as Subscription, PaymentCard } from "../types/subscription";
+
 import { supabase } from "./supabase/client";
 import { projectId, publicAnonKey } from "./supabase/info";
-import type { FullSubscription as Subscription, PaymentCard } from "../types/subscription";
 
 const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-0908dc3b`;
 

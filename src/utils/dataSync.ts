@@ -1,5 +1,5 @@
-import { projectId, publicAnonKey } from "./supabase/info";
 import { createClient } from "./supabase/client";
+import { projectId, publicAnonKey } from "./supabase/info";
 
 export interface SyncMetadata {
   lastSync: string;
@@ -41,27 +41,11 @@ class DataSyncManager {
 
   constructor() {
     this.baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-0908dc3b`;
-    console.log(`🔧 Data sync manager initialized with base URL: ${this.baseUrl}`);
+    // Data sync manager initialized
 
-    // Test server connection on initialization (background) - silently for demo environments
-    this.testConnection()
-      .then((result) => {
-        this.serverAvailable = result;
-        this.lastConnectionTest = Date.now();
-        if (result) {
-          console.log("🎉 Server connection available - cloud sync enabled");
-        } else {
-          console.log("ℹ️ Server not available - operating in local-only mode");
-          // Start periodic connection testing when offline (silent)
-          this.startPeriodicConnectionTesting();
-        }
-      })
-      .catch(() => {
-        console.log("ℹ️ Server unavailable - using local storage only");
-        this.serverAvailable = false;
-        this.lastConnectionTest = Date.now();
-        this.startPeriodicConnectionTesting();
-      });
+    // Disable server health checks to prevent 401 errors
+    this.serverAvailable = false; // Force local-only mode
+    this.lastConnectionTest = Date.now();
   }
 
   // Test server connection with multiple fallback methods (silent for demo environments)

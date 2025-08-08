@@ -43,7 +43,7 @@ export interface FullSubscription {
     maxPrice: number;
     averagePrice: number;
     isVariable?: boolean;
-    upcomingChanges?: { date: string; cost: string; description: string; }[];
+    upcomingChanges?: { date: string; cost: string; description: string }[];
   };
   automationEnabled?: boolean;
   automationRules?: {
@@ -128,7 +128,7 @@ export interface WeeklyBudget {
   allocated: number;
   remaining: number;
   weekStartDate?: string; // For backwards compatibility
-  weekEndDate?: string;   // For backwards compatibility
+  weekEndDate?: string; // For backwards compatibility
   isCurrentWeek?: boolean;
   weekNumber?: number;
   monthYear?: string;

@@ -1,4 +1,5 @@
 import { Cloud, CloudOff, WifiOff, RefreshCw, User, AlertTriangle } from "lucide-react";
+
 import type { SyncStatus } from "./dataSync";
 
 // Enhanced sync status indicator with Stealth Ops tactical styling
@@ -13,7 +14,7 @@ export const getSyncStatusColor = (
   if (!cloudSyncEnabled) return isStealthOps ? "text-gray-400" : "text-gray-500";
   if (!isAuthenticated) return isStealthOps ? "text-gray-500" : "text-gray-400";
   if (syncStatus?.type === "error") {
-    const message = syncStatus.message;
+    const { message } = syncStatus;
     if (
       message.includes("offline") ||
       message.includes("Server offline") ||
@@ -43,7 +44,7 @@ export const getSyncStatusIcon = (
   if (!isAuthenticated) return CloudOff;
   if (syncStatus?.type === "saving" || syncStatus?.type === "loading") return RefreshCw;
   if (syncStatus?.type === "error") {
-    const message = syncStatus.message;
+    const { message } = syncStatus;
     if (
       message.includes("offline") ||
       message.includes("Server offline") ||
@@ -73,7 +74,7 @@ export const getSyncStatusText = (
   if (syncStatus?.type === "saving") return isStealthOps ? "[SAVING...]" : "Saving...";
   if (syncStatus?.type === "success") return isStealthOps ? "[SYNCED]" : "Synced";
   if (syncStatus?.type === "error") {
-    const message = syncStatus.message;
+    const { message } = syncStatus;
     if (message.includes("Server offline") || message.includes("Server unavailable")) {
       return isStealthOps ? "[SERVER OFFLINE]" : "Server offline";
     }

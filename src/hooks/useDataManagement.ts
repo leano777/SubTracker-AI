@@ -1,29 +1,25 @@
-import { useState, useEffect } from "react";
-import type {
-  FullSubscription,
-  PaymentCard as FullPaymentCard,
-} from "../types/subscription";
-import type { AppSettings, Notification } from "../types/constants";
-import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
+import { useState, useEffect, useCallback, useRef } from "react";
+
 import {
   INITIAL_SUBSCRIPTIONS,
   INITIAL_PAYMENT_CARDS,
   INITIAL_NOTIFICATIONS,
   INITIAL_APP_SETTINGS,
 } from "../data/mockData";
+import type { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
+import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
+import { saveUserDataToCache, loadUserDataFromCache, clearUserDataCache } from "../utils/cache";
 import { dataSyncManager } from "../utils/dataSync";
 import type { SyncStatus } from "../utils/dataSync";
-import { saveUserDataToCache, loadUserDataFromCache, clearUserDataCache } from "../utils/cache";
-import {
-  calculatePayPeriodRequirements,
-} from "../utils/payPeriodCalculations";
+import { calculatePayPeriodRequirements } from "../utils/payPeriodCalculations";
 
 // Enhanced data migration function with robust validation
 const migrateSubscriptionData = (subscription: any): FullSubscription => {
   if (!subscription) {
     console.error("⚠️ Null subscription passed to migration, creating placeholder");
     return {
-      id: "placeholder-" + Date.now(),
+      id: `placeholder-${Date.now()}`,
       name: "Unknown Subscription",
       price: 0,
       cost: 0,
@@ -47,7 +43,6 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
       console.warn(
         `⚠️ Missing or invalid frequency for "${sub.name || "Unknown"}" (value: ${freq}), defaulting to monthly`
       );
-      console.warn(`   Available fields:`, Object.keys(sub || {}));
       return "monthly";
     }
 
@@ -100,34 +95,21 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
       case "q":
       case "3":
       case "every 3 months":
-        console.warn(
-          `⚠️ Converting quarterly billing to monthly for "${sub.name || "Unknown"}" (will adjust price accordingly)`
-        );
         return "monthly";
 
       case "bi-weekly":
       case "biweekly":
       case "every 2 weeks":
       case "14":
-        console.warn(
-          `⚠️ Converting bi-weekly billing to weekly for "${sub.name || "Unknown"}" (will adjust price accordingly)`
-        );
         return "weekly";
 
       case "semi-annually":
       case "semi-annual":
       case "every 6 months":
       case "6":
-        console.warn(
-          `⚠️ Converting semi-annual billing to monthly for "${sub.name || "Unknown"}" (will adjust price accordingly)`
-        );
         return "monthly";
 
       default:
-        console.warn(
-          `⚠️ Unknown frequency "${freq}" for "${sub.name || "Unknown"}", defaulting to monthly`
-        );
-        console.warn(`   Normalized value was: "${normalizedFreq}"`);
         return "monthly";
     }
   };
@@ -138,7 +120,6 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
     const parsedPrice = typeof price === "number" ? price : parseFloat(price);
 
     if (isNaN(parsedPrice) || parsedPrice < 0) {
-      console.warn(`⚠️ Invalid price for "${sub.name || "Unknown"}": ${price}, defaulting to 0`);
       return 0;
     }
 
@@ -169,9 +150,6 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
       price: determinedPrice,
     };
 
-    console.log(
-      `✅ Validated subscription "${subscription.name}" - frequency: ${finalFrequency}, price: ${determinedPrice}`
-    );
     return validated as FullSubscription;
   }
 
@@ -195,7 +173,9 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
     nextPayment: subscription.nextPayment || new Date().toISOString().split("T")[0],
     category: subscription.category || "Other",
     status: subscription.status || (subscription.isActive ? "active" : "cancelled") || "active",
-    isActive: (subscription.status || (subscription.isActive ? "active" : "cancelled") || "active") === "active",
+    isActive:
+      (subscription.status || (subscription.isActive ? "active" : "cancelled") || "active") ===
+      "active",
     description: subscription.description,
     website: subscription.billingUrl || subscription.website,
     dateAdded: subscription.dateAdded || new Date().toISOString().split("T")[0],
@@ -235,9 +215,6 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
     migrated.price = 0;
   }
 
-  console.log(
-    `🔄 Migrated subscription "${migrated.name}" from legacy format - price: ${migrated.price}, frequency: ${migrated.frequency}`
-  );
   return migrated;
 };
 
@@ -267,7 +244,6 @@ const migratePaymentCardData = (card: any): FullPaymentCard => {
     paymentDueDate: card.paymentDueDate,
   };
 
-  console.log(`🔄 Migrated payment card "${card.nickname || card.name}" from legacy format`);
   return migrated;
 };
 
@@ -298,23 +274,16 @@ const convertToWeeklyBudgets = (requirements: any[]): WeeklyBudget[] => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const isSessionReady = (session: any, user: any, retryCount: number = 0): boolean => {
   if (!session || !user) {
-    console.log(
-      `⏳ Session readiness check failed: missing session (${!!session}) or user (${!!user})`
-    );
     return false;
   }
 
   // Check if we have the essential session components
   if (!session.access_token || !user.id || !user.email) {
-    console.log(
-      `⏳ Session readiness check failed: missing essential data - token: ${!!session.access_token}, id: ${!!user.id}, email: ${!!user.email}`
-    );
     return false;
   }
 
   // Check if the token looks valid (enhanced format check)
   if (!session.access_token.startsWith("eyJ") || session.access_token.split(".").length !== 3) {
-    console.log("⏳ Session readiness check failed: invalid JWT token format");
     return false;
   }
 
@@ -325,17 +294,14 @@ const isSessionReady = (session: any, user: any, retryCount: number = 0): boolea
 
     // Check if token is expired
     if (payload.exp && payload.exp < currentTime) {
-      console.log("⏳ Session readiness check failed: token expired");
       return false;
     }
 
     // Check if token has required claims
     if (!payload.sub || !payload.email || payload.sub !== user.id) {
-      console.log("⏳ Session readiness check failed: token missing required claims or mismatch");
       return false;
     }
   } catch (error) {
-    console.log("⏳ Session readiness check failed: JWT payload validation error:", error);
     return false;
   }
 
@@ -350,15 +316,8 @@ const isSessionReady = (session: any, user: any, retryCount: number = 0): boolea
     const minWaitTime = 5000; // 5 seconds minimum
 
     if (userAge < minWaitTime && retryCount < 3) {
-      console.log(
-        `⏳ New user (${Math.round(userAge / 1000)}s old) - waiting for session to fully settle (retry ${retryCount + 1})`
-      );
       return false;
     }
-
-    console.log(
-      `✅ New user session ready (age: ${Math.round(userAge / 1000)}s, retry: ${retryCount})`
-    );
   }
 
   return true;
@@ -393,13 +352,9 @@ export const useDataManagement = (
     }
 
     try {
-      console.log("🔄 Initializing demo subscriptions with migration...");
       const migratedSubs = INITIAL_SUBSCRIPTIONS.map((sub, index) => {
         try {
           const migrated = migrateSubscriptionData(sub);
-          console.log(
-            `✅ Demo subscription ${index + 1} migrated: ${migrated.name} - ${migrated.frequency} - ${migrated.price}`
-          );
           return migrated;
         } catch (error) {
           console.error(`❌ Failed to migrate demo subscription ${index + 1}:`, error);
@@ -417,7 +372,6 @@ export const useDataManagement = (
         }
       });
 
-      console.log(`✅ Initialized ${migratedSubs.length} demo subscriptions`);
       return migratedSubs;
     } catch (error) {
       console.error("❌ Failed to initialize demo data:", error);
@@ -431,9 +385,7 @@ export const useDataManagement = (
     }
 
     try {
-      console.log("🔄 Initializing demo payment cards...");
       const migratedCards = INITIAL_PAYMENT_CARDS.map(migratePaymentCardData);
-      console.log(`✅ Initialized ${migratedCards.length} demo payment cards`);
       return migratedCards;
     } catch (error) {
       console.error("❌ Failed to initialize demo payment cards:", error);
@@ -486,10 +438,6 @@ export const useDataManagement = (
         return original && (original.frequency !== sub.frequency || original.price !== sub.price);
       }).length;
 
-      if (migratedCount > 0) {
-        console.log(`🔄 Auto-migrated ${migratedCount} subscriptions during state update`);
-      }
-
       return migratedSubscriptions;
     });
   };
@@ -524,24 +472,18 @@ export const useDataManagement = (
 
   // Check if user data was accidentally cleared and attempt recovery
   const attemptDataRecovery = async (userId: string) => {
-    console.log("🔄 Attempting data recovery for user:", userId);
-
     // Check if there's any cached data
     const cachedData = loadUserDataFromCache(userId);
     if (cachedData.subscriptions.length > 0) {
-      console.log("✅ Found cached data, no recovery needed");
       return cachedData;
     }
 
     // Only try cloud recovery if server requests are allowed
     if (cloudSyncEnabled && isOnline && serverRequestsAllowed) {
-      console.log("☁️ Attempting cloud data recovery...");
       try {
         const cloudResult = await dataSyncManager.loadFromCloud();
 
         if (cloudResult.success && cloudResult.data && cloudResult.data.subscriptions.length > 0) {
-          console.log("🎉 Successfully recovered data from cloud!");
-
           // Migrate legacy data if necessary
           const migratedSubscriptions = (cloudResult.data.subscriptions || []).map(
             migrateSubscriptionData
@@ -570,21 +512,14 @@ export const useDataManagement = (
         // Continue with local data
       }
     } else {
-      console.log("ℹ️ Cloud recovery skipped - server requests not allowed yet");
     }
 
-    console.log("ℹ️ No data found for recovery");
     return null;
   };
 
   // Enhanced data loading with progressive timing and better error handling
-  const loadUserData = async (userId: string, forceCloudSync: boolean = false) => {
+  const loadUserDataImpl = async (userId: string, forceCloudSync: boolean = false) => {
     try {
-      console.log(`🔄 Loading user data (userId: ${userId}, forceCloud: ${forceCloudSync})`);
-      console.log(
-        `📊 Session status - Ready: ${sessionReady}, Server requests allowed: ${serverRequestsAllowed}, Retries: ${sessionReadyRetries}`
-      );
-
       // Check if we're in email confirmation flow
       const isEmailConfirmation = isEmailConfirmationFlow();
 
@@ -594,7 +529,6 @@ export const useDataManagement = (
 
       // No need to clear cache for established users
       if (isNewUser) {
-        console.log("🧩 New user detected - clearing any existing demo data cache");
         clearUserDataCache(userId);
       }
 
@@ -608,12 +542,6 @@ export const useDataManagement = (
 
       // Set cached/recovered data immediately for responsive UI (but not for new users)
       if (!isNewUser && (cachedData.subscriptions.length > 0 || cachedData.hasInitialized)) {
-        console.log(
-          recoveredData
-            ? "🎉 Using recovered data for immediate display"
-            : "⚡ Using cached data for immediate display"
-        );
-
         // Migrate legacy data if necessary
         const migratedSubscriptions = cachedData.subscriptions.map(migrateSubscriptionData);
         const migratedPaymentCards = cachedData.paymentCards.map(migratePaymentCardData);
@@ -625,13 +553,7 @@ export const useDataManagement = (
         setHasInitialized(cachedData.hasInitialized);
         setDataCleared(cachedData.dataCleared);
         setWeeklyBudgets(cachedData.weeklyBudgets);
-
-        // Show success message if data was recovered
-        if (recoveredData && recoveredData.subscriptions.length > 0) {
-          console.log("🎊 Data recovery successful! User data has been restored.");
-        }
       } else if (isNewUser) {
-        console.log("🆕 New user - starting with completely clean state");
         // Ensure new users start with clean state
         const newUserData = {
           subscriptions: [],
@@ -677,8 +599,6 @@ export const useDataManagement = (
         (forceCloudSync || (!cachedData.hasInitialized && sessionReadyRetries >= 2));
 
       if (shouldAttemptCloudSync) {
-        console.log("☁️ Attempting to sync with cloud...");
-
         try {
           // Progressive delays based on retry count
           let delay = 1000; // Base delay
@@ -687,16 +607,11 @@ export const useDataManagement = (
             delay = Math.min(1000 + sessionReadyRetries * 500, 3000); // 1-3s for existing users
           }
 
-          console.log(
-            `⏳ Waiting ${delay}ms before cloud sync (retries: ${sessionReadyRetries})`
-          );
           await new Promise((resolve) => setTimeout(resolve, delay));
 
           const cloudResult = await dataSyncManager.loadFromCloud();
 
           if (cloudResult.success && cloudResult.data) {
-            console.log("✅ Cloud data loaded successfully");
-
             // Migrate legacy data if necessary
             const migratedSubscriptions = (cloudResult.data.subscriptions || []).map(
               migrateSubscriptionData
@@ -755,20 +670,13 @@ export const useDataManagement = (
 
             // Handle different error types appropriately
             if (isServerWarning) {
-              console.log(
-                "ℹ️ Server secondary validation warning - this is normal for new users, data sync completed successfully"
-              );
               setSyncStatus({
                 type: "success",
                 message: "Data synced (secondary validation pending)",
               });
             } else if (isAuthError || isSessionError) {
-              console.log(
-                "ℹ️ Auth/session error - expected for new users, continuing with local data"
-              );
               setSyncStatus({ type: "error", message: "Session initializing - using local data" });
             } else if (isNetworkError) {
-              console.log("ℹ️ Network error - continuing in local mode");
               setSyncStatus({ type: "error", message: "Server unavailable - using local data" });
             }
 
@@ -780,7 +688,6 @@ export const useDataManagement = (
               !isNetworkError
             ) {
               // Existing user with no cloud data - start with empty data
-              console.log("🎯 Existing user with no data detected, initializing with empty data");
               dataToUse = {
                 subscriptions: [], // Empty for users with no data
                 paymentCards: [], // Empty for users with no data
@@ -814,23 +721,13 @@ export const useDataManagement = (
             }
           }
         } catch (error) {
-          console.log(
-            "ℹ️ Cloud sync exception (expected for new users), using local storage mode:",
-            error
-          );
           // Continue with cached data on any unexpected errors
         }
       } else {
         // Handle cases where cloud sync is not attempted
         if (isEmailConfirmation || isNewUser) {
-          console.log(
-            isEmailConfirmation
-              ? "ℹ️ Email confirmation in progress, skipping cloud sync"
-              : "ℹ️ New user detected, skipping cloud sync"
-          );
           // Initialize with empty data for new users during email confirmation or initial setup
           if (!cachedData.hasInitialized && cachedData.subscriptions.length === 0) {
-            console.log("🎯 New user initialization, starting with empty data");
             const emptyData = {
               subscriptions: [], // Empty for new users
               paymentCards: [], // Empty for new users
@@ -852,11 +749,9 @@ export const useDataManagement = (
             saveUserDataToCache(userId, emptyData);
           }
         } else if (!serverRequestsAllowed) {
-          console.log("⏳ Server requests not allowed yet, waiting for session to be ready");
           setSyncStatus({ type: "loading", message: "Preparing session..." });
         } else if (!cachedData.hasInitialized && cachedData.subscriptions.length === 0) {
           // Local-only user with no data - start with empty data
-          console.log("ℹ️ User in local mode with no data, initializing with empty data");
           const localData = {
             subscriptions: [], // Empty for users with no data
             paymentCards: [], // Empty for users with no data
@@ -893,8 +788,6 @@ export const useDataManagement = (
                 : !isOnline
                   ? "cache (offline)"
                   : "cache";
-
-      console.log(`✅ Data loading complete. Source: ${dataSource}`);
     } catch (error) {
       console.error("❌ Error loading user data:", error);
 
@@ -904,7 +797,6 @@ export const useDataManagement = (
       if (!isEmailConfirmation) {
         throw error; // Let the caller handle auth errors
       } else {
-        console.log("ℹ️ Error during email confirmation - continuing with local initialization");
         // Initialize with empty data for new users even if there's an error
         const errorRecoveryData = {
           subscriptions: [], // Empty for new users
@@ -928,6 +820,14 @@ export const useDataManagement = (
       }
     }
   };
+
+  // Create a stable reference to loadUserData
+  const loadUserDataRef = useRef(loadUserDataImpl);
+  loadUserDataRef.current = loadUserDataImpl;
+
+  const loadUserData = useCallback((userId: string, forceCloudSync: boolean = false) => {
+    return loadUserDataRef.current(userId, forceCloudSync);
+  }, []);
 
   // Save user data with enhanced session checks
   const saveUserData = async (data: {
@@ -972,16 +872,10 @@ export const useDataManagement = (
               !errorMessage.includes("Supabase validation failed, but JWT is valid") &&
               !errorMessage.includes("Supabase secondary validation unavailable")
             ) {
-              console.log("ℹ️ Cloud save not available, data saved locally");
+              // Cloud save failed with unexpected error, data saved locally
             }
             // Otherwise silently handle expected errors and warnings
           });
-      } else if (!isOnline) {
-        console.log("ℹ️ Offline mode - data saved to cache only");
-      } else if (!cloudSyncEnabled) {
-        console.log("ℹ️ Cloud sync disabled - data saved to cache only");
-      } else if (!serverRequestsAllowed) {
-        console.log("⏳ Server requests not ready - data saved to cache only");
       }
     } catch (error) {
       console.error("❌ Error saving user data:", error);
@@ -992,34 +886,27 @@ export const useDataManagement = (
   // Enhanced manual data sync with comprehensive readiness checks
   const triggerDataSync = async () => {
     if (!isAuthenticated || !stableUserId) {
-      console.log("🚫 Sync not available - not authenticated");
       return;
     }
 
     if (!isOnline) {
-      console.log("📴 Sync not available - offline");
       setSyncStatus({ type: "error", message: "Cannot sync while offline" });
       return;
     }
 
     if (!cloudSyncEnabled) {
-      console.log("☁️ Sync not available - cloud sync disabled");
       return;
     }
 
     if (!serverRequestsAllowed) {
-      console.log("⏳ Sync not available - session not ready");
       setSyncStatus({ type: "error", message: "Session not ready - please wait" });
       return;
     }
 
     try {
-      console.log("🔄 Triggering manual data sync...");
       setSyncStatus({ type: "loading", message: "Syncing..." });
 
       await loadUserData(stableUserId, true);
-
-      console.log("✅ Manual sync completed");
     } catch (error) {
       console.error("❌ Manual sync failed:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";

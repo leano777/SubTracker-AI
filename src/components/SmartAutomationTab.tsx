@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Bot,
   Zap,
@@ -10,21 +9,26 @@ import {
   Target,
   Settings,
   Play,
-  Pause,
   RotateCcw,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
-import { Button } from "./ui/button";
+import { useState, useEffect } from "react";
+
+import type {
+  FullSubscription as Subscription,
+  FullPaymentCard as PaymentCard,
+} from "../types/subscription";
+import { formatCurrency } from "../utils/helpers";
+
+import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
-import { Switch } from "./ui/switch";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Alert, AlertDescription } from "./ui/alert";
 import { Progress } from "./ui/progress";
-import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
-import { formatCurrency } from "../utils/helpers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Switch } from "./ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface SmartAutomationTabProps {
   subscriptions: Subscription[];
@@ -66,11 +70,10 @@ interface AutomationInsight {
   estimatedSavings?: number;
 }
 
-export function SmartAutomationTab({
+export const SmartAutomationTab = ({
   subscriptions,
-  cards,
   onAutomationTrigger,
-}: SmartAutomationTabProps) {
+}: SmartAutomationTabProps) => {
   const [automationRules, setAutomationRules] = useState<AutomationRule[]>([
     {
       id: "price-monitor",
@@ -158,7 +161,7 @@ export function SmartAutomationTab({
 
   const [automationInsights, setAutomationInsights] = useState<AutomationInsight[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [automationStats, setAutomationStats] = useState({
+  const [automationStats] = useState({
     totalSavings: 247.5,
     averageConfidence: 0.78,
     activeRules: 3,
@@ -713,4 +716,4 @@ export function SmartAutomationTab({
       </Tabs>
     </div>
   );
-}
+};

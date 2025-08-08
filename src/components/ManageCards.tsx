@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { Plus, Edit, Trash2, CreditCard, Star, Sparkles } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { useState } from "react";
+
+import type { PaymentCard } from "../types/subscription";
+
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,9 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import type { PaymentCard } from "../types/subscription";
 
 interface ManageCardsProps {
   cards: PaymentCard[];
@@ -98,13 +99,13 @@ const cardIssuers = [
   "Other",
 ];
 
-export function ManageCards({
+export const ManageCards = ({
   cards,
   onAddCard,
   onEditCard,
   onDeleteCard,
   onSetDefault,
-}: ManageCardsProps) {
+}: ManageCardsProps) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<PaymentCard | null>(null);
   const [formData, setFormData] = useState<CardFormData>({
@@ -180,7 +181,13 @@ export function ManageCards({
 
   const mapCardTypeToFormType = (cardType?: string): "credit" | "debit" | "other" => {
     if (cardType === "debit") return "debit";
-    if (cardType === "visa" || cardType === "mastercard" || cardType === "amex" || cardType === "discover" || cardType === "credit") {
+    if (
+      cardType === "visa" ||
+      cardType === "mastercard" ||
+      cardType === "amex" ||
+      cardType === "discover" ||
+      cardType === "credit"
+    ) {
       return "credit";
     }
     return "other";
@@ -243,7 +250,7 @@ export function ManageCards({
     return cardColor ? cardColor.gradient : cardColors[0].gradient;
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = () => {
     return <CreditCard className="w-4 h-4" />;
   };
 
@@ -497,7 +504,7 @@ export function ManageCards({
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
-                    {getTypeIcon(card.type || "other")}
+                    {getTypeIcon()}
                     <span className={`font-semibold ${textPrimary}`}>{card.nickname}</span>
                     {card.isDefault && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                   </div>
@@ -587,4 +594,4 @@ export function ManageCards({
       )}
     </div>
   );
-}
+};

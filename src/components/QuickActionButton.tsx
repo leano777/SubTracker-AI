@@ -1,7 +1,8 @@
+import { Plus, BarChart3, Calendar, Brain, Grid3X3, ChevronUp, X } from "lucide-react";
 import { useState } from "react";
-import { Plus, BarChart3, Calendar, Brain, Grid3X3, Settings, ChevronUp, X } from "lucide-react";
-import { Button } from "./ui/button";
+
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 
 interface QuickActionButtonProps {
   activeTab: string;
@@ -12,14 +13,14 @@ interface QuickActionButtonProps {
   isMobile: boolean;
 }
 
-export function QuickActionButton({
+export const QuickActionButton = ({
   activeTab,
   onTabChange,
   onAddNew,
   subscriptionsCount,
   aiInsightsCount,
   isMobile,
-}: QuickActionButtonProps) {
+}: QuickActionButtonProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Detect stealth ops theme
@@ -29,7 +30,7 @@ export function QuickActionButton({
     typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
   const tabs = [
-    { id: "overview", label: "Overview", icon: BarChart3, color: "blue" },
+    { id: "dashboard", label: "Dashboard", icon: BarChart3, color: "blue" },
     {
       id: "subscriptions",
       label: "Subscriptions",
@@ -195,6 +196,7 @@ export function QuickActionButton({
                       key={tab.id}
                       variant={activeTab === tab.id ? "default" : "ghost"}
                       onClick={() => {
+                        console.log("Tab clicked:", tab.id);
                         onTabChange(tab.id);
                         setIsExpanded(false);
                       }}
@@ -274,4 +276,4 @@ export function QuickActionButton({
       </Button>
     </div>
   );
-}
+};

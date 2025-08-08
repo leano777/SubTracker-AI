@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
 import { AlertTriangle, RefreshCw, Download, CheckCircle, XCircle, Clock } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Alert, AlertDescription } from "./ui/alert";
-import { Progress } from "./ui/progress";
-import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
+import { useEffect } from "react";
+
+import { useDataRecovery } from "../hooks/useDataRecovery";
 import type { AppSettings, Notification } from "../types/constants";
 import type { RecoverySource } from "../types/recovery";
-import { useDataRecovery } from "../hooks/useDataRecovery";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
+
+import { Alert, AlertDescription } from "./ui/alert";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Progress } from "./ui/progress";
 
 interface DataRecoveryDialogProps {
   open: boolean;
@@ -25,19 +27,17 @@ interface DataRecoveryDialogProps {
   }) => void;
 }
 
-export function DataRecoveryDialog({
+export const DataRecoveryDialog = ({
   open,
   onOpenChange,
   user,
   isStealthOps,
-  isDarkMode,
   textColors,
   glassAccentStyles,
   onDataRecovered,
-}: DataRecoveryDialogProps) {
+}: DataRecoveryDialogProps) => {
   const {
     recoveryProgress,
-    isScanning,
     recoverySources,
     selectedSource,
     recoveryStatus,
@@ -277,4 +277,4 @@ export function DataRecoveryDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};

@@ -1,6 +1,6 @@
-import { expect, afterEach, beforeEach, vi } from "vitest";
-import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
+import { cleanup } from "@testing-library/react";
+import { expect, afterEach, beforeEach, vi } from "vitest";
 
 // extends vitest's expect with jest-dom custom matchers
 expect.extend(matchers);
@@ -12,13 +12,13 @@ class MockIntersectionObserver {
   unobserve = vi.fn();
 }
 
-Object.defineProperty(window, 'IntersectionObserver', {
+Object.defineProperty(window, "IntersectionObserver", {
   writable: true,
   configurable: true,
   value: MockIntersectionObserver,
 });
 
-Object.defineProperty(global, 'IntersectionObserver', {
+Object.defineProperty(global, "IntersectionObserver", {
   writable: true,
   configurable: true,
   value: MockIntersectionObserver,
@@ -31,7 +31,7 @@ class MockResizeObserver {
   disconnect = vi.fn();
 }
 
-Object.defineProperty(window, 'ResizeObserver', {
+Object.defineProperty(window, "ResizeObserver", {
   writable: true,
   configurable: true,
   value: MockResizeObserver,
@@ -47,7 +47,7 @@ const localStorageMock = {
   key: vi.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
@@ -61,14 +61,14 @@ const sessionStorageMock = {
   key: vi.fn(),
 };
 
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(window, "sessionStorage", {
   value: sessionStorageMock,
 });
 
 // Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -81,14 +81,14 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock requestAnimationFrame
-Object.defineProperty(window, 'requestAnimationFrame', {
+Object.defineProperty(window, "requestAnimationFrame", {
   writable: true,
-  value: vi.fn(cb => setTimeout(cb, 16)),
+  value: vi.fn((cb) => setTimeout(cb, 16)),
 });
 
-Object.defineProperty(window, 'cancelAnimationFrame', {
+Object.defineProperty(window, "cancelAnimationFrame", {
   writable: true,
-  value: vi.fn(id => clearTimeout(id)),
+  value: vi.fn((id) => clearTimeout(id)),
 });
 
 // Mock HTMLElement methods
@@ -98,18 +98,26 @@ HTMLElement.prototype.releasePointerCapture = vi.fn();
 HTMLElement.prototype.setPointerCapture = vi.fn();
 
 // Mock window.getComputedStyle
-Object.defineProperty(window, 'getComputedStyle', {
+Object.defineProperty(window, "getComputedStyle", {
   value: () => ({
-    getPropertyValue: () => '',
+    getPropertyValue: () => "",
   }),
 });
 
 // Mock Supabase client
-vi.mock('../utils/supabase/client', () => ({
+vi.mock("../utils/supabase/client", () => ({
   supabase: {
     auth: {
-      getSession: vi.fn(),
-      onAuthStateChange: vi.fn(),
+      getSession: vi.fn(() =>
+        Promise.resolve({
+          data: { session: null },
+          error: null,
+        })
+      ),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: {} },
+        error: null,
+      })),
       signInWithPassword: vi.fn(),
       signUp: vi.fn(),
       signInWithOAuth: vi.fn(),

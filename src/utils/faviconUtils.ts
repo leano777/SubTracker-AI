@@ -68,7 +68,7 @@ export const getServiceDomain = (serviceName: string): string => {
 export const getFallbackLogo = (serviceName: string): string => {
   // Return empty string to disable logo loading temporarily
   // This will prevent the performance issues with base64 images
-  return '';
+  return "";
 };
 
 export const getServiceLogo = (
@@ -92,8 +92,8 @@ export const getFaviconUrl = (url: string): string | null => {
     // Temporarily disabled to fix performance issues
     // Extract service name from URL and use fallback
     const urlObj = new URL(url);
-    const domain = urlObj.hostname.replace('www.', '');
-    const serviceName = domain.split('.')[0];
+    const domain = urlObj.hostname.replace("www.", "");
+    const serviceName = domain.split(".")[0];
     return getFallbackLogo(serviceName);
   } catch (error) {
     // If URL is invalid, try to extract domain-like string
@@ -102,6 +102,6 @@ export const getFaviconUrl = (url: string): string | null => {
       return getFallbackLogo(domainMatch[1]);
     }
 
-    return getFallbackLogo('Unknown');
+    return getFallbackLogo("Unknown");
   }
 };

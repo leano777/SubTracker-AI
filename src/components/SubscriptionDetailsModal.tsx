@@ -5,16 +5,12 @@ import {
   Calendar,
   DollarSign,
   Tag,
-  CreditCard,
-  Clock,
   XCircle,
   RotateCcw,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Separator } from "./ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+
+import type { FullSubscription } from "../types/subscription";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +22,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-import type { FullSubscription } from "../types/subscription";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Separator } from "./ui/separator";
 
 interface SubscriptionDetailsModalProps {
   subscription: FullSubscription | null;
@@ -38,7 +38,7 @@ interface SubscriptionDetailsModalProps {
   onReactivate?: (id: string) => void;
 }
 
-export function SubscriptionDetailsModal({
+export const SubscriptionDetailsModal = ({
   subscription,
   isOpen,
   onClose,
@@ -46,7 +46,7 @@ export function SubscriptionDetailsModal({
   onDelete,
   onCancel,
   onReactivate,
-}: SubscriptionDetailsModalProps) {
+}: SubscriptionDetailsModalProps) => {
   // Static accessibility ID to prevent undefined values
   const SUBSCRIPTION_DETAILS_DESCRIPTION_ID = "subscription-details-description";
 
@@ -183,7 +183,9 @@ export function SubscriptionDetailsModal({
                           className="flex items-center justify-between p-2 bg-muted/50 rounded"
                         >
                           <div>
-                            <div className="font-medium">{formatCurrency(parseFloat(change.cost))}</div>
+                            <div className="font-medium">
+                              {formatCurrency(parseFloat(change.cost))}
+                            </div>
                             <div className="text-xs text-muted-foreground">
                               {change.description}
                             </div>
@@ -398,4 +400,4 @@ export function SubscriptionDetailsModal({
       </DialogContent>
     </Dialog>
   );
-}
+};

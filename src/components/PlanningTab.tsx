@@ -1,19 +1,10 @@
+import { Calendar, PiggyBank } from "lucide-react";
 import { useState, useMemo } from "react";
-import {
-  Calendar,
-  PiggyBank,
-} from "lucide-react";
-import { CalendarView } from "./CalendarView";
-import { CategoryBudgetManager } from "./CategoryBudgetManager";
-import { WeekSelector } from "./WeekSelector";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
+import { XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, AreaChart } from "recharts";
+
 import type {
   FullSubscription,
   BudgetCategory,
-  WeeklyAllocation,
   FinancialRoutingSettings,
 } from "../types/subscription";
 import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
@@ -24,14 +15,14 @@ import {
   calculateWeeklyAmount,
   validateSubscriptionForCalculations,
 } from "../utils/helpers";
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  Area,
-  AreaChart,
-} from "recharts";
+
+import { CalendarView } from "./CalendarView";
+import { CategoryBudgetManager } from "./CategoryBudgetManager";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Progress } from "./ui/progress";
+import { WeekSelector } from "./WeekSelector";
 
 interface PlanningTabProps {
   subscriptions: FullSubscription[];
@@ -43,7 +34,7 @@ interface PlanningTabProps {
   isStealthOps?: boolean;
 }
 
-export function PlanningTab({
+export const PlanningTab = ({
   subscriptions,
   weeklyBudgets,
   onViewSubscription,
@@ -51,7 +42,15 @@ export function PlanningTab({
   onUpdateCategories,
   isDarkMode = false,
   isStealthOps = false,
-}: PlanningTabProps) {
+}: PlanningTabProps) => {
+  console.log("PlanningTab rendering with:", {
+    subscriptionsLength: subscriptions?.length,
+    weeklyBudgetsLength: weeklyBudgets?.length,
+    hasHandlers: {
+      onViewSubscription: !!onViewSubscription,
+      onUpdateSubscriptionDate: !!onUpdateSubscriptionDate,
+    },
+  });
   const [selectedWeek, setSelectedWeek] = useState(getWeekString(new Date()));
   const [calendarMode, setCalendarMode] = useState<"calendar" | "budget">("calendar");
 
@@ -91,8 +90,6 @@ export function PlanningTab({
       critical: 10,
     },
   });
-
-  // Initialize weekly allocations
 
   // Calculate upcoming payments for the selected week
   const weeklyPayments = useMemo(() => {
@@ -526,14 +523,14 @@ export function PlanningTab({
         </div>
       ) : (
         // Budget mode - show CategoryBudgetManager
-          <CategoryBudgetManager
-            subscriptions={subscriptions}
-            budgetCategories={budgetCategories}
-            onUpdateCategories={onUpdateCategories}
-            isDarkMode={isDarkMode}
-            isStealthOps={isStealthOps}
-          />
+        <CategoryBudgetManager
+          subscriptions={subscriptions}
+          budgetCategories={budgetCategories}
+          onUpdateCategories={onUpdateCategories}
+          isDarkMode={isDarkMode}
+          isStealthOps={isStealthOps}
+        />
       )}
     </div>
   );
-}
+};

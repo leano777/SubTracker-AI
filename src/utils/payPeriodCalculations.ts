@@ -55,7 +55,7 @@ export function getNextThursdays(count: number): Date[] {
   const thursdays: Date[] = [];
 
   // Start with the Thursday that begins the current pay period
-  let currentThursday = getCurrentPayPeriodThursday();
+  const currentThursday = getCurrentPayPeriodThursday();
 
   for (let i = 0; i < count; i++) {
     thursdays.push(new Date(currentThursday));
@@ -96,7 +96,7 @@ function normalizeDate(date: Date): Date {
 // Helper function to parse date strings consistently
 function parseDate(dateString: string): Date {
   // Handle both YYYY-MM-DD and other formats
-  const date = new Date(dateString + "T00:00:00.000Z");
+  const date = new Date(`${dateString}T00:00:00.000Z`);
   return normalizeDate(date);
 }
 
@@ -576,12 +576,13 @@ export function getUpcomingPricingChanges(subscriptions: FullSubscription[]): Ar
           (change) => parseDate(change.date) > normalizeDate(new Date())
         )
         .forEach((change) => {
-          const changeCost = typeof change.cost === 'string' ? parseFloat(change.cost) : change.cost;
+          const changeCost =
+            typeof change.cost === "string" ? parseFloat(change.cost) : change.cost;
           changes.push({
             subscription,
             change: {
               ...change,
-              cost: changeCost
+              cost: changeCost,
             },
             currentCost: subscription.price,
             difference: changeCost - subscription.price,

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { DollarSign } from "lucide-react";
+import { useState } from "react";
 
 interface ImageWithFallbackProps {
   src: string;
@@ -9,13 +9,13 @@ interface ImageWithFallbackProps {
   style?: React.CSSProperties;
 }
 
-export function ImageWithFallback({
+export const ImageWithFallback = ({
   src,
   alt,
   className = "",
   fallbackSrc,
   style,
-}: ImageWithFallbackProps) {
+}: ImageWithFallbackProps) => {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,7 +45,10 @@ export function ImageWithFallback({
   // If both failed or no fallback, show icon
   if (hasError) {
     return (
-      <div className={`${className} bg-muted rounded flex items-center justify-center`} style={style}>
+      <div
+        className={`${className} bg-muted rounded flex items-center justify-center`}
+        style={style}
+      >
         <DollarSign className="w-1/2 h-1/2 text-muted-foreground" />
       </div>
     );
@@ -64,4 +67,4 @@ export function ImageWithFallback({
       />
     </>
   );
-}
+};
