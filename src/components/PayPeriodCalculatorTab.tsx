@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { ThursdayPayPeriodCalculator } from "./ThursdayPayPeriodCalculator";
 
 interface PayPeriodCalculatorTabProps {
   subscriptions: Subscription[];
@@ -86,6 +87,9 @@ export const PayPeriodCalculatorTab = ({ subscriptions }: PayPeriodCalculatorTab
           </Badge>
         </div>
       </div>
+
+      {/* Current Thursday-to-Wednesday Pay Period */}
+      <ThursdayPayPeriodCalculator subscriptions={subscriptions} />
 
       {/* Week Range Selector */}
       <Card>

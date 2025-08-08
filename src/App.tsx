@@ -27,7 +27,8 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { useAppHandlers } from "./hooks/useAppHandlers";
 import { useDataManagement } from "./hooks/useDataManagement";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
-import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
+import type { FullSubscription, PaymentCard as FullPaymentCard, Notification } from "./types/subscription";
+import type { AppSettings } from "./types/constants";
 import { dataSyncManager } from "./utils/dataSync";
 import { formatDateForStorage } from "./utils/dateUtils";
 import {
