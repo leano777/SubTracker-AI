@@ -26,14 +26,15 @@ import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
 import { useAppHandlers } from "./hooks/useAppHandlers";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
 import { useDataManagement } from "./hooks/useDataManagement";
-import { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
 import { dataSyncManager } from "./utils/dataSync";
 import { formatDateForStorage } from "./utils/dateUtils";
-import { applyThemeClasses } from "./utils/theme";
+import { applyThemeClasses, getTextColors, getGlassSecondaryStyles, getGlassAccentStyles } from "./utils/theme";
+import { performanceMonitor } from "./utils/performance";
 
-// Debug logging utility
+// Debug logging utility - optimized for performance
 const debugLog = (category: string, data: any) => {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development" && !category.includes('recalculated')) {
     console.log(`[${category}]`, data);
   }
 };
@@ -42,6 +43,15 @@ function AppContent() {
   const { user, loading: authLoading, isAuthenticated, signOut } = useAuth();
   const isDesktop = useIsDesktop();
   const isMobile = useIsMobile();
+
+  // Performance monitoring - only in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      performanceMonitor.trackRender('AppContent');
+      const cleanup = performanceMonitor.startMonitoring();
+      return cleanup;
+    }
+  }, []);
 
   // Mounted ref for cleanup safety
   const isMountedRef = useRef(true);
@@ -176,20 +186,9 @@ function AppContent() {
       currentTheme,
       isDarkMode,
       isStealthOps,
-      textColors: {
-        primary: isDarkMode ? "text-gray-100" : "text-gray-900",
-        secondary: isDarkMode ? "text-gray-300" : "text-gray-700",
-        muted: isDarkMode ? "text-gray-400" : "text-gray-600",
-        onGlass: isDarkMode ? "text-gray-100" : "text-gray-900",
-      },
-      glassSecondaryStyles: {
-        backgroundColor: isDarkMode ? "rgba(31, 41, 55, 0.8)" : "rgba(255, 255, 255, 0.8)",
-        backdropFilter: "blur(12px)",
-      },
-      glassAccentStyles: {
-        backgroundColor: isDarkMode ? "rgba(31, 41, 55, 0.9)" : "rgba(255, 255, 255, 0.9)",
-        backdropFilter: "blur(16px)",
-      },
+      textColors: getTextColors(isStealthOps, isDarkMode),
+      glassSecondaryStyles: getGlassSecondaryStyles(isStealthOps, isDarkMode),
+      glassAccentStyles: getGlassAccentStyles(isStealthOps, isDarkMode),
     };
   }, [appSettings?.preferences?.theme]);
 
@@ -268,7 +267,7 @@ function AppContent() {
     };
   }, [isAuthenticated, stableUserId, loadUserData]);
 
-  // Stable handlers - FIXED: Simplified dependencies
+  // Stable handlers - FIXED: Simplified dependencies with React.Dispatch compatibility
   const stableHandlers = useMemo(() => {
     debugLog("stableHandlers recalculated", uiState.activeTab);
 
@@ -278,19 +277,31 @@ function AppContent() {
           setUiState((prev) => ({ ...prev, activeTab: tab }));
         }
       },
-      setIsFormOpen: (open: boolean) => {
+      setIsFormOpen: (open: boolean | ((prev: boolean) => boolean)) => {
         if (isMountedRef.current) {
-          setUiState((prev) => ({ ...prev, isFormOpen: open }));
+          if (typeof open === 'function') {
+            setUiState((prev) => ({ ...prev, isFormOpen: open(prev.isFormOpen) }));
+          } else {
+            setUiState((prev) => ({ ...prev, isFormOpen: open }));
+          }
         }
       },
-      setIsWatchlistMode: (mode: boolean) => {
+      setIsWatchlistMode: (mode: boolean | ((prev: boolean) => boolean)) => {
         if (isMountedRef.current) {
-          setUiState((prev) => ({ ...prev, isWatchlistMode: mode }));
+          if (typeof mode === 'function') {
+            setUiState((prev) => ({ ...prev, isWatchlistMode: mode(prev.isWatchlistMode) }));
+          } else {
+            setUiState((prev) => ({ ...prev, isWatchlistMode: mode }));
+          }
         }
       },
-      setEditingSubscription: (subscription: FullSubscription | null) => {
+      setEditingSubscription: (subscription: FullSubscription | null | ((prev: FullSubscription | null) => FullSubscription | null)) => {
         if (isMountedRef.current) {
-          setEditingState((prev) => ({ ...prev, editingSubscription: subscription }));
+          if (typeof subscription === 'function') {
+            setEditingState((prev) => ({ ...prev, editingSubscription: subscription(prev.editingSubscription) }));
+          } else {
+            setEditingState((prev) => ({ ...prev, editingSubscription: subscription }));
+          }
         }
       },
     };
@@ -335,7 +346,6 @@ function AppContent() {
     handleActivateFromWatchlist,
     handleAddCard,
     handleEditCard,
-    handleDeleteCard,
     handleExportData,
     openEditForm,
     closeForm,
@@ -621,6 +631,16 @@ function AppContent() {
     [setSubscriptions, createTrackedTimeout]
   );
 
+  // Categories update handler for planning tab
+  const handleUpdateCategories = useCallback(
+    (categories: any) => {
+      if (!isMountedRef.current) return;
+      console.log("Updating categories:", categories);
+      // TODO: Implement category updates when needed
+    },
+    []
+  );
+
   // Side peek handlers - FIXED: Proper state management with timing
   const sidePeekHandlers = useMemo(
     () => ({
@@ -765,6 +785,7 @@ function AppContent() {
               weeklyBudgets={props.weeklyBudgets}
               onViewSubscription={handleViewSubscription}
               onUpdateSubscriptionDate={handleUpdateSubscriptionDate}
+              onUpdateCategories={handleUpdateCategories}
             />
           );
         case "intelligence":
@@ -815,6 +836,7 @@ function AppContent() {
     openWatchlistForm,
     handleViewSubscription,
     handleUpdateSubscriptionDate,
+    handleUpdateCategories,
   ]);
 
   // Cleanup effect - CRITICAL: Proper cleanup on unmount
@@ -1004,7 +1026,7 @@ function AppContent() {
           <AdvancedSettingsTab
             settings={appSettings || defaultAppSettings}
             onUpdateSettings={handleUpdateSettings}
-            onExportData={handleExportData}
+            onExportData={() => handleExportData("json")}
             onImportData={modalHandlers.openImportDialog}
             onResetApp={handleResetApp}
           />

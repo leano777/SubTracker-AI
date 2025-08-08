@@ -4,9 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Progress } from "./ui/progress";
-import { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
-import { AppSettings, Notification } from "../types/constants";
-import { RecoverySource } from "../types/recovery";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
+import type { AppSettings, Notification } from "../types/constants";
+import type { RecoverySource } from "../types/recovery";
 import { useDataRecovery } from "../hooks/useDataRecovery";
 
 interface DataRecoveryDialogProps {

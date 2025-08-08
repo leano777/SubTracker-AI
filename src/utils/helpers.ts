@@ -1,4 +1,4 @@
-import { FullSubscription } from "../types/subscription";
+import type { FullSubscription } from "../types/subscription";
 
 // Enhanced date utilities for Thursday-based pay periods
 export function getNextThursday(date: Date = new Date()): Date {

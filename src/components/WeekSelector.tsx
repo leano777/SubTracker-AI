@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { WeeklyBudget } from "../types/subscription";
+import type { WeeklyBudget } from "../types/subscription";
 import { formatDateRange } from "../utils/weekCalculations";
 
 interface WeekSelectorProps {
@@ -36,8 +36,8 @@ export function WeekSelector({ availableWeeks, selectedWeekId, onWeekChange }: W
 
   if (!selectedWeek) return null;
 
-  const startDate = new Date(selectedWeek.weekStartDate);
-  const endDate = new Date(selectedWeek.weekEndDate);
+  const startDate = new Date(selectedWeek.startDate);
+  const endDate = new Date(selectedWeek.endDate);
 
   return (
     <Card>

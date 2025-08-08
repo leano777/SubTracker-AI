@@ -8,8 +8,6 @@ import {
   Target,
   Zap,
   DollarSign,
-  Calendar,
-  PieChart,
   BarChart3,
   Sparkles,
 } from "lucide-react";
@@ -19,7 +17,7 @@ import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Subscription, PaymentCard } from "../types/subscription";
+import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
 
 interface AIInsightsTabProps {

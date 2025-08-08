@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { WatchlistCard } from "./WatchlistCard";
-import { Subscription } from "../types/subscription";
+import type { Subscription } from "../types/subscription";
 
 interface WatchlistProps {
   watchlistItems: Subscription[];
@@ -79,9 +79,18 @@ export function Watchlist({
         case "date":
           return new Date(b.dateAdded || "").getTime() - new Date(a.dateAdded || "").getTime();
         case "priority":
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          const priorityOrder: Record<string, number> = { 
+            high: 3, 
+            medium: 2, 
+            low: 1,
+            essential: 5,
+            important: 4,
+            "nice-to-have": 1
+          };
+          const priorityA = a.priority || "low";
+          const priorityB = b.priority || "low";
           return (
-            (priorityOrder[b.priority || "low"] || 1) - (priorityOrder[a.priority || "low"] || 1)
+            (priorityOrder[priorityB] || 1) - (priorityOrder[priorityA] || 1)
           );
         case "cost":
           const getMonthlyCost = (item: Subscription) => {

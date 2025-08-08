@@ -1,7 +1,6 @@
 import { useCallback } from "react";
-import { generateFavicon } from "../utils/helpers";
-import { FullSubscription, FullPaymentCard } from "../types/subscription";
-import { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+import type { AppSettings, Notification } from "../types/constants";
 
 interface UseAppHandlersProps {
   subscriptions: FullSubscription[];
@@ -12,7 +11,7 @@ interface UseAppHandlersProps {
   setAppSettings: React.Dispatch<React.SetStateAction<AppSettings>>;
   notifications: Notification[];
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
-  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+  setActiveTab: (tab: string) => void;
   setIsFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsWatchlistMode: React.Dispatch<React.SetStateAction<boolean>>;
   setEditingSubscription: React.Dispatch<React.SetStateAction<FullSubscription | null>>;
@@ -26,7 +25,6 @@ export const useAppHandlers = ({
   setPaymentCards,
   appSettings,
   setAppSettings,
-  notifications,
   setNotifications,
   setActiveTab,
   setIsFormOpen,
@@ -320,6 +318,7 @@ export const useAppHandlers = ({
         groupByCategory: false,
         darkMode: false,
         showFavicons: true,
+        theme: "light" as const,
       },
     });
     setNotifications([]);

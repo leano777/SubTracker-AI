@@ -8,7 +8,7 @@ import { Switch } from "./ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Checkbox } from "./ui/checkbox";
-import { FullSubscription, PaymentCard } from "../types/subscription";
+import type { FullSubscription, PaymentCard } from "../types/subscription";
 import { getFaviconUrl } from "../utils/faviconUtils";
 import { Plus, Trash2, Calendar, DollarSign, CreditCard, AlertCircle, Zap } from "lucide-react";
 
@@ -84,15 +84,18 @@ export function SubscriptionForm({
         category: subscription.category,
         description: subscription.description || "",
         billingUrl: subscription.billingUrl || "",
-        subscriptionType: subscription.subscriptionType,
-        tags: subscription.tags?.join(", ") || "",
-        planType: subscription.planType,
-        priority: subscription.priority || "medium",
+        subscriptionType: subscription.subscriptionType || "personal",
+        tags: subscription.tags ? subscription.tags.join(", ") : "",
+        planType: (subscription.planType as "paid" | "free") || "paid",
+        priority: (subscription.priority as "medium" | "low" | "high") || "medium",
         watchlistNotes: subscription.watchlistNotes || "",
         cardId: subscription.cardId || "",
         hasLinkedCard: subscription.hasLinkedCard ?? Boolean(subscription.cardId),
         automationEnabled: false, // Always defaults to false as requested
-        variablePricing: subscription.variablePricing || {
+        variablePricing: subscription.variablePricing?.isVariable ? {
+          isVariable: true,
+          upcomingChanges: subscription.variablePricing.upcomingChanges || [{ date: "", cost: "", description: "" }],
+        } : {
           isVariable: false,
           upcomingChanges: [{ date: "", cost: "", description: "" }],
         },
@@ -127,6 +130,8 @@ export function SubscriptionForm({
     const subscriptionData: Omit<FullSubscription, "id"> = {
       name: formData.name,
       cost: parseFloat(formData.cost),
+      price: parseFloat(formData.cost), // Add price property for compatibility
+      frequency: formData.billingCycle === "variable" ? "monthly" : formData.billingCycle === "quarterly" ? "monthly" : formData.billingCycle === "yearly" ? "yearly" : "monthly", // Map billingCycle to frequency
       billingCycle: formData.billingCycle,
       nextPayment: formData.nextPayment,
       category: formData.category,
@@ -150,12 +155,15 @@ export function SubscriptionForm({
       variablePricing:
         formData.billingCycle === "variable"
           ? {
+              minPrice: parseFloat(formData.cost) * 0.8,
+              maxPrice: parseFloat(formData.cost) * 1.2,
+              averagePrice: parseFloat(formData.cost),
               isVariable: true,
               upcomingChanges: formData.variablePricing.upcomingChanges
                 .filter((change) => change.date && change.cost)
                 .map((change) => ({
                   date: change.date,
-                  cost: parseFloat(change.cost),
+                  cost: change.cost, // Keep as string to match interface
                   description: change.description,
                 })),
             }

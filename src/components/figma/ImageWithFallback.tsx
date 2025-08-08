@@ -6,6 +6,7 @@ interface ImageWithFallbackProps {
   alt: string;
   className?: string;
   fallbackSrc?: string;
+  style?: React.CSSProperties;
 }
 
 export function ImageWithFallback({
@@ -13,6 +14,7 @@ export function ImageWithFallback({
   alt,
   className = "",
   fallbackSrc,
+  style,
 }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +35,7 @@ export function ImageWithFallback({
         src={fallbackSrc}
         alt={alt}
         className={className}
+        style={style}
         onError={() => setHasError(true)}
         onLoad={handleLoad}
       />
@@ -42,7 +45,7 @@ export function ImageWithFallback({
   // If both failed or no fallback, show icon
   if (hasError) {
     return (
-      <div className={`${className} bg-muted rounded flex items-center justify-center`}>
+      <div className={`${className} bg-muted rounded flex items-center justify-center`} style={style}>
         <DollarSign className="w-1/2 h-1/2 text-muted-foreground" />
       </div>
     );
@@ -50,11 +53,12 @@ export function ImageWithFallback({
 
   return (
     <>
-      {isLoading && <div className={`${className} bg-muted rounded animate-pulse`} />}
+      {isLoading && <div className={`${className} bg-muted rounded animate-pulse`} style={style} />}
       <img
         src={src}
         alt={alt}
         className={`${className} ${isLoading ? "hidden" : ""}`}
+        style={style}
         onError={handleError}
         onLoad={handleLoad}
       />

@@ -4,7 +4,6 @@ import {
   Download,
   FileText,
   Search,
-  Filter,
   CheckCircle,
   AlertCircle,
   Copy,
@@ -20,8 +19,7 @@ import { Badge } from "./ui/badge";
 import { Checkbox } from "./ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Progress } from "./ui/progress";
-import { Subscription, PaymentCard } from "../types/subscription";
+import type { Subscription, PaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
 
 interface BulkOperationsTabProps {

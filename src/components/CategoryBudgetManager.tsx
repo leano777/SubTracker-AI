@@ -1,13 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Plus,
   Edit2,
   Trash2,
   DollarSign,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle,
   Calendar,
   Target,
   Briefcase,
@@ -15,8 +11,6 @@ import {
   Wifi,
   Heart,
   BookOpen,
-  MoreHorizontal,
-  Info,
   Zap,
   PiggyBank,
 } from "lucide-react";
@@ -38,7 +32,6 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Switch } from "./ui/switch";
-import { Separator } from "./ui/separator";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,14 +43,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import {
+import type {
   FullSubscription,
   BudgetCategory,
-  WeeklyAllocation,
-  FinancialRoutingSettings,
   WeeklyCalculationResult,
-  DEFAULT_BUDGET_CATEGORIES,
 } from "../types/subscription";
 import {
   formatCurrency,
@@ -76,20 +65,12 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
 } from "recharts";
 
 interface CategoryBudgetManagerProps {
   subscriptions: FullSubscription[];
   budgetCategories: BudgetCategory[];
-  financialSettings: FinancialRoutingSettings;
-  weeklyAllocations: WeeklyAllocation[];
   onUpdateCategories: (categories: BudgetCategory[]) => void;
-  onUpdateSettings: (settings: FinancialRoutingSettings) => void;
-  onUpdateAllocations: (allocations: WeeklyAllocation[]) => void;
   isDarkMode: boolean;
   isStealthOps: boolean;
   className?: string;
@@ -123,16 +104,11 @@ const CATEGORY_COLORS = [
 export function CategoryBudgetManager({
   subscriptions,
   budgetCategories,
-  financialSettings,
-  weeklyAllocations,
   onUpdateCategories,
-  onUpdateSettings,
-  onUpdateAllocations,
   isDarkMode,
   isStealthOps,
   className = "",
 }: CategoryBudgetManagerProps) {
-  const [selectedCategory, setSelectedCategory] = useState<BudgetCategory | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [editingCategory, setEditingCategory] = useState<BudgetCategory | null>(null);
   const [newCategoryForm, setNewCategoryForm] = useState({
@@ -686,7 +662,6 @@ export function CategoryBudgetManager({
               ({
                 category,
                 weeklyTotal,
-                monthlyTotal,
                 subscriptionCount,
                 utilizationRate,
                 balanceHealth,
@@ -893,7 +868,7 @@ export function CategoryBudgetManager({
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
-                        label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
+                        label={({ name, value }) => `${name}: ${formatCurrency(value || 0)}`}
                       >
                         {allocationChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />

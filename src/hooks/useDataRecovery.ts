@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { RecoverySource, RecoveryStatus, RECOVERY_SOURCES_TEMPLATE } from "../types/recovery";
+import type { RecoverySource, RecoveryStatus } from "../types/recovery";
+import { RECOVERY_SOURCES_TEMPLATE } from "../types/recovery";
 import { loadUserDataFromCache, saveUserDataToCache } from "../utils/cache";
 import { dataSyncManager } from "../utils/dataSync";
 import {
@@ -86,7 +87,7 @@ export function useDataRecovery(user: any) {
           sources[2] = {
             ...sources[2],
             data: legacyData,
-            timestamp: legacyData.timestamp,
+            timestamp: legacyData.timestamp || undefined,
             count: {
               subscriptions: legacyData.subscriptions.length,
               cards: legacyData.paymentCards.length,
@@ -109,7 +110,7 @@ export function useDataRecovery(user: any) {
           sources[3] = {
             ...sources[3],
             data: backupData,
-            timestamp: backupData.timestamp,
+            timestamp: backupData.timestamp || undefined,
             count: {
               subscriptions: backupData.subscriptions.length,
               cards: backupData.paymentCards.length,

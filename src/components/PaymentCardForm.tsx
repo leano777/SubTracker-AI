@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { PaymentCard } from "../types/subscription";
+import type { PaymentCard } from "../types/subscription";
 
 interface PaymentCardFormProps {
   card?: PaymentCard;
@@ -17,6 +17,7 @@ interface CardFormData {
   type: "credit" | "debit" | "other";
   issuer: string;
   color: string;
+  isDefault: boolean;
 }
 
 const cardColors = [
@@ -91,19 +92,29 @@ export function PaymentCardForm({ card, onSave, onCancel }: PaymentCardFormProps
     type: "credit",
     issuer: "",
     color: cardColors[0].value,
+    isDefault: false,
   });
 
   const [errors, setErrors] = useState<Partial<CardFormData>>({});
+
+  const mapCardTypeToFormType = (cardType?: string): "credit" | "debit" | "other" => {
+    if (cardType === "debit") return "debit";
+    if (cardType === "visa" || cardType === "mastercard" || cardType === "amex" || cardType === "discover" || cardType === "credit") {
+      return "credit";
+    }
+    return "other";
+  };
 
   // Initialize form data when card prop changes
   useEffect(() => {
     if (card) {
       setFormData({
-        nickname: card.nickname,
-        lastFour: card.lastFour,
-        type: card.type,
+        nickname: card.nickname || "",
+        lastFour: card.lastFour || "",
+        type: mapCardTypeToFormType(card.type),
         issuer: card.issuer || "",
         color: card.color || cardColors[0].value,
+        isDefault: card.isDefault || false,
       });
     } else {
       setFormData({
@@ -112,6 +123,7 @@ export function PaymentCardForm({ card, onSave, onCancel }: PaymentCardFormProps
         type: "credit",
         issuer: "",
         color: cardColors[0].value,
+        isDefault: false,
       });
     }
     setErrors({});

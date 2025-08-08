@@ -37,7 +37,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { FullSubscription, PaymentCard } from "../types/subscription";
+import type { FullSubscription, PaymentCard } from "../types/subscription";
 import {
   calculateMonthlyAmount,
   formatCurrency,

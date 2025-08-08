@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Notification } from "../types/constants";
+import type { Notification } from "../types/constants";
 
 interface NotificationsPanelProps {
   notifications: Notification[];

@@ -56,7 +56,7 @@ class DataSyncManager {
           this.startPeriodicConnectionTesting();
         }
       })
-      .catch((error) => {
+      .catch(() => {
         console.log("ℹ️ Server unavailable - using local storage only");
         this.serverAvailable = false;
         this.lastConnectionTest = Date.now();
@@ -67,7 +67,6 @@ class DataSyncManager {
   // Test server connection with multiple fallback methods (silent for demo environments)
   async testConnection(): Promise<boolean> {
     const healthEndpoints = ["/health", "/ping", "/diagnostics", "/"];
-    let lastError: any = null;
 
     for (const endpoint of healthEndpoints) {
       try {
@@ -112,7 +111,6 @@ class DataSyncManager {
         }
         // Don't log individual endpoint failures - they're expected in demo environments
       } catch (error) {
-        lastError = error;
         // Silently continue to next endpoint
       }
     }

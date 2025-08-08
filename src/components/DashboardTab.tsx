@@ -18,8 +18,8 @@ import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { FullSubscription, FullPaymentCard } from "../types/subscription";
-import { AppSettings, Notification } from "../types/constants";
+import type { FullSubscription, FullPaymentCard } from "../types/subscription";
+import type { AppSettings, Notification } from "../types/constants";
 import {
   calculateMonthlyAmount,
   formatCurrency,
@@ -916,7 +916,7 @@ export function DashboardTab({ subscriptions, cards, settings, notifications }: 
                         isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""
                       }`}
                     >
-                      {formatCurrency(calculateMonthlyAmount(subscription))}
+                      {formatCurrency(calculateMonthlyAmount(subscription.cost, subscription.frequency || subscription.billingCycle || "monthly", subscription.variablePricing))}
                     </div>
                   </div>
                 ))}

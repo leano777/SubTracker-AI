@@ -2,25 +2,48 @@
 export interface FullSubscription {
   id: string;
   name: string;
+  // Both price and cost for compatibility
   price: number;
+  cost: number;
+  // Both frequency and billingCycle for compatibility
   frequency: "monthly" | "yearly" | "weekly" | "daily";
+  billingCycle: "monthly" | "quarterly" | "yearly" | "variable";
   nextPayment: string;
   category: string;
-  status: "active" | "cancelled" | "paused" | "watchlist";
+  status: "active" | "cancelled" | "paused" | "watchlist" | "trial";
+  // Payment card properties with multiple naming conventions
   paymentCard?: string;
+  cardId?: string;
+  paymentCardId?: string;
+  // Additional properties for compatibility
+  isActive: boolean;
+  subscriptionType?: "personal" | "business";
+  logoUrl?: string;
   description?: string;
   website?: string;
+  websiteUrl?: string;
+  billingUrl?: string;
   tags?: string[];
   notes?: string;
   dateAdded: string;
+  dateCancelled?: string;
   cancelledDate?: string;
   trialEndDate?: string;
+  trialStartDate?: string;
+  trialConvertedDate?: string;
+  originalTrialCost?: number;
+  isFreeTrial?: boolean;
   reminderDays?: number;
   isStarred?: boolean;
+  watchlistNotes?: string;
+  hasLinkedCard?: boolean;
+  favicon?: string;
   variablePricing?: {
     minPrice: number;
     maxPrice: number;
     averagePrice: number;
+    isVariable?: boolean;
+    upcomingChanges?: { date: string; cost: string; description: string; }[];
   };
   automationEnabled?: boolean;
   automationRules?: {
@@ -29,24 +52,32 @@ export interface FullSubscription {
     downgradeThreshold?: number;
   };
   linkedCard?: string;
-  planType?: "basic" | "premium" | "enterprise" | "custom";
+  planType?: "basic" | "premium" | "enterprise" | "custom" | "paid" | "free" | "trial";
   // Enhanced budget allocation properties
   budgetCategory?: string; // Maps to financial routing buckets
-  priority?: "essential" | "important" | "nice-to-have";
+  priority?: "essential" | "important" | "nice-to-have" | "medium" | "low" | "high";
   businessExpense?: boolean;
   taxDeductible?: boolean;
 }
 
 export interface PaymentCard {
   id: string;
-  name: string;
-  lastFourDigits: string;
-  expiryMonth: number;
-  expiryYear: number;
-  provider: "visa" | "mastercard" | "amex" | "discover" | "other";
-  isDefault: boolean;
   nickname?: string;
+  name?: string; // Alternative naming
+  lastFour?: string;
+  lastFourDigits?: string; // Alternative naming
+  type?: "visa" | "mastercard" | "amex" | "discover" | "credit" | "debit" | "other";
+  provider?: "visa" | "mastercard" | "amex" | "discover" | "other"; // Alternative naming
+  issuer?: string;
+  expiryMonth?: string | number; // Made optional for compatibility
+  expiryYear?: string | number; // Made optional for compatibility
   color?: string;
+  isDefault: boolean;
+  dateAdded?: string;
+  creditLimit?: number;
+  availableCredit?: number;
+  statementDate?: number;
+  paymentDueDate?: number;
   billingAddress?: {
     street: string;
     city: string;
@@ -54,15 +85,12 @@ export interface PaymentCard {
     zipCode: string;
     country: string;
   };
-  dateAdded: string;
-  // Enhanced budget properties
-  creditLimit?: number;
-  availableCredit?: number;
-  statementDate?: number; // Day of month
-  paymentDueDate?: number; // Day of month
 }
 
 export type FullPaymentCard = PaymentCard;
+
+// Type alias for backwards compatibility
+export type Subscription = FullSubscription;
 
 // New budget allocation types
 export interface BudgetCategory {
@@ -86,6 +114,44 @@ export interface BudgetCategory {
   lastWeekOverage?: number;
   averageOverage?: number;
   minimumBuffer?: number; // Minimum buffer to maintain
+}
+
+export interface WeeklyBudget {
+  id: string;
+  weekLabel: string;
+  startDate: string;
+  endDate: string;
+  allocatedAmount: number;
+  subscriptions: string[];
+  // Additional properties expected by components
+  totalBudget: number;
+  allocated: number;
+  remaining: number;
+  weekStartDate?: string; // For backwards compatibility
+  weekEndDate?: string;   // For backwards compatibility
+  isCurrentWeek?: boolean;
+  weekNumber?: number;
+  monthYear?: string;
+  requiredAmount?: number;
+  daysUntilPayday?: number;
+}
+
+export interface PayPeriodRequirement {
+  id: string;
+  weekLabel: string;
+  startDate: string;
+  endDate: string;
+  requiredAmount: number;
+  subscriptions: {
+    id: string;
+    name: string;
+    cost: number;
+    dueDate: string;
+    category: string;
+    frequency: string;
+    status: string;
+    subscriptionType: string;
+  }[];
 }
 
 export interface WeeklyAllocation {
@@ -219,11 +285,4 @@ export interface WeeklyCalculationResult {
   }[];
 }
 
-// Export all existing types
-export type {
-  Subscription,
-  NotificationSetting,
-  AppSettings,
-  BudgetAlert,
-  WeeklyBudget,
-} from "./constants";
+// Note: Additional types will be available from constants when implemented

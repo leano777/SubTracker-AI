@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bell, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Notification } from "../types/constants";
+import type { Notification } from "../types/constants";
 
 interface FloatingNotificationsProps {
   notifications: Notification[];
@@ -208,12 +208,12 @@ export function FloatingNotifications({
                             }`}
                           >
                             {isStealthOps ? "[" : ""}
-                            {new Date(notification.date).toLocaleDateString("en-US", {
+                            {notification.date ? new Date(notification.date).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
-                            })}
+                            }) : "Unknown date"}
                             {isStealthOps ? "]" : ""}
                           </div>
                         </div>

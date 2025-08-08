@@ -16,12 +16,10 @@ import {
   Calendar,
   DollarSign,
   TrendingUp,
-  AlertCircle,
   Clock,
-  Gift,
   AlertTriangle,
 } from "lucide-react";
-import { Subscription } from "../types/subscription";
+import type { FullSubscription as Subscription } from "../types/subscription";
 
 interface DashboardProps {
   subscriptions: Subscription[];
@@ -70,7 +68,6 @@ export function Dashboard({ subscriptions }: DashboardProps) {
       }
     }, 0);
 
-  const totalYearlySpending = totalMonthlySpending * 12;
 
   // Upcoming renewals (next 7 days)
   const today = new Date();
@@ -213,7 +210,7 @@ export function Dashboard({ subscriptions }: DashboardProps) {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {pieData.map((entry, index) => (
+                  {pieData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

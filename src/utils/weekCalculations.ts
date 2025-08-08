@@ -1,4 +1,27 @@
-import { ThursdayWeek, WeeklyBudget } from "../types/subscription";
+// Define local types since they are not exported from subscription types
+interface ThursdayWeek {
+  id?: string;
+  startDate: string;
+  endDate: string;
+  weekNumber?: number;
+  monthYear?: string;
+  weekLabel?: string;
+  isCurrentWeek?: boolean;
+}
+
+interface WeeklyBudget {
+  id: string;
+  weekLabel: string;
+  startDate: string;
+  endDate: string;
+  allocatedAmount: number;
+  subscriptions: string[];
+  weekNumber?: number;
+  monthYear?: string;
+  isCurrentWeek?: boolean;
+  requiredAmount?: number;
+  daysUntilPayday?: number;
+}
 
 /**
  * Get the Thursday of the week containing the given date
@@ -76,8 +99,8 @@ export function getThursdayWeeksForMonth(month: number, year: number): ThursdayW
     }
 
     weeks.push({
-      startDate: new Date(thursday),
-      endDate: weekEnd,
+      startDate: new Date(thursday).toISOString().split('T')[0],
+      endDate: weekEnd.toISOString().split('T')[0],
       weekNumber,
       monthYear,
       weekLabel: `${monthName} Week ${weekNumber}`,
@@ -102,7 +125,7 @@ export function getCurrentThursdayWeek(): ThursdayWeek {
     currentThursday.getFullYear()
   );
   const currentWeek = monthWeeks.find(
-    (week) => week.startDate.getTime() === currentThursday.getTime()
+    (week) => week.startDate === currentThursday.toISOString().split('T')[0]
   );
 
   if (currentWeek) {
@@ -121,7 +144,7 @@ export function getCurrentThursdayWeek(): ThursdayWeek {
       // This would be part of July's week system
       const julyWeeks = getThursdayWeeksForMonth(6, 2025); // July is month 6
       const julyWeek = julyWeeks.find(
-        (week) => week.startDate.getTime() === currentThursday.getTime()
+        (week) => week.startDate === currentThursday.toISOString().split('T')[0]
       );
       if (julyWeek) {
         return { ...julyWeek, isCurrentWeek: true };
@@ -133,8 +156,8 @@ export function getCurrentThursdayWeek(): ThursdayWeek {
   const monthName = currentThursday.toLocaleDateString("en-US", { month: "long" });
   const monthYear = `${monthName}-${currentThursday.getFullYear()}`;
   return {
-    startDate: currentThursday,
-    endDate: currentWednesday,
+    startDate: currentThursday.toISOString().split('T')[0],
+    endDate: currentWednesday.toISOString().split('T')[0],
     weekNumber: 1,
     monthYear,
     weekLabel: `${monthName} Week 1`,
@@ -157,7 +180,7 @@ export function getUpcomingThursdayWeeks(numberOfWeeks: number = 8): ThursdayWee
       currentThursday.getFullYear()
     );
     const weekInfo = monthWeeks.find(
-      (week) => week.startDate.getTime() === currentThursday.getTime()
+      (week) => week.startDate === currentThursday.toISOString().split('T')[0]
     );
 
     if (weekInfo) {
@@ -167,8 +190,8 @@ export function getUpcomingThursdayWeeks(numberOfWeeks: number = 8): ThursdayWee
       const monthName = currentThursday.toLocaleDateString("en-US", { month: "long" });
       const monthYear = `${monthName}-${currentThursday.getFullYear()}`;
       weeks.push({
-        startDate: new Date(currentThursday),
-        endDate: weekEnd,
+        startDate: new Date(currentThursday).toISOString().split('T')[0],
+        endDate: weekEnd.toISOString().split('T')[0],
         weekNumber: 1,
         monthYear,
         weekLabel: `${monthName} Week 1`,
@@ -208,15 +231,16 @@ export function createWeeklyBudgetFromThursdayWeek(
   initialBudget: number = 0
 ): WeeklyBudget {
   return {
-    id: `week-${thursdayWeek.weekNumber}-${thursdayWeek.monthYear}`,
+    id: `week-${thursdayWeek.weekNumber || 1}-${thursdayWeek.monthYear || 'unknown'}`,
     startDate: thursdayWeek.startDate,
     endDate: thursdayWeek.endDate,
     weekNumber: thursdayWeek.weekNumber,
     monthYear: thursdayWeek.monthYear,
-    weekLabel: thursdayWeek.weekLabel,
+    weekLabel: thursdayWeek.weekLabel || `Week ${thursdayWeek.weekNumber || 1}`,
     isCurrentWeek: thursdayWeek.isCurrentWeek,
     requiredAmount: initialBudget,
     subscriptions: [],
     daysUntilPayday: 0,
+    allocatedAmount: initialBudget,
   };
 }

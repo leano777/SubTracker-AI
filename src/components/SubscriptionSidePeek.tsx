@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { FullSubscription, FullPaymentCard } from "../types/subscription";
+import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
 
 interface SubscriptionSidePeekProps {
@@ -475,15 +475,15 @@ export function SubscriptionSidePeek({
                           <p
                             className={`font-bold ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}
                           >
-                            {formatCurrency(change.cost)}
+                            {formatCurrency(parseFloat(change.cost))}
                           </p>
                           <p
                             className={`text-xs ${
-                              change.cost > subscription.price ? "text-red-500" : "text-green-500"
+                              parseFloat(change.cost) > subscription.price ? "text-red-500" : "text-green-500"
                             }`}
                           >
-                            {change.cost > subscription.price ? "+" : ""}
-                            {formatCurrency(change.cost - subscription.price)}
+                            {parseFloat(change.cost) > subscription.price ? "+" : ""}
+                            {formatCurrency(parseFloat(change.cost) - subscription.price)}
                           </p>
                         </div>
                       </div>

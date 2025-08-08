@@ -9,9 +9,9 @@ import { Progress } from "./ui/progress";
 import { Alert, AlertDescription } from "./ui/alert";
 import { AIInsightsTab } from "./AIInsightsTab";
 import { SmartAutomationTab } from "./SmartAutomationTab";
-import {
-  Subscription as FullSubscription,
-  PaymentCard as FullPaymentCard,
+import type {
+  FullSubscription,
+  FullPaymentCard,
 } from "../types/subscription";
 import {
   formatCurrency,

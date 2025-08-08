@@ -1,5 +1,5 @@
-import { Cloud, CloudOff, Wifi, WifiOff, RefreshCw, User, AlertTriangle } from "lucide-react";
-import { SyncStatus } from "./dataSync";
+import { Cloud, CloudOff, WifiOff, RefreshCw, User, AlertTriangle } from "lucide-react";
+import type { SyncStatus } from "./dataSync";
 
 // Enhanced sync status indicator with Stealth Ops tactical styling
 export const getSyncStatusColor = (

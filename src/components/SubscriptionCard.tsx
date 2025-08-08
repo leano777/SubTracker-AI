@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { FullSubscription } from "../types/subscription";
+import type { FullSubscription } from "../types/subscription";
 import { getDisplayDate, getDaysUntil } from "../utils/dateUtils";
 
 interface SubscriptionCardProps {

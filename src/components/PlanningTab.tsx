@@ -1,29 +1,22 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Calendar,
-  Target,
-  TrendingUp,
-  AlertTriangle,
-  Plus,
-  DollarSign,
   PiggyBank,
-  Calculator,
 } from "lucide-react";
 import { CalendarView } from "./CalendarView";
 import { CategoryBudgetManager } from "./CategoryBudgetManager";
 import { WeekSelector } from "./WeekSelector";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import {
+import type {
   FullSubscription,
   BudgetCategory,
   WeeklyAllocation,
   FinancialRoutingSettings,
-  DEFAULT_BUDGET_CATEGORIES,
 } from "../types/subscription";
+import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
 import {
   formatCurrency,
   getNextThursday,
@@ -32,14 +25,10 @@ import {
   validateSubscriptionForCalculations,
 } from "../utils/helpers";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  LineChart,
-  Line,
   Area,
   AreaChart,
 } from "recharts";
@@ -49,6 +38,7 @@ interface PlanningTabProps {
   weeklyBudgets: any[];
   onViewSubscription: (subscription: FullSubscription) => void;
   onUpdateSubscriptionDate: (subscriptionId: string, newDate: Date) => void;
+  onUpdateCategories: (categories: BudgetCategory[]) => void;
   isDarkMode?: boolean;
   isStealthOps?: boolean;
 }
@@ -58,6 +48,7 @@ export function PlanningTab({
   weeklyBudgets,
   onViewSubscription,
   onUpdateSubscriptionDate,
+  onUpdateCategories,
   isDarkMode = false,
   isStealthOps = false,
 }: PlanningTabProps) {
@@ -65,9 +56,9 @@ export function PlanningTab({
   const [calendarMode, setCalendarMode] = useState<"calendar" | "budget">("calendar");
 
   // Initialize budget categories with defaults if none exist
-  const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>(() => {
+  const [budgetCategories] = useState<BudgetCategory[]>(() => {
     // Check if we have any existing categories, if not, create defaults
-    const existingCategories = []; // This would come from app state in real implementation
+    const existingCategories: BudgetCategory[] = []; // This would come from app state in real implementation
 
     if (existingCategories.length === 0) {
       return DEFAULT_BUDGET_CATEGORIES.map((category, index) => ({
@@ -81,7 +72,7 @@ export function PlanningTab({
   });
 
   // Initialize financial settings
-  const [financialSettings, setFinancialSettings] = useState<FinancialRoutingSettings>({
+  const [financialSettings] = useState<FinancialRoutingSettings>({
     payDay: "thursday",
     weeklyIncome: 1000, // Default weekly income
     emergencyFundPercentage: 10,
@@ -102,7 +93,6 @@ export function PlanningTab({
   });
 
   // Initialize weekly allocations
-  const [weeklyAllocations, setWeeklyAllocations] = useState<WeeklyAllocation[]>([]);
 
   // Calculate upcoming payments for the selected week
   const weeklyPayments = useMemo(() => {
@@ -320,10 +310,9 @@ export function PlanningTab({
           >
             <CardContent className="p-4">
               <WeekSelector
-                selectedWeek={selectedWeek}
+                availableWeeks={weeklyBudgets || []}
+                selectedWeekId={selectedWeek}
                 onWeekChange={setSelectedWeek}
-                isDarkMode={isDarkMode}
-                isStealthOps={isStealthOps}
               />
             </CardContent>
           </Card>
@@ -405,8 +394,7 @@ export function PlanningTab({
                 subscriptions={subscriptions}
                 onViewSubscription={onViewSubscription}
                 onUpdateSubscriptionDate={onUpdateSubscriptionDate}
-                isDarkMode={isDarkMode}
-                isStealthOps={isStealthOps}
+                weeklyBudgets={weeklyBudgets || []}
               />
             </CardContent>
           </Card>
@@ -538,17 +526,13 @@ export function PlanningTab({
         </div>
       ) : (
         // Budget mode - show CategoryBudgetManager
-        <CategoryBudgetManager
-          subscriptions={subscriptions}
-          budgetCategories={budgetCategories}
-          financialSettings={financialSettings}
-          weeklyAllocations={weeklyAllocations}
-          onUpdateCategories={setBudgetCategories}
-          onUpdateSettings={setFinancialSettings}
-          onUpdateAllocations={setWeeklyAllocations}
-          isDarkMode={isDarkMode}
-          isStealthOps={isStealthOps}
-        />
+          <CategoryBudgetManager
+            subscriptions={subscriptions}
+            budgetCategories={budgetCategories}
+            onUpdateCategories={onUpdateCategories}
+            isDarkMode={isDarkMode}
+            isStealthOps={isStealthOps}
+          />
       )}
     </div>
   );

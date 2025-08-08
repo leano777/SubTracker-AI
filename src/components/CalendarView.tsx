@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -30,14 +30,11 @@ import {
 } from "./ui/sheet";
 import { toast } from "sonner";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Subscription, WeeklyBudget } from "../types/subscription";
+import type { FullSubscription as Subscription, WeeklyBudget } from "../types/subscription";
 import { getThursdayWeeksForMonth } from "../utils/weekCalculations";
 import {
   parseStoredDate,
   formatDateForStorage,
-  getCalendarDate,
-  isSameDate,
-  debugDateParsing,
 } from "../utils/dateUtils";
 
 interface CalendarViewProps {
@@ -66,7 +63,6 @@ interface DragState {
 
 export function CalendarView({
   subscriptions,
-  weeklyBudgets,
   onViewSubscription,
   onUpdateSubscriptionDate,
 }: CalendarViewProps) {
@@ -87,7 +83,6 @@ export function CalendarView({
     offset: { x: 0, y: 0 },
   });
 
-  const dragElementRef = useRef<HTMLDivElement>(null);
 
   // Detect theme
   const isDarkMode =
@@ -130,6 +125,11 @@ export function CalendarView({
     return formatDateForStorage(date);
   };
 
+  // Helper function to compare dates
+  const isSameDate = (date1: string, date2: string): boolean => {
+    return date1 === date2;
+  };
+
   const parseDateFromAttribute = (dateStr: string): Date => {
     return parseStoredDate(dateStr);
   };
@@ -142,7 +142,6 @@ export function CalendarView({
   // Simple subscription occurrence calculation with FIXED date parsing
   const getSubscriptionsForDate = (targetDate: Date): Subscription[] => {
     const result: Subscription[] = [];
-    const targetDateKey = getDateKey(targetDate);
 
     // Filter subscriptions based on user preferences
     const filteredSubscriptions = subscriptions.filter((sub) => {
@@ -264,8 +263,8 @@ export function CalendarView({
       if (isThursday && isCurrentMonth) {
         const thursdayWeek = thursdayWeeks.find(
           (week) =>
-            week.startDate.getDate() === currentDay.getDate() &&
-            week.startDate.getMonth() === currentDay.getMonth()
+            new Date(week.startDate).getDate() === currentDay.getDate() &&
+            new Date(week.startDate).getMonth() === currentDay.getMonth()
         );
         weekNumber = thursdayWeek?.weekNumber;
       }
@@ -300,7 +299,6 @@ export function CalendarView({
     for (let i = 0; i < 7; i++) {
       const isToday = isSameDate(formatDateForStorage(currentDay), formatDateForStorage(today));
       const isThursday = currentDay.getDay() === 4;
-      const isCurrentMonth = currentDay.getMonth() === today.getMonth();
 
       // Get subscriptions for this date
       const daySubscriptions = getSubscriptionsForDate(currentDay);

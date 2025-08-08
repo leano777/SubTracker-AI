@@ -1,9 +1,18 @@
-import {
+import type {
   FullSubscription,
   PaymentCard as FullPaymentCard,
-  WeeklyBudget,
 } from "../types/subscription";
-import { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, Notification } from "../types/constants";
+
+// Define WeeklyBudget locally
+interface WeeklyBudget {
+  id: string;
+  weekLabel: string;
+  startDate: string;
+  endDate: string;
+  allocatedAmount: number;
+  subscriptions: string[];
+}
 import { INITIAL_APP_SETTINGS } from "../data/mockData";
 
 // Enhanced user-specific localStorage utilities (now used as cache only)

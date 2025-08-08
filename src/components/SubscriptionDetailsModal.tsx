@@ -26,13 +26,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-import { Subscription } from "../types/subscription";
+import type { FullSubscription } from "../types/subscription";
 
 interface SubscriptionDetailsModalProps {
-  subscription: Subscription | null;
+  subscription: FullSubscription | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (subscription: Subscription) => void;
+  onEdit: (subscription: FullSubscription) => void;
   onDelete: (id: string) => void;
   onCancel?: (id: string) => void;
   onReactivate?: (id: string) => void;
@@ -183,7 +183,7 @@ export function SubscriptionDetailsModal({
                           className="flex items-center justify-between p-2 bg-muted/50 rounded"
                         >
                           <div>
-                            <div className="font-medium">{formatCurrency(change.cost)}</div>
+                            <div className="font-medium">{formatCurrency(parseFloat(change.cost))}</div>
                             <div className="text-xs text-muted-foreground">
                               {change.description}
                             </div>
