@@ -1,6 +1,21 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Toaster } from "sonner";
+
+import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
+import { AppHeader } from "./components/AppHeader";
+import { DashboardTab } from "./components/DashboardTab";
+import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
+import { FloatingNotifications } from "./components/FloatingNotifications";
+import { ImportDialog } from "./components/ImportDialog";
+import { IntelligenceTab } from "./components/IntelligenceTab";
+import { LandingPage } from "./components/LandingPage";
+import { PaymentCardForm } from "./components/PaymentCardForm";
+import { PlanningTab } from "./components/PlanningTab";
+import { QuickActionButton } from "./components/QuickActionButton";
+import { SubscriptionForm } from "./components/SubscriptionForm";
+import { SubscriptionSidePeek } from "./components/SubscriptionSidePeek";
+import { SubscriptionsUnifiedTab } from "./components/SubscriptionsUnifiedTab";
 import {
   Dialog,
   DialogContent,
@@ -9,49 +24,32 @@ import {
   DialogDescription,
 } from "./components/ui/dialog";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { LandingPage } from "./components/LandingPage";
-import { DashboardTab } from "./components/DashboardTab";
-import { SubscriptionsUnifiedTab } from "./components/SubscriptionsUnifiedTab";
-import { PlanningTab } from "./components/PlanningTab";
-import { IntelligenceTab } from "./components/IntelligenceTab";
-import { SubscriptionForm } from "./components/SubscriptionForm";
-import { PaymentCardForm } from "./components/PaymentCardForm";
-import { SubscriptionSidePeek } from "./components/SubscriptionSidePeek";
-import { QuickActionButton } from "./components/QuickActionButton";
-import { FloatingNotifications } from "./components/FloatingNotifications";
-import { AppHeader } from "./components/AppHeader";
-import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
-import { ImportDialog } from "./components/ImportDialog";
-import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
 import { useAppHandlers } from "./hooks/useAppHandlers";
-import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
 import { useDataManagement } from "./hooks/useDataManagement";
+import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
 import { dataSyncManager } from "./utils/dataSync";
 import { formatDateForStorage } from "./utils/dateUtils";
-import { applyThemeClasses, getTextColors, getGlassSecondaryStyles, getGlassAccentStyles } from "./utils/theme";
-import { performanceMonitor } from "./utils/performance";
+import {
+  applyThemeClasses,
+  getTextColors,
+  getGlassSecondaryStyles,
+  getGlassAccentStyles,
+} from "./utils/theme";
 
-// Debug logging utility - optimized for performance
-const debugLog = (category: string, data: any) => {
-  if (process.env.NODE_ENV === "development" && !category.includes('recalculated')) {
-    console.log(`[${category}]`, data);
-  }
-};
-
-function AppContent() {
+const AppContent = () => {
   const { user, loading: authLoading, isAuthenticated, signOut } = useAuth();
   const isDesktop = useIsDesktop();
   const isMobile = useIsMobile();
 
-  // Performance monitoring - only in development
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      performanceMonitor.trackRender('AppContent');
-      const cleanup = performanceMonitor.startMonitoring();
-      return cleanup;
-    }
-  }, []);
+  // Performance monitoring - DISABLED to prevent crashes
+  // useEffect(() => {
+  //   if (process.env.NODE_ENV === 'development') {
+  //     performanceMonitor.trackRender('AppContent');
+  //     const cleanup = performanceMonitor.startMonitoring();
+  //     return cleanup;
+  //   }
+  // }, []);
 
   // Mounted ref for cleanup safety
   const isMountedRef = useRef(true);
@@ -88,7 +86,7 @@ function AppContent() {
 
   // Core UI State - Simplified and consolidated
   const [uiState, setUiState] = useState({
-    activeTab: "overview",
+    activeTab: "dashboard",
     isFormOpen: false,
     isWatchlistMode: false,
     globalSearchTerm: "",
@@ -111,16 +109,15 @@ function AppContent() {
     sidePeekSubscription: null as FullSubscription | null,
   });
 
-  // Connection State
+  // Connection State - TEMPORARILY DISABLE SYNC TO TEST ISSUE
   const [connectionState, setConnectionState] = useState(() => ({
     isOnline: navigator.onLine,
-    cloudSyncEnabled: true,
+    cloudSyncEnabled: false, // TEMPORARILY DISABLED - TESTING SYNC FREEZE ISSUE
   }));
 
   // Stable user reference - Only derive userId to prevent object reference changes
   const stableUserId = useMemo(() => {
-    debugLog("stableUserId recalculated", user?.id);
-    return user?.id || null;
+    return user?.id ?? null;
   }, [user?.id]);
 
   // Data Management Hook - FIXED: Simplified parameters to prevent cascade re-renders
@@ -177,7 +174,6 @@ function AppContent() {
   // Theme calculations - Optimized with stable reference
   const themeValues = useMemo(() => {
     const currentTheme = appSettings?.preferences?.theme || "light";
-    debugLog("themeValues recalculated", currentTheme);
 
     const isDarkMode = currentTheme === "dark";
     const isStealthOps = currentTheme === "stealth-ops";
@@ -194,8 +190,6 @@ function AppContent() {
 
   // Apply theme when it changes - FIXED: Proper cleanup and debouncing
   useEffect(() => {
-    debugLog("theme effect triggered", themeValues.currentTheme);
-
     const timeoutId = createTrackedTimeout(() => {
       if (isMountedRef.current) {
         try {
@@ -214,8 +208,6 @@ function AppContent() {
 
   // Online/offline handling - FIXED: Proper cleanup and state updates
   useEffect(() => {
-    debugLog("online/offline effect mounted", navigator.onLine);
-
     const handleOnline = () => {
       if (isMountedRef.current) {
         setConnectionState((prev) => ({ ...prev, isOnline: true }));
@@ -242,8 +234,6 @@ function AppContent() {
 
   // Load user data - FIXED: Proper dependency management and cleanup
   useEffect(() => {
-    debugLog("loadUserData effect", { isAuthenticated, stableUserId });
-
     if (!isAuthenticated || !stableUserId || !loadUserData) {
       return;
     }
@@ -269,8 +259,6 @@ function AppContent() {
 
   // Stable handlers - FIXED: Simplified dependencies with React.Dispatch compatibility
   const stableHandlers = useMemo(() => {
-    debugLog("stableHandlers recalculated", uiState.activeTab);
-
     return {
       setActiveTab: (tab: string) => {
         if (isMountedRef.current) {
@@ -279,7 +267,7 @@ function AppContent() {
       },
       setIsFormOpen: (open: boolean | ((prev: boolean) => boolean)) => {
         if (isMountedRef.current) {
-          if (typeof open === 'function') {
+          if (typeof open === "function") {
             setUiState((prev) => ({ ...prev, isFormOpen: open(prev.isFormOpen) }));
           } else {
             setUiState((prev) => ({ ...prev, isFormOpen: open }));
@@ -288,17 +276,25 @@ function AppContent() {
       },
       setIsWatchlistMode: (mode: boolean | ((prev: boolean) => boolean)) => {
         if (isMountedRef.current) {
-          if (typeof mode === 'function') {
+          if (typeof mode === "function") {
             setUiState((prev) => ({ ...prev, isWatchlistMode: mode(prev.isWatchlistMode) }));
           } else {
             setUiState((prev) => ({ ...prev, isWatchlistMode: mode }));
           }
         }
       },
-      setEditingSubscription: (subscription: FullSubscription | null | ((prev: FullSubscription | null) => FullSubscription | null)) => {
+      setEditingSubscription: (
+        subscription:
+          | FullSubscription
+          | null
+          | ((prev: FullSubscription | null) => FullSubscription | null)
+      ) => {
         if (isMountedRef.current) {
-          if (typeof subscription === 'function') {
-            setEditingState((prev) => ({ ...prev, editingSubscription: subscription(prev.editingSubscription) }));
+          if (typeof subscription === "function") {
+            setEditingState((prev) => ({
+              ...prev,
+              editingSubscription: subscription(prev.editingSubscription),
+            }));
           } else {
             setEditingState((prev) => ({ ...prev, editingSubscription: subscription }));
           }
@@ -355,8 +351,6 @@ function AppContent() {
 
   // Logout handler - FIXED: Proper state cleanup before async operation
   const handleLogout = useCallback(async () => {
-    debugLog("logout initiated", "clearing state");
-
     try {
       // Clear state synchronously first
       if (isMountedRef.current) {
@@ -632,14 +626,10 @@ function AppContent() {
   );
 
   // Categories update handler for planning tab
-  const handleUpdateCategories = useCallback(
-    (categories: any) => {
-      if (!isMountedRef.current) return;
-      console.log("Updating categories:", categories);
-      // TODO: Implement category updates when needed
-    },
-    []
-  );
+  const handleUpdateCategories = useCallback((categories: any) => {
+    if (!isMountedRef.current) return;
+    // TODO: Implement category updates when needed
+  }, []);
 
   // Side peek handlers - FIXED: Proper state management with timing
   const sidePeekHandlers = useMemo(
@@ -733,11 +723,6 @@ function AppContent() {
 
   // Computed values - FIXED: Optimized with proper null safety
   const computedValues = useMemo(() => {
-    debugLog("computedValues recalculated", {
-      subscriptionsCount: subscriptions?.length,
-      notificationsCount: notifications?.length,
-    });
-
     return {
       activeSubscriptionsCount: Array.isArray(subscriptions)
         ? subscriptions.filter((sub) => sub?.status === "active").length
@@ -750,8 +735,6 @@ function AppContent() {
 
   // Tab content renderer - FIXED: Simplified dependencies and error boundary
   const renderTabContent = useCallback(() => {
-    if (!isMountedRef.current) return null;
-
     try {
       const props = {
         subscriptions: subscriptions || [],
@@ -762,22 +745,43 @@ function AppContent() {
       };
 
       switch (uiState.activeTab) {
+        case "dashboard":
         case "overview":
-          return <DashboardTab {...props} />;
+          try {
+            return (
+              <DashboardTab
+                subscriptions={props.subscriptions}
+                cards={props.cards}
+                settings={props.settings}
+                notifications={props.notifications}
+                weeklyBudgets={props.weeklyBudgets}
+              />
+            );
+          } catch (error) {
+            console.error("DashboardTab render error:", error);
+            return <div className="p-4">Error loading dashboard. Check console for details.</div>;
+          }
         case "subscriptions":
-          return (
-            <SubscriptionsUnifiedTab
-              subscriptions={props.subscriptions}
-              cards={props.cards}
-              onEdit={openEditForm}
-              onDelete={handleDeleteSubscription}
-              onCancel={handleCancelSubscription}
-              onReactivate={handleReactivateSubscription}
-              onActivateFromWatchlist={handleActivateFromWatchlist}
-              onAddNew={openAddForm}
-              onAddToWatchlist={openWatchlistForm}
-            />
-          );
+          try {
+            return (
+              <SubscriptionsUnifiedTab
+                subscriptions={props.subscriptions}
+                cards={props.cards}
+                onEdit={openEditForm}
+                onDelete={handleDeleteSubscription}
+                onCancel={handleCancelSubscription}
+                onReactivate={handleReactivateSubscription}
+                onActivateFromWatchlist={handleActivateFromWatchlist}
+                onAddNew={openAddForm}
+                onAddToWatchlist={openWatchlistForm}
+              />
+            );
+          } catch (error) {
+            console.error("SubscriptionsUnifiedTab render error:", error);
+            return (
+              <div className="p-4">Error loading subscriptions. Check console for details.</div>
+            );
+          }
         case "planning":
           return (
             <PlanningTab
@@ -839,10 +843,14 @@ function AppContent() {
     handleUpdateCategories,
   ]);
 
+  // Mount effect - Ensure isMountedRef is true on mount
+  useEffect(() => {
+    isMountedRef.current = true;
+  }, []);
+
   // Cleanup effect - CRITICAL: Proper cleanup on unmount
   useEffect(() => {
     return () => {
-      debugLog("AppContent unmounting", "cleaning up resources");
       isMountedRef.current = false;
 
       // Clear all timeouts
@@ -957,7 +965,7 @@ function AppContent() {
       {/* Modals */}
       <Dialog open={uiState.isFormOpen} onOpenChange={stableHandlers.setIsFormOpen}>
         <DialogContent
-          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/30"
           aria-describedby="subscription-form-dialog-description"
         >
           <DialogHeader>
@@ -992,7 +1000,10 @@ function AppContent() {
       </Dialog>
 
       <Dialog open={modalState.isCardModalOpen} onOpenChange={cardModalHandlers.closeCardModal}>
-        <DialogContent className="max-w-md" aria-describedby="payment-card-dialog-description">
+        <DialogContent
+          className="max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/30"
+          aria-describedby="payment-card-dialog-description"
+        >
           <DialogHeader>
             <DialogTitle>
               {editingState.editingCard ? "Edit Payment Card" : "Add Payment Card"}
@@ -1013,7 +1024,7 @@ function AppContent() {
 
       <Dialog open={modalState.isSettingsModalOpen} onOpenChange={modalHandlers.closeSettingsModal}>
         <DialogContent
-          className="max-w-4xl max-h-[90vh] overflow-y-auto"
+          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/30"
           aria-describedby="settings-dialog-description"
         >
           <DialogHeader>
@@ -1060,14 +1071,14 @@ function AppContent() {
       />
     </div>
   );
-}
+};
 
-function App() {
+const App = () => {
   return (
     <AuthProvider>
       <AppContent />
     </AuthProvider>
   );
-}
+};
 
 export default App;

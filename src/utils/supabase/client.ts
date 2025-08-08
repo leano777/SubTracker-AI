@@ -5,8 +5,10 @@ let supabaseInstance: SupabaseClient | null = null;
 
 // Singleton pattern - create client only once
 export const createClient = (): SupabaseClient => {
-  if (!supabaseInstance) {
-    supabaseInstance = createSupabaseClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY, {
+  supabaseInstance ??= createSupabaseClient(
+    import.meta.env.VITE_SUPABASE_URL as string,
+    import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+    {
       auth: {
         storage: typeof window !== "undefined" ? window.localStorage : undefined,
         autoRefreshToken: true,
@@ -15,8 +17,8 @@ export const createClient = (): SupabaseClient => {
         // Enhanced error handling for token refresh
         flowType: "pkce",
       },
-    });
-  }
+    }
+  );
   return supabaseInstance;
 };
 

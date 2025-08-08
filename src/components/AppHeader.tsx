@@ -1,8 +1,13 @@
-import React from "react";
 import { Search, User, ChevronDown, Loader2, LogOut, RefreshCw, Menu } from "lucide-react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import React from "react";
+
+import type { SyncStatus } from "../utils/dataSync";
+import { getSyncStatusColor, getSyncStatusIcon, getSyncStatusText } from "../utils/syncStatus";
+import { getGlassSecondaryStyles, getTextColors } from "../utils/theme";
+
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "./ui/dropdown-menu";
+import { Input } from "./ui/input";
 import {
   Sheet,
   SheetContent,
@@ -19,10 +25,6 @@ import {
   SheetTitle,
   SheetDescription,
 } from "./ui/sheet";
-import { Badge } from "./ui/badge";
-import { getSyncStatusColor, getSyncStatusIcon, getSyncStatusText } from "../utils/syncStatus";
-import { getGlassSecondaryStyles, getTextColors } from "../utils/theme";
-import type { SyncStatus } from "../utils/dataSync";
 
 interface AppHeaderProps {
   user: any;
@@ -91,7 +93,7 @@ const MobileNavigation = ({
             : `rounded-xl ${
                 activeTab === tab.id
                   ? `${isDarkMode ? "bg-gray-700 text-gray-100" : "bg-gray-100 text-gray-900"} shadow-sm`
-                  : `${textColors.secondary || "text-gray-600"} hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`
+                  : `text-muted-foreground hover:bg-accent hover:text-accent-foreground`
               }`
         }`}
         style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
@@ -177,50 +179,27 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </span>
             </h1>
 
-            {/* Desktop Tab Navigation with enhanced tactical styling */}
-            <nav
-              className={`hidden lg:flex space-x-1 p-1 backdrop-blur-sm ${
-                isStealthOps ? "tactical-surface border border-gray-600" : "rounded-xl"
-              }`}
-              style={{
-                backgroundColor: isStealthOps
-                  ? "rgba(0, 0, 0, 0.9)"
-                  : isDarkMode
-                    ? "rgba(31, 41, 55, 0.3)"
-                    : "rgba(255, 255, 255, 0.3)",
-                borderRadius: isStealthOps ? "0.125rem" : undefined,
-              }}
-            >
+            {/* Desktop Tab Navigation - SIMPLIFIED AND WORKING */}
+            <nav className="hidden lg:flex space-x-2 p-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm rounded-lg border border-white/10 dark:border-gray-700/20">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 py-2 text-sm font-medium transition-all duration-300 whitespace-nowrap ${
-                    isStealthOps ? "font-mono tracking-wide" : "rounded-lg"
-                  } ${
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                  }}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.id
-                      ? `${
-                          isStealthOps
-                            ? "tactical-button tactical-glow bg-gray-800 border-green-400 text-green-400"
-                            : isDarkMode
-                              ? "bg-gray-600 text-gray-100"
-                              : "bg-white text-gray-900"
-                        } shadow-sm backdrop-blur-md`
-                      : `${safeTextColors.secondary} ${
-                          isStealthOps
-                            ? "hover:bg-gray-800 hover:text-green-400 border border-transparent"
-                            : `hover:${isDarkMode ? "bg-gray-700" : "bg-white/50"}`
-                        }`
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
-                  style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
                 >
-                  {isStealthOps ? `[${tab.label.toUpperCase()}]` : tab.label}
+                  {tab.label}
                 </button>
               ))}
             </nav>
 
             {/* Mobile Menu Button with tactical styling and FIXED ACCESSIBILITY */}
-            {!isMobile && (
+            {isMobile && (
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button

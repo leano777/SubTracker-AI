@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   ExternalLink,
   Edit,
@@ -10,13 +9,13 @@ import {
   XCircle,
   RotateCcw,
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { useState } from "react";
+
+import type {
+  FullSubscription as Subscription,
+  FullPaymentCard as PaymentCard,
+} from "../types/subscription";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +27,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 interface SubscriptionTableProps {
   subscriptions: Subscription[];
@@ -41,7 +46,7 @@ interface SubscriptionTableProps {
   showCancelledActions?: boolean;
 }
 
-export function SubscriptionTable({
+export const SubscriptionTable = ({
   subscriptions,
   onEdit,
   onDelete,
@@ -50,7 +55,7 @@ export function SubscriptionTable({
   onViewDetails,
   cards,
   showCancelledActions = false,
-}: SubscriptionTableProps) {
+}: SubscriptionTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -169,7 +174,8 @@ export function SubscriptionTable({
               </TooltipTrigger>
               <TooltipContent>
                 <p>
-                  Changes to {formatCurrency(parseFloat(nextChange.cost))} on {formatDate(nextChange.date)}
+                  Changes to {formatCurrency(parseFloat(nextChange.cost))} on{" "}
+                  {formatDate(nextChange.date)}
                 </p>
                 {nextChange.description && (
                   <p className="text-xs text-muted-foreground">{nextChange.description}</p>
@@ -314,210 +320,220 @@ export function SubscriptionTable({
         </div>
 
         {/* Table */}
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Service</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead>Billing</TableHead>
-                {!showCancelledActions && <TableHead>Next Payment</TableHead>}
-                {showCancelledActions && <TableHead>Date Cancelled</TableHead>}
-                <TableHead>Payment Card</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedSubscriptions.map((subscription) => {
-                const card = getPaymentCard(subscription.cardId);
-                return (
-                  <TableRow key={subscription.id} className="group">
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        {subscription.logoUrl && (
-                          <img
-                            src={subscription.logoUrl}
-                            alt={`${subscription.name} logo`}
-                            className="w-6 h-6 rounded"
-                          />
-                        )}
-                        <div>
-                          <div className="font-medium">{subscription.name}</div>
-                          {subscription.description && (
-                            <div className="text-sm text-muted-foreground line-clamp-1">
-                              {subscription.description}
-                            </div>
+        <div className="border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[200px]">Service</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden sm:table-cell">Category</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead className="hidden md:table-cell">Billing</TableHead>
+                  {!showCancelledActions && (
+                    <TableHead className="hidden lg:table-cell">Next Payment</TableHead>
+                  )}
+                  {showCancelledActions && (
+                    <TableHead className="hidden lg:table-cell">Date Cancelled</TableHead>
+                  )}
+                  <TableHead className="hidden md:table-cell">Payment Card</TableHead>
+                  <TableHead className="hidden sm:table-cell">Type</TableHead>
+                  <TableHead className="text-right min-w-[120px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedSubscriptions.map((subscription) => {
+                  const card = getPaymentCard(subscription.cardId);
+                  return (
+                    <TableRow key={subscription.id} className="group">
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          {subscription.logoUrl && (
+                            <img
+                              src={subscription.logoUrl}
+                              alt={`${subscription.name} logo`}
+                              className="w-6 h-6 rounded"
+                            />
                           )}
+                          <div>
+                            <div className="font-medium">{subscription.name}</div>
+                            {subscription.description && (
+                              <div className="text-sm text-muted-foreground line-clamp-1">
+                                {subscription.description}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>{getStatusBadge(subscription)}</TableCell>
+                      <TableCell>{getStatusBadge(subscription)}</TableCell>
 
-                    <TableCell>
-                      <Badge variant="secondary">{subscription.category}</Badge>
-                    </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="secondary">{subscription.category}</Badge>
+                      </TableCell>
 
-                    <TableCell>{getCostDisplay(subscription)}</TableCell>
+                      <TableCell>{getCostDisplay(subscription)}</TableCell>
 
-                    <TableCell>{getBillingCycleDisplay(subscription)}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {getBillingCycleDisplay(subscription)}
+                      </TableCell>
 
-                    <TableCell>
-                      {showCancelledActions ? (
-                        subscription.dateCancelled && (
+                      <TableCell className="hidden lg:table-cell">
+                        {showCancelledActions ? (
+                          subscription.dateCancelled && (
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="w-4 h-4 text-muted-foreground" />
+                              <span>{formatDate(subscription.dateCancelled)}</span>
+                            </div>
+                          )
+                        ) : (
                           <div className="flex items-center space-x-2">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <span>{formatDate(subscription.dateCancelled)}</span>
+                            <span>{formatDate(subscription.nextPayment)}</span>
                           </div>
-                        )
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span>{formatDate(subscription.nextPayment)}</span>
-                        </div>
-                      )}
-                    </TableCell>
+                        )}
+                      </TableCell>
 
-                    <TableCell>
-                      {card ? (
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: card.color }}
-                          ></div>
-                          <span className="text-sm">{card.nickname}</span>
-                          <span className="text-xs text-muted-foreground">••••{card.lastFour}</span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">No card set</span>
-                      )}
-                    </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {card ? (
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: card.color }}
+                            ></div>
+                            <span className="text-sm">{card.nickname}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ••••{card.lastFour}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">No card set</span>
+                        )}
+                      </TableCell>
 
-                    <TableCell>
-                      <Badge
-                        variant={
-                          subscription.subscriptionType === "business" ? "default" : "outline"
-                        }
-                      >
-                        {subscription.subscriptionType}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewDetails(subscription)}
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge
+                          variant={
+                            subscription.subscriptionType === "business" ? "default" : "outline"
+                          }
                         >
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                          {subscription.subscriptionType}
+                        </Badge>
+                      </TableCell>
 
-                        {subscription.billingUrl && (
+                      <TableCell>
+                        <div className="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(subscription.billingUrl, "_blank")}
+                            onClick={() => onViewDetails(subscription)}
                           >
-                            <ExternalLink className="w-4 h-4" />
+                            <Eye className="w-4 h-4" />
                           </Button>
-                        )}
 
-                        <Button variant="ghost" size="sm" onClick={() => onEdit(subscription)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-
-                        {showCancelledActions
-                          ? onReactivate && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onReactivate(subscription.id)}
-                                    className="text-green-600 hover:text-green-700"
-                                  >
-                                    <RotateCcw className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Reactivate subscription</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )
-                          : onCancel &&
-                            subscription.status === "active" && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-orange-600 hover:text-orange-700"
-                                  >
-                                    <XCircle className="w-4 h-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to cancel "{subscription.name}"? This
-                                      will mark it as cancelled and remove it from your active
-                                      subscriptions. You can reactivate it later if needed.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Keep Active</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => onCancel(subscription.id)}
-                                      className="bg-orange-600 hover:bg-orange-700"
-                                    >
-                                      Cancel Subscription
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
-
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
+                          {subscription.billingUrl && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-destructive hover:text-destructive"
+                              onClick={() => window.open(subscription.billingUrl, "_blank")}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <ExternalLink className="w-4 h-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to permanently delete "{subscription.name}"?
-                                This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => onDelete(subscription.id)}
-                                className="bg-destructive hover:bg-destructive/90"
+                          )}
+
+                          <Button variant="ghost" size="sm" onClick={() => onEdit(subscription)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+
+                          {showCancelledActions
+                            ? onReactivate && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => onReactivate(subscription.id)}
+                                      className="text-green-600 hover:text-green-700"
+                                    >
+                                      <RotateCcw className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Reactivate subscription</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )
+                            : onCancel &&
+                              subscription.status === "active" && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-orange-600 hover:text-orange-700"
+                                    >
+                                      <XCircle className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to cancel "{subscription.name}"? This
+                                        will mark it as cancelled and remove it from your active
+                                        subscriptions. You can reactivate it later if needed.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Keep Active</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => onCancel(subscription.id)}
+                                        className="bg-orange-600 hover:bg-orange-700"
+                                      >
+                                        Cancel Subscription
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to permanently delete "{subscription.name}"?
+                                  This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => onDelete(subscription.id)}
+                                  className="bg-destructive hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         </div>
 
         {sortedSubscriptions.length === 0 && (
@@ -534,4 +550,4 @@ export function SubscriptionTable({
       </div>
     </TooltipProvider>
   );
-}
+};

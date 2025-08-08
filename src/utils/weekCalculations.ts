@@ -57,7 +57,7 @@ export function getThursdayWeeksForMonth(month: number, year: number): ThursdayW
 
   // Find all Thursdays in the month
   const thursdaysInMonth: Date[] = [];
-  let currentDate = new Date(firstDayOfMonth);
+  const currentDate = new Date(firstDayOfMonth);
 
   // Find the first Thursday in the month
   while (currentDate.getDay() !== 4 && currentDate <= lastDayOfMonth) {
@@ -99,8 +99,8 @@ export function getThursdayWeeksForMonth(month: number, year: number): ThursdayW
     }
 
     weeks.push({
-      startDate: new Date(thursday).toISOString().split('T')[0],
-      endDate: weekEnd.toISOString().split('T')[0],
+      startDate: new Date(thursday).toISOString().split("T")[0],
+      endDate: weekEnd.toISOString().split("T")[0],
       weekNumber,
       monthYear,
       weekLabel: `${monthName} Week ${weekNumber}`,
@@ -125,7 +125,7 @@ export function getCurrentThursdayWeek(): ThursdayWeek {
     currentThursday.getFullYear()
   );
   const currentWeek = monthWeeks.find(
-    (week) => week.startDate === currentThursday.toISOString().split('T')[0]
+    (week) => week.startDate === currentThursday.toISOString().split("T")[0]
   );
 
   if (currentWeek) {
@@ -144,7 +144,7 @@ export function getCurrentThursdayWeek(): ThursdayWeek {
       // This would be part of July's week system
       const julyWeeks = getThursdayWeeksForMonth(6, 2025); // July is month 6
       const julyWeek = julyWeeks.find(
-        (week) => week.startDate === currentThursday.toISOString().split('T')[0]
+        (week) => week.startDate === currentThursday.toISOString().split("T")[0]
       );
       if (julyWeek) {
         return { ...julyWeek, isCurrentWeek: true };
@@ -156,8 +156,8 @@ export function getCurrentThursdayWeek(): ThursdayWeek {
   const monthName = currentThursday.toLocaleDateString("en-US", { month: "long" });
   const monthYear = `${monthName}-${currentThursday.getFullYear()}`;
   return {
-    startDate: currentThursday.toISOString().split('T')[0],
-    endDate: currentWednesday.toISOString().split('T')[0],
+    startDate: currentThursday.toISOString().split("T")[0],
+    endDate: currentWednesday.toISOString().split("T")[0],
     weekNumber: 1,
     monthYear,
     weekLabel: `${monthName} Week 1`,
@@ -180,7 +180,7 @@ export function getUpcomingThursdayWeeks(numberOfWeeks: number = 8): ThursdayWee
       currentThursday.getFullYear()
     );
     const weekInfo = monthWeeks.find(
-      (week) => week.startDate === currentThursday.toISOString().split('T')[0]
+      (week) => week.startDate === currentThursday.toISOString().split("T")[0]
     );
 
     if (weekInfo) {
@@ -190,8 +190,8 @@ export function getUpcomingThursdayWeeks(numberOfWeeks: number = 8): ThursdayWee
       const monthName = currentThursday.toLocaleDateString("en-US", { month: "long" });
       const monthYear = `${monthName}-${currentThursday.getFullYear()}`;
       weeks.push({
-        startDate: new Date(currentThursday).toISOString().split('T')[0],
-        endDate: weekEnd.toISOString().split('T')[0],
+        startDate: new Date(currentThursday).toISOString().split("T")[0],
+        endDate: weekEnd.toISOString().split("T")[0],
         weekNumber: 1,
         monthYear,
         weekLabel: `${monthName} Week 1`,
@@ -231,12 +231,12 @@ export function createWeeklyBudgetFromThursdayWeek(
   initialBudget: number = 0
 ): WeeklyBudget {
   return {
-    id: `week-${thursdayWeek.weekNumber || 1}-${thursdayWeek.monthYear || 'unknown'}`,
+    id: `week-${thursdayWeek.weekNumber ?? 1}-${thursdayWeek.monthYear ?? "unknown"}`,
     startDate: thursdayWeek.startDate,
     endDate: thursdayWeek.endDate,
     weekNumber: thursdayWeek.weekNumber,
     monthYear: thursdayWeek.monthYear,
-    weekLabel: thursdayWeek.weekLabel || `Week ${thursdayWeek.weekNumber || 1}`,
+    weekLabel: thursdayWeek.weekLabel ?? `Week ${thursdayWeek.weekNumber ?? 1}`,
     isCurrentWeek: thursdayWeek.isCurrentWeek,
     requiredAmount: initialBudget,
     subscriptions: [],

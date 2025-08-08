@@ -262,9 +262,6 @@ export function calculateYearlyAmount(
 export function safeCalculateWeeklyAmount(subscription: FullSubscription): number {
   try {
     const validated = validateSubscriptionForCalculations(subscription);
-    console.log(
-      `🔍 Safe weekly calculation for "${validated.name}": frequency="${validated.frequency}", price=${validated.price}`
-    );
     return calculateWeeklyAmount(validated.price, validated.frequency, validated.variablePricing);
   } catch (error) {
     console.error(`❌ Error in safeCalculateWeeklyAmount for "${subscription.name}":`, error);
@@ -275,9 +272,6 @@ export function safeCalculateWeeklyAmount(subscription: FullSubscription): numbe
 export function safeCalculateMonthlyAmount(subscription: FullSubscription): number {
   try {
     const validated = validateSubscriptionForCalculations(subscription);
-    console.log(
-      `🔍 Safe monthly calculation for "${validated.name}": frequency="${validated.frequency}", price=${validated.price}`
-    );
     return calculateMonthlyAmount(validated.price, validated.frequency, validated.variablePricing);
   } catch (error) {
     console.error(`❌ Error in safeCalculateMonthlyAmount for "${subscription.name}":`, error);
@@ -288,9 +282,6 @@ export function safeCalculateMonthlyAmount(subscription: FullSubscription): numb
 export function safeCalculateYearlyAmount(subscription: FullSubscription): number {
   try {
     const validated = validateSubscriptionForCalculations(subscription);
-    console.log(
-      `🔍 Safe yearly calculation for "${validated.name}": frequency="${validated.frequency}", price=${validated.price}`
-    );
     return calculateYearlyAmount(validated.price, validated.frequency, validated.variablePricing);
   } catch (error) {
     console.error(`❌ Error in safeCalculateYearlyAmount for "${subscription.name}":`, error);
@@ -386,9 +377,6 @@ export function validateSubscriptionForCalculations(
   }
 
   // Log the validated subscription for debugging
-  console.log(
-    `✅ Validated subscription "${safeSub.name}": frequency="${safeSub.frequency}", price=${safeSub.price}`
-  );
 
   return safeSub;
 }
@@ -397,10 +385,6 @@ export function validateSubscriptionForCalculations(
 export function calculateSubscriptionMetrics(subscription: FullSubscription) {
   // Validate subscription data first
   const validatedSubscription = validateSubscriptionForCalculations(subscription);
-
-  console.log(
-    `🔍 Calculating metrics for "${validatedSubscription.name}" with frequency: "${validatedSubscription.frequency}" and price: ${validatedSubscription.price}`
-  );
 
   const weeklyAmount = calculateWeeklyAmount(
     validatedSubscription.price,
