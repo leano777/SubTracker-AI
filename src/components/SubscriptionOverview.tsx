@@ -1,7 +1,7 @@
 import { Building2, User, DollarSign, CreditCard } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Subscription } from "../types/subscription";
+import type { FullSubscription as Subscription } from "../types/subscription";
 
 interface SubscriptionOverviewProps {
   subscriptions: Subscription[];

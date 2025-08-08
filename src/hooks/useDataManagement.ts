@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import {
+import type {
   FullSubscription,
   PaymentCard as FullPaymentCard,
-  WeeklyBudget,
 } from "../types/subscription";
-import { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, Notification } from "../types/constants";
+import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
 import {
   INITIAL_SUBSCRIPTIONS,
   INITIAL_PAYMENT_CARDS,
   INITIAL_NOTIFICATIONS,
   INITIAL_APP_SETTINGS,
 } from "../data/mockData";
-import { dataSyncManager, SyncStatus } from "../utils/dataSync";
+import { dataSyncManager } from "../utils/dataSync";
+import type { SyncStatus } from "../utils/dataSync";
 import { saveUserDataToCache, loadUserDataFromCache, clearUserDataCache } from "../utils/cache";
 import {
   calculatePayPeriodRequirements,
-  getSubscriptionStatistics,
 } from "../utils/payPeriodCalculations";
 
 // Enhanced data migration function with robust validation
@@ -26,10 +26,13 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
       id: "placeholder-" + Date.now(),
       name: "Unknown Subscription",
       price: 0,
+      cost: 0,
       frequency: "monthly",
+      billingCycle: "monthly",
       nextPayment: new Date().toISOString().split("T")[0],
       category: "Other",
       status: "active",
+      isActive: true,
       dateAdded: new Date().toISOString().split("T")[0],
     };
   }
@@ -186,10 +189,13 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
     id: subscription.id || `migrated-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     name: subscription.name || "Unknown Subscription",
     price: determinedPrice,
+    cost: determinedPrice,
     frequency: safeFrequency,
+    billingCycle: "monthly",
     nextPayment: subscription.nextPayment || new Date().toISOString().split("T")[0],
     category: subscription.category || "Other",
     status: subscription.status || (subscription.isActive ? "active" : "cancelled") || "active",
+    isActive: (subscription.status || (subscription.isActive ? "active" : "cancelled") || "active") === "active",
     description: subscription.description,
     website: subscription.billingUrl || subscription.website,
     dateAdded: subscription.dateAdded || new Date().toISOString().split("T")[0],
@@ -265,6 +271,16 @@ const migratePaymentCardData = (card: any): FullPaymentCard => {
   return migrated;
 };
 
+// Define WeeklyBudget type locally since it's not exported
+interface WeeklyBudget {
+  id: string;
+  weekLabel: string;
+  startDate: string;
+  endDate: string;
+  allocatedAmount: number;
+  subscriptions: string[];
+}
+
 // Helper function to convert PayPeriodRequirement to WeeklyBudget
 const convertToWeeklyBudgets = (requirements: any[]): WeeklyBudget[] => {
   return requirements.map((req, index) => ({
@@ -278,6 +294,8 @@ const convertToWeeklyBudgets = (requirements: any[]): WeeklyBudget[] => {
 };
 
 // Enhanced session readiness check with multiple validation layers
+// Enhanced session readiness check with multiple validation layers
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const isSessionReady = (session: any, user: any, retryCount: number = 0): boolean => {
   if (!session || !user) {
     console.log(

@@ -1,6 +1,7 @@
-import { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
-import { Notification } from "../types/constants";
-import { RecoveryData, LEGACY_STORAGE_KEYS } from "../types/recovery";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
+import type { Notification } from "../types/constants";
+import type { RecoveryData } from "../types/recovery";
+import { LEGACY_STORAGE_KEYS } from "../types/recovery";
 import { getUserStorageKey } from "./cache";
 
 // Check legacy browser storage for recoverable data

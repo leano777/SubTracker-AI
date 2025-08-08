@@ -15,7 +15,7 @@ import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Alert, AlertDescription } from "./ui/alert";
-import { Subscription, PaymentCard } from "../types/subscription";
+import type { Subscription, PaymentCard } from "../types/subscription";
 
 interface RealTimeSyncProps {
   subscriptions: Subscription[];
@@ -55,7 +55,7 @@ export function RealTimeSync({
 
   const [isManualSyncing, setIsManualSyncing] = useState(false);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
-  const syncIntervalRef = useRef<NodeJS.Timeout>();
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [connectionQuality, setConnectionQuality] = useState<
     "excellent" | "good" | "poor" | "offline"
   >("excellent");

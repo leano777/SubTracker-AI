@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { PaymentCard } from "../types/subscription";
+import type { PaymentCard } from "../types/subscription";
 
 interface ManageCardsProps {
   cards: PaymentCard[];
@@ -30,6 +30,7 @@ interface CardFormData {
   type: "credit" | "debit" | "other";
   issuer: string;
   color: string;
+  isDefault?: boolean;
 }
 
 const cardColors = [
@@ -112,6 +113,7 @@ export function ManageCards({
     type: "credit",
     issuer: "",
     color: cardColors[0].value,
+    isDefault: false,
   });
 
   // Detect dark mode from document class
@@ -166,6 +168,7 @@ export function ManageCards({
       type: "credit",
       issuer: "",
       color: cardColors[0].value,
+      isDefault: false,
     });
     setEditingCard(null);
   };
@@ -175,13 +178,22 @@ export function ManageCards({
     setIsFormOpen(true);
   };
 
+  const mapCardTypeToFormType = (cardType?: string): "credit" | "debit" | "other" => {
+    if (cardType === "debit") return "debit";
+    if (cardType === "visa" || cardType === "mastercard" || cardType === "amex" || cardType === "discover" || cardType === "credit") {
+      return "credit";
+    }
+    return "other";
+  };
+
   const openEditForm = (card: PaymentCard) => {
     setFormData({
-      nickname: card.nickname,
-      lastFour: card.lastFour,
-      type: card.type,
+      nickname: card.nickname || "",
+      lastFour: card.lastFour || "",
+      type: mapCardTypeToFormType(card.type),
       issuer: card.issuer || "",
       color: card.color || cardColors[0].value,
+      isDefault: card.isDefault || false,
     });
     setEditingCard(card);
     setIsFormOpen(true);
@@ -211,6 +223,7 @@ export function ManageCards({
         ...formData,
         nickname: formData.nickname.trim(),
         lastFour: formData.lastFour.trim(),
+        isDefault: formData.isDefault || false,
       });
     }
 
@@ -484,7 +497,7 @@ export function ManageCards({
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
-                    {getTypeIcon(card.type)}
+                    {getTypeIcon(card.type || "other")}
                     <span className={`font-semibold ${textPrimary}`}>{card.nickname}</span>
                     {card.isDefault && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                   </div>

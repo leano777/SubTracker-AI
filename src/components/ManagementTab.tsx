@@ -32,19 +32,19 @@ import {
 } from "./ui/alert-dialog";
 import { ManageCards } from "./ManageCards";
 import { ImportDialog } from "./ImportDialog";
-import { Subscription, PaymentCard } from "../types/subscription";
-import { AppSettings } from "../types/constants";
+import type { FullSubscription, PaymentCard } from "../types/subscription";
+import type { AppSettings } from "../types/constants";
 import { formatCurrency } from "../utils/helpers";
 
 interface ManagementTabProps {
-  subscriptions: Subscription[];
+  subscriptions: FullSubscription[];
   cards: PaymentCard[];
   settings: AppSettings;
   onAddCard: (card: Omit<PaymentCard, "id" | "dateAdded">) => void;
   onEditCard: (card: PaymentCard) => void;
   onDeleteCard: (id: string) => void;
   onSetDefaultCard: (id: string) => void;
-  onBulkEdit: (ids: string[], updates: Partial<Subscription>) => void;
+  onBulkEdit: (ids: string[], updates: Partial<FullSubscription>) => void;
   onBulkDelete: (ids: string[]) => void;
   onImportData: (data: any) => void;
   onExportData: (format: "json" | "csv") => void;
@@ -115,7 +115,7 @@ export function ManagementTab({
   };
 
   // Enhanced import handler for the new dialog system
-  const handleEnhancedImport = (data: { subscriptions: Subscription[]; cards: PaymentCard[] }) => {
+  const handleEnhancedImport = (data: { subscriptions: FullSubscription[]; cards: PaymentCard[] }) => {
     console.log("📥 Enhanced import received:", data);
 
     // Convert to the format expected by the existing handler

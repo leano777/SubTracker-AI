@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
 import { Slider } from "./ui/slider";
-import { AppSettings, ThemeMode } from "../types/constants";
+import type { AppSettings } from "../types/constants";
 
 interface AdvancedSettingsTabProps {
   settings: AppSettings;

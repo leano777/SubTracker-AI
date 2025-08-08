@@ -1,12 +1,10 @@
-import { useState } from "react";
 import { Calendar, DollarSign, TrendingUp, AlertCircle, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
 import { Separator } from "./ui/separator";
-import { PayPeriodRequirement } from "../types/subscription";
-import { formatCurrency, getUpcomingPricingChanges } from "../utils/payPeriodCalculations";
+import type { PayPeriodRequirement } from "../types/subscription";
+import { formatCurrency } from "../utils/payPeriodCalculations";
 
 interface PayPeriodCalculatorProps {
   payPeriods: PayPeriodRequirement[];

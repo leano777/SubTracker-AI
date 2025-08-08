@@ -22,7 +22,7 @@ import {
 import { Badge } from "./ui/badge";
 import { getSyncStatusColor, getSyncStatusIcon, getSyncStatusText } from "../utils/syncStatus";
 import { getGlassSecondaryStyles, getTextColors } from "../utils/theme";
-import { SyncStatus } from "../utils/dataSync";
+import type { SyncStatus } from "../utils/dataSync";
 
 interface AppHeaderProps {
   user: any;

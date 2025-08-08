@@ -22,11 +22,11 @@ import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { UserProfile } from "./UserProfile";
-import {
+import type {
   Subscription as FullSubscription,
   PaymentCard as FullPaymentCard,
 } from "../types/subscription";
-import { Notification } from "../types/constants";
+import type { Notification } from "../types/constants";
 
 interface ThemeToggleProps {
   darkMode: boolean;

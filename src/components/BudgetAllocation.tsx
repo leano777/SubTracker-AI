@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Progress } from "./ui/progress";
 import { Plus, Wallet, TrendingUp, DollarSign } from "lucide-react";
-import { WeeklyBudget } from "../types/subscription";
+import type { WeeklyBudget } from "../types/subscription";
 import { WeekSelector } from "./WeekSelector";
 
 interface BudgetAllocationProps {

@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Progress } from "./ui/progress";
-import { Subscription, PaymentCard } from "../types/subscription";
+import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
 
 interface SmartAutomationTabProps {

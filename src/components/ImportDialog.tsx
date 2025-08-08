@@ -21,8 +21,9 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Separator } from "./ui/separator";
-import { processImportFile, ImportPreview, applyImport } from "../utils/importUtils";
-import { Subscription, PaymentCard } from "../types/subscription";
+import { processImportFile, applyImport } from "../utils/importUtils";
+import type { ImportPreview } from "../utils/importUtils";
+import type { FullSubscription as Subscription, FullPaymentCard as PaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
 
 interface ImportDialogProps {
@@ -113,11 +114,19 @@ export function ImportDialog({
 
     setIsProcessing(true);
     try {
-      const { subscriptions, cards, result } = applyImport(
-        preview,
-        selectedSubscriptions,
-        selectedCards,
-        duplicateStrategy
+      // Create import data from selected items
+      const importData = {
+        subscriptions: preview.subscriptions.filter(sub => selectedSubscriptions.includes(sub._importId)),
+        cards: preview.cards.filter(card => selectedCards.includes(card._importId)),
+        errors: [],
+        warnings: [],
+        duplicates: []
+      };
+
+      const { subscriptions, cards } = applyImport(
+        importData,
+        existingSubscriptions.map(sub => sub.name),
+        existingCards.map(card => card.name)
       );
 
       onImport({ subscriptions, cards });

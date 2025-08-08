@@ -1,37 +1,88 @@
-// Type definitions
+// Type definitions - Updated to be compatible with FullSubscription
 export interface Subscription {
   id: string;
   name: string;
+  // Both price and cost for compatibility
+  price: number;
   cost: number;
+  // Both frequency and billingCycle for compatibility
+  frequency: "monthly" | "yearly" | "weekly" | "daily";
   billingCycle: "monthly" | "quarterly" | "yearly";
-  nextPayment?: string;
+  nextPayment: string;
   category: string;
   isActive: boolean;
   description?: string;
   subscriptionType: "personal" | "business";
   status: "active" | "cancelled" | "watchlist" | "trial";
+  dateAdded: string;
   dateCancelled?: string;
   watchlistNotes?: string;
   paymentCardId?: string;
+  cardId?: string; // Alternative naming for payment card
   favicon?: string;
+  logoUrl?: string; // Alternative naming for logo
   websiteUrl?: string;
+  website?: string; // Alternative naming
+  billingUrl?: string;
+  tags?: string[];
+  notes?: string;
+  cancelledDate?: string;
+  trialEndDate?: string;
+  reminderDays?: number;
+  isStarred?: boolean;
+  variablePricing?: {
+    minPrice: number;
+    maxPrice: number;
+    averagePrice: number;
+    isVariable?: boolean;
+    upcomingChanges?: { date: string; cost: string; description: string; }[];
+  };
+  planType?: "basic" | "premium" | "enterprise" | "custom" | "paid" | "free" | "trial";
+  priority?: "essential" | "important" | "nice-to-have" | "medium" | "low" | "high";
+  budgetCategory?: string;
+  businessExpense?: boolean;
+  taxDeductible?: boolean;
+  automationEnabled?: boolean;
+  automationRules?: {
+    cancelBeforeRenewal?: boolean;
+    upgradeThreshold?: number;
+    downgradeThreshold?: number;
+  };
+  linkedCard?: string;
+  hasLinkedCard?: boolean;
+  paymentCard?: string;
   // Free trial fields
   isFreeTrial?: boolean;
   trialStartDate?: string;
-  trialEndDate?: string;
   trialConvertedDate?: string;
   originalTrialCost?: number;
 }
 
 export interface PaymentCard {
   id: string;
-  nickname: string;
-  lastFour: string;
-  type: "visa" | "mastercard" | "amex" | "discover";
-  expiryMonth: string;
-  expiryYear: string;
-  color: string;
+  nickname?: string;
+  name?: string; // Alternative naming
+  lastFour?: string;
+  lastFourDigits?: string; // Alternative naming
+  type?: "visa" | "mastercard" | "amex" | "discover" | "credit" | "debit" | "other";
+  provider?: "visa" | "mastercard" | "amex" | "discover" | "other"; // Alternative naming
+  issuer?: string;
+  expiryMonth?: string | number; // Made optional for compatibility
+  expiryYear?: string | number; // Made optional for compatibility
+  color?: string;
   isDefault: boolean;
+  dateAdded?: string;
+  creditLimit?: number;
+  availableCredit?: number;
+  statementDate?: number;
+  paymentDueDate?: number;
+  billingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
 }
 
 export type ThemeMode = "light" | "dark" | "stealth-ops";
@@ -60,10 +111,11 @@ export interface AppSettings {
 
 export interface Notification {
   id: string;
-  type: "warning" | "info" | "success" | "trial";
+  type: "warning" | "info" | "success" | "trial" | "reminder";
   title: string;
   message: string;
   timestamp: string;
+  date?: string; // Alternative naming for timestamp
   read: boolean;
   subscriptionId?: string;
 }

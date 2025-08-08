@@ -18,7 +18,7 @@ import {
   getSubscriptionStatistics,
 } from "../utils/payPeriodCalculations";
 import { formatCurrency } from "../utils/helpers";
-import { Subscription } from "../types/subscription";
+import type { Subscription } from "../types/subscription";
 
 interface PayPeriodCalculatorTabProps {
   subscriptions: Subscription[];

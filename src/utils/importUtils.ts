@@ -1,4 +1,4 @@
-import { Subscription, PaymentCard } from "../types/subscription";
+import type { FullSubscription, PaymentCard } from "../types/subscription";
 import { generateFavicon } from "./faviconUtils";
 
 // CSV column mappings
@@ -15,7 +15,7 @@ const CSV_MAPPINGS = {
 };
 
 export interface ImportPreview {
-  subscriptions: Array<Subscription & { _importId: string; _errors?: string[] }>;
+  subscriptions: Array<FullSubscription & { _importId: string; _errors?: string[] }>;
   cards: Array<PaymentCard & { _importId: string; _errors?: string[] }>;
   errors: string[];
   warnings: string[];
@@ -107,9 +107,9 @@ function parseCSV(content: string): { headers: string[]; rows: string[][] } {
 function validateSubscription(
   data: any,
   index: number
-): { subscription: Subscription; errors: string[] } {
+): { subscription: FullSubscription; errors: string[] } {
   const errors: string[] = [];
-  const subscription: Partial<Subscription> = {};
+  const subscription: Partial<FullSubscription> = {};
 
   // Required fields
   if (!data.name || typeof data.name !== "string" || !data.name.trim()) {
@@ -132,7 +132,7 @@ function validateSubscription(
   if (!billingCycle || !validCycles.includes(billingCycle)) {
     subscription.billingCycle = "monthly"; // Default
   } else {
-    subscription.billingCycle = billingCycle as Subscription["billingCycle"];
+    subscription.billingCycle = billingCycle as FullSubscription["billingCycle"];
   }
 
   // Date validation
@@ -159,7 +159,7 @@ function validateSubscription(
   // Status validation
   const validStatuses = ["active", "cancelled", "watchlist"];
   if (data.status && validStatuses.includes(data.status.toLowerCase())) {
-    subscription.status = data.status.toLowerCase() as Subscription["status"];
+    subscription.status = data.status.toLowerCase() as FullSubscription["status"];
     if (subscription.status === "cancelled") {
       subscription.isActive = false;
       subscription.dateCancelled = new Date().toISOString().split("T")[0];
@@ -175,7 +175,7 @@ function validateSubscription(
   subscription.id = Date.now().toString() + Math.random().toString(36).substring(2, 11);
 
   return {
-    subscription: subscription as Subscription,
+    subscription: subscription as FullSubscription,
     errors,
   };
 }
@@ -183,7 +183,7 @@ function validateSubscription(
 // Import CSV data
 export function importCSVData(
   content: string,
-  existingSubscriptions: Subscription[] = []
+  existingSubscriptions: FullSubscription[] = []
 ): ImportPreview {
   const preview: ImportPreview = {
     subscriptions: [],
@@ -278,7 +278,7 @@ export function importCSVData(
 // Import JSON data
 export function importJSONData(
   content: string,
-  existingSubscriptions: Subscription[] = [],
+  existingSubscriptions: FullSubscription[] = [],
   existingCards: PaymentCard[] = []
 ): ImportPreview {
   const preview: ImportPreview = {
@@ -322,10 +322,12 @@ export function importJSONData(
           }
 
           // Create normalized subscription
-          const subscription: Subscription = {
+          const subscription: FullSubscription = {
             id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
             name: sub.name,
-            cost: parseFloat(sub.cost) || 0,
+            price: parseFloat(sub.cost) || parseFloat(sub.price) || 0,
+            cost: parseFloat(sub.cost) || parseFloat(sub.price) || 0,
+            frequency: sub.frequency || (sub.billingCycle === "monthly" ? "monthly" : sub.billingCycle === "yearly" ? "yearly" : "monthly"),
             billingCycle: sub.billingCycle || "monthly",
             nextPayment: sub.nextPayment || new Date().toISOString().split("T")[0],
             category: sub.category || "Other",
@@ -368,7 +370,7 @@ export function importJSONData(
 
           // Check for duplicates
           const existingDuplicate = existingCards.find(
-            (existing) => existing.nickname.toLowerCase() === card.nickname.toLowerCase()
+            (existing) => existing.nickname?.toLowerCase() === card.nickname.toLowerCase()
           );
 
           if (existingDuplicate) {
@@ -420,7 +422,7 @@ export function importJSONData(
 // Process import based on file type
 export function processImportFile(
   file: File,
-  existingSubscriptions: Subscription[] = [],
+  existingSubscriptions: FullSubscription[] = [],
   existingCards: PaymentCard[] = []
 ): Promise<ImportPreview> {
   return new Promise((resolve, reject) => {
@@ -460,10 +462,9 @@ export function processImportFile(
 export function applyImport(
   preview: ImportPreview,
   selectedSubscriptions: string[] = [],
-  selectedCards: string[] = [],
-  duplicateStrategy: "skip" | "replace" | "keep-both" = "skip"
+  selectedCards: string[] = []
 ): {
-  subscriptions: Subscription[];
+  subscriptions: FullSubscription[];
   cards: PaymentCard[];
   result: ImportResult;
 } {
@@ -482,7 +483,7 @@ export function applyImport(
     .filter((sub) => !sub._errors || sub._errors.length === 0)
     .map((sub) => {
       const { _importId, _errors, ...cleanSub } = sub;
-      return cleanSub as Subscription;
+      return cleanSub as FullSubscription;
     });
 
   const cards = preview.cards

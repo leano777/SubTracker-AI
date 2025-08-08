@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Subscription } from "../types/subscription";
+import type { Subscription } from "../types/subscription";
 
 interface WatchlistCardProps {
   subscription: Subscription;

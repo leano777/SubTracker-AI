@@ -1,5 +1,15 @@
-import { FullSubscription, PayPeriodRequirement } from "../types/subscription";
-import { validateSubscriptionForCalculations, safeCalculateMonthlyAmount } from "./helpers";
+import type { FullSubscription } from "../types/subscription";
+
+// Define PayPeriodRequirement locally since it's not exported
+interface PayPeriodRequirement {
+  id: string;
+  weekLabel: string;
+  startDate: string;
+  endDate: string;
+  requiredAmount: number;
+  subscriptions: any[];
+}
+import { validateSubscriptionForCalculations } from "./helpers";
 
 // Get the Thursday that starts the current or next pay period (Thursday-to-Wednesday)
 // For Thursday-Wednesday pay periods, always return the current Thursday if today is
@@ -34,7 +44,7 @@ export function getCurrentPayPeriodThursday(date: Date = new Date()): Date {
   }
 
   const thursday = new Date(d);
-  thursday.setDate(d.getDate() + daysToCurrentThursday);
+  thursday.setDate(d.getDate() + (daysToCurrentThursday || 0));
   thursday.setHours(0, 0, 0, 0); // Normalize to start of day
 
   return thursday;
@@ -91,7 +101,7 @@ function parseDate(dateString: string): Date {
 }
 
 // Get the cost of a subscription for a specific date, accounting for variable pricing
-function getSubscriptionCostForDate(subscription: FullSubscription, targetDate: Date): number {
+function getSubscriptionCostForDate(subscription: FullSubscription): number {
   // Validate the subscription first
   const validatedSub = validateSubscriptionForCalculations(subscription);
 
@@ -170,7 +180,7 @@ function calculateSubscriptionOccurrences(
       console.log(`   ✅ Found occurrence (backward): ${formatDate(tempDate)}`);
       occurrences.push({
         date: new Date(tempDate),
-        cost: getSubscriptionCostForDate(validatedSub, tempDate),
+        cost: getSubscriptionCostForDate(validatedSub),
       });
     }
 
@@ -214,7 +224,7 @@ function calculateSubscriptionOccurrences(
         console.log(`   ✅ Found occurrence (forward): ${formatDate(currentDate)}`);
         occurrences.push({
           date: new Date(currentDate),
-          cost: getSubscriptionCostForDate(validatedSub, currentDate),
+          cost: getSubscriptionCostForDate(validatedSub),
         });
       } else {
         console.log(`   🔄 Skipping duplicate: ${formatDate(currentDate)}`);
@@ -316,7 +326,7 @@ export function getUpcomingSubscriptions(
           category: subscription.category,
           frequency: subscription.frequency,
           status: subscription.status,
-          subscriptionType: subscription.subscriptionType,
+          subscriptionType: subscription.subscriptionType || "personal",
         });
       });
 
@@ -566,11 +576,15 @@ export function getUpcomingPricingChanges(subscriptions: FullSubscription[]): Ar
           (change) => parseDate(change.date) > normalizeDate(new Date())
         )
         .forEach((change) => {
+          const changeCost = typeof change.cost === 'string' ? parseFloat(change.cost) : change.cost;
           changes.push({
             subscription,
-            change,
+            change: {
+              ...change,
+              cost: changeCost
+            },
             currentCost: subscription.price,
-            difference: change.cost - subscription.price,
+            difference: changeCost - subscription.price,
           });
         });
     });
