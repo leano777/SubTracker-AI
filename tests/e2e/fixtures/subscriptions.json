@@ -1,0 +1,78 @@
+{
+  "subscriptions": [
+    {
+      "id": "test-1",
+      "name": "Netflix",
+      "cost": 15.99,
+      "billingCycle": "monthly",
+      "category": "Entertainment",
+      "nextBilling": "2024-09-15T00:00:00Z",
+      "description": "Streaming service",
+      "url": "https://netflix.com",
+      "active": true
+    },
+    {
+      "id": "test-2",
+      "name": "Spotify Premium",
+      "cost": 9.99,
+      "billingCycle": "monthly",
+      "category": "Entertainment",
+      "nextBilling": "2024-09-20T00:00:00Z",
+      "description": "Music streaming",
+      "url": "https://spotify.com",
+      "active": true
+    },
+    {
+      "id": "test-3",
+      "name": "Adobe Creative Cloud",
+      "cost": 52.99,
+      "billingCycle": "monthly",
+      "category": "Productivity",
+      "nextBilling": "2024-09-10T00:00:00Z",
+      "description": "Design software suite",
+      "url": "https://adobe.com",
+      "active": true
+    },
+    {
+      "id": "test-4",
+      "name": "AWS",
+      "cost": 25.00,
+      "billingCycle": "monthly",
+      "category": "Development",
+      "nextBilling": "2024-09-30T00:00:00Z",
+      "description": "Cloud hosting",
+      "url": "https://aws.amazon.com",
+      "active": true
+    },
+    {
+      "id": "test-5",
+      "name": "Gym Membership",
+      "cost": 39.99,
+      "billingCycle": "monthly",
+      "category": "Health",
+      "nextBilling": "2024-09-05T00:00:00Z",
+      "description": "Local gym membership",
+      "url": "",
+      "active": false
+    }
+  ],
+  "budget": {
+    "monthly": 200,
+    "categories": {
+      "Entertainment": 50,
+      "Productivity": 60,
+      "Development": 40,
+      "Health": 50
+    }
+  },
+  "user": {
+    "email": "test@example.com",
+    "password": "TestPassword123!",
+    "name": "Test User",
+    "preferences": {
+      "currency": "USD",
+      "theme": "light",
+      "notifications": true
+    }
+  }
+}

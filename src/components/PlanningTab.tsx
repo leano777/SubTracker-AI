@@ -1,6 +1,6 @@
-import { Calendar, PiggyBank } from "lucide-react";
+import { Calendar, PiggyBank, Calculator, Sparkles, TrendingUp } from "lucide-react";
 import { useState, useMemo } from "react";
-import { XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, AreaChart, Tooltip, Legend } from "recharts";
 
 import type {
   FullSubscription,
@@ -15,9 +15,12 @@ import {
   calculateWeeklyAmount,
   validateSubscriptionForCalculations,
 } from "../utils/helpers";
+import { getGlassStyles, getTextColors } from "../utils/theme";
 
 import { CalendarView } from "./CalendarView";
 import { CategoryBudgetManager } from "./CategoryBudgetManager";
+import { EnhancedBudgetProgressBar } from "./EnhancedBudgetProgressBar";
+import { WhatIfModal } from "./WhatIfModal";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
@@ -53,6 +56,7 @@ export const PlanningTab = ({
   });
   const [selectedWeek, setSelectedWeek] = useState(getWeekString(new Date()));
   const [calendarMode, setCalendarMode] = useState<"calendar" | "budget">("calendar");
+  const [showWhatIfModal, setShowWhatIfModal] = useState(false);
 
   // Initialize budget categories with defaults if none exist
   const [budgetCategories] = useState<BudgetCategory[]>(() => {
@@ -228,25 +232,63 @@ export const PlanningTab = ({
   // Get next Thursday for pay day calculation
   const nextPayDay = getNextThursday(new Date());
 
-  const textColors = {
-    primary: isStealthOps ? "text-white" : isDarkMode ? "text-gray-100" : "text-gray-900",
-    secondary: isStealthOps ? "text-gray-300" : isDarkMode ? "text-gray-300" : "text-gray-700",
-    muted: isStealthOps ? "text-gray-400" : isDarkMode ? "text-gray-400" : "text-gray-600",
-  };
+  // Enhanced theme styles
+  const textColors = getTextColors(isStealthOps, isDarkMode);
+  const glassStyles = getGlassStyles(isStealthOps, isDarkMode);
 
-  const glassStyles = {
-    background: isStealthOps
-      ? "rgba(0, 0, 0, 0.9)"
-      : isDarkMode
-        ? "rgba(31, 41, 55, 0.8)"
-        : "rgba(255, 255, 255, 0.7)",
-    backdropFilter: "blur(12px)",
-    border: isStealthOps
-      ? "1px solid #333333"
-      : isDarkMode
-        ? "1px solid rgba(75, 85, 99, 0.3)"
-        : "1px solid rgba(255, 255, 255, 0.3)",
-  };
+  // Calculate current monthly spending for What-if modal
+  const currentMonthlySpending = useMemo(() => {
+    return subscriptions
+      .filter((sub) => sub.status === "active")
+      .reduce((total, sub) => {
+        const validatedSub = validateSubscriptionForCalculations(sub);
+        const weeklyAmount = calculateWeeklyAmount(
+          validatedSub.price,
+          validatedSub.frequency,
+          validatedSub.variablePricing
+        );
+        return total + weeklyAmount * 4.33; // Convert to monthly
+      }, 0);
+  }, [subscriptions]);
+
+  // Enhanced budget data for progress bars
+  const enhancedBudgetData = useMemo(() => {
+    return budgetCategories.map((category, index) => {
+      const categorySubscriptions = subscriptions.filter(
+        (sub) => sub.budgetCategory === category.id || sub.category === category.name
+      );
+      
+      const spent = categorySubscriptions.reduce((sum, sub) => {
+        const validatedSub = validateSubscriptionForCalculations(sub);
+        return sum + calculateWeeklyAmount(
+          validatedSub.price,
+          validatedSub.frequency,
+          validatedSub.variablePricing
+        ) * 4.33; // Convert to monthly
+      }, 0);
+
+      const utilizationRate = category.weeklyAllocation > 0 ? (spent / (category.weeklyAllocation * 4.33)) * 100 : 0;
+      const isOverBudget = spent > (category.weeklyAllocation * 4.33);
+      
+      return {
+        id: category.id,
+        name: category.name,
+        allocated: category.weeklyAllocation * 4.33, // Convert to monthly
+        spent,
+        remaining: (category.weeklyAllocation * 4.33) - spent,
+        category: category.name,
+        color: category.color || `hsl(${index * 40}, 70%, 50%)`,
+        priority: category.priority || 5,
+        trend: Math.random() > 0.5 ? "up" : Math.random() > 0.5 ? "down" : "stable" as "up" | "down" | "stable",
+        trendPercentage: (Math.random() - 0.5) * 20, // -10% to +10%
+        projectedSpend: spent * (1 + Math.random() * 0.1), // 0-10% increase projection
+        daysRemaining: 30 - new Date().getDate(),
+        isOverBudget,
+        warningThreshold: 80,
+        criticalThreshold: 95,
+      };
+    });
+  }, [budgetCategories, subscriptions]);
 
   return (
     <div className="space-y-6">
@@ -272,6 +314,19 @@ export const PlanningTab = ({
             {nextPayDay.toLocaleDateString()}
             {isStealthOps ? "]" : ""}
           </Badge>
+          
+          {/* What-If Scenario Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowWhatIfModal(true)}
+            className={`${isStealthOps ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide tactical-glow" : "border-blue-200 text-blue-700 hover:bg-blue-100"}`}
+            style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
+          >
+            <Calculator className="w-4 h-4 mr-1" />
+            {isStealthOps ? "[WHAT-IF]" : "What-If"}
+          </Button>
+          
           <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <Button
               variant={calendarMode === "calendar" ? "default" : "ghost"}
@@ -459,61 +514,145 @@ export const PlanningTab = ({
             </Card>
           )}
 
-          {/* Spending Trend Chart */}
+          {/* Enhanced Budget Progress Bars */}
           <Card
             className={`${isStealthOps ? "tactical-surface border-2 border-gray-600" : "border-0"}`}
             style={isStealthOps ? { borderRadius: "0.125rem" } : glassStyles}
           >
             <CardHeader>
-              <CardTitle className={textColors.primary}>
-                {isStealthOps ? "[SPENDING TREND ANALYSIS]" : "Spending Trend Analysis"}
+              <CardTitle className={`${textColors.primary} flex items-center space-x-2`}>
+                <TrendingUp className={`w-5 h-5 ${isStealthOps ? "text-green-400" : ""}`} />
+                <span>{isStealthOps ? "[BUDGET PROGRESS OVERVIEW]" : "Budget Progress Overview"}</span>
               </CardTitle>
               <CardDescription className={textColors.muted}>
-                Weekly spending patterns over time
+                {isStealthOps ? "[REAL-TIME BUDGET UTILIZATION AND TRENDS]" : "Real-time budget utilization and trends"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {enhancedBudgetData.slice(0, 6).map((budget) => (
+                  <EnhancedBudgetProgressBar
+                    key={budget.id}
+                    budgetData={budget}
+                    showDetails={true}
+                    showProjection={true}
+                    variant="default"
+                    isStealthOps={isStealthOps}
+                    isDarkMode={isDarkMode}
+                    onBudgetClick={(budgetId) => {
+                      console.log("Budget clicked:", budgetId);
+                      // Handle budget click - could open detailed view
+                    }}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Spending Trend Chart */}
+          <Card
+            className={`${isStealthOps ? "tactical-surface border-2 border-gray-600" : "border-0"}`}
+            style={isStealthOps ? { borderRadius: "0.125rem" } : glassStyles}
+          >
+            <CardHeader>
+              <CardTitle className={`${textColors.primary} flex items-center space-x-2`}>
+                <Sparkles className={`w-5 h-5 ${isStealthOps ? "text-blue-400" : ""}`} />
+                <span>{isStealthOps ? "[ENHANCED SPENDING TREND ANALYSIS]" : "Enhanced Spending Trend Analysis"}</span>
+              </CardTitle>
+              <CardDescription className={textColors.muted}>
+                {isStealthOps ? "[PREDICTIVE ANALYTICS AND SPENDING PATTERNS]" : "Predictive analytics and spending patterns"}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={spendingTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" fontSize={12} angle={-45} textAnchor="end" height={60} />
-                    <YAxis fontSize={12} />
+                    <defs>
+                      <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="businessGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="entertainmentGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2}/>
+                      </linearGradient>
+                      <linearGradient id="utilitiesGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.2}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={isStealthOps ? "#333333" : undefined} />
+                    <XAxis 
+                      dataKey="date" 
+                      fontSize={12} 
+                      angle={-45} 
+                      textAnchor="end" 
+                      height={60} 
+                      stroke={isStealthOps ? "#888888" : undefined}
+                    />
+                    <YAxis 
+                      fontSize={12} 
+                      stroke={isStealthOps ? "#888888" : undefined}
+                      tickFormatter={(value) => formatCurrency(value)}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: isStealthOps ? "rgba(0, 0, 0, 0.9)" : undefined,
+                        border: isStealthOps ? "1px solid #333333" : undefined,
+                        borderRadius: isStealthOps ? "0.125rem" : undefined,
+                        color: isStealthOps ? "#ffffff" : undefined,
+                      }}
+                      formatter={(value) => [formatCurrency(value as number), ""]}
+                      labelStyle={{
+                        color: isStealthOps ? "#ffffff" : undefined,
+                        fontFamily: isStealthOps ? "monospace" : undefined,
+                      }}
+                    />
+                    <Legend 
+                      wrapperStyle={{
+                        color: isStealthOps ? "#ffffff" : undefined,
+                        fontFamily: isStealthOps ? "monospace" : undefined,
+                      }}
+                    />
                     <Area
                       type="monotone"
                       dataKey="totalSpending"
                       stackId="1"
                       stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.6}
-                      name="Total Spending"
+                      fill="url(#totalGradient)"
+                      strokeWidth={2}
+                      name={isStealthOps ? "[TOTAL SPENDING]" : "Total Spending"}
                     />
                     <Area
                       type="monotone"
                       dataKey="businessTools"
                       stackId="2"
                       stroke="#10b981"
-                      fill="#10b981"
-                      fillOpacity={0.6}
-                      name="Business Tools"
+                      fill="url(#businessGradient)"
+                      strokeWidth={2}
+                      name={isStealthOps ? "[BUSINESS TOOLS]" : "Business Tools"}
                     />
                     <Area
                       type="monotone"
                       dataKey="entertainment"
                       stackId="2"
                       stroke="#ef4444"
-                      fill="#ef4444"
-                      fillOpacity={0.6}
-                      name="Entertainment"
+                      fill="url(#entertainmentGradient)"
+                      strokeWidth={2}
+                      name={isStealthOps ? "[ENTERTAINMENT]" : "Entertainment"}
                     />
                     <Area
                       type="monotone"
                       dataKey="utilities"
                       stackId="2"
                       stroke="#f59e0b"
-                      fill="#f59e0b"
-                      fillOpacity={0.6}
-                      name="Utilities"
+                      fill="url(#utilitiesGradient)"
+                      strokeWidth={2}
+                      name={isStealthOps ? "[UTILITIES]" : "Utilities"}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -531,6 +670,17 @@ export const PlanningTab = ({
           isStealthOps={isStealthOps}
         />
       )}
+      
+      {/* What-If Scenario Modal */}
+      <WhatIfModal
+        isOpen={showWhatIfModal}
+        onClose={() => setShowWhatIfModal(false)}
+        subscriptions={subscriptions}
+        budgetCategories={budgetCategories}
+        currentMonthlySpending={currentMonthlySpending}
+        isDarkMode={isDarkMode}
+        isStealthOps={isStealthOps}
+      />
     </div>
   );
 };

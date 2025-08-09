@@ -297,11 +297,216 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "_All artifacts are available for download from the workflow run._" >> $GITHUB_STEP_SUMMARY
 
+  # Visual Regression Tests
+  visual-tests:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [quality, build]
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Start Storybook server
+        run: |
+          npx serve storybook-static -l 6006 &
+          echo $! > storybook.pid
+          
+      - name: Wait for Storybook
+        run: |
+          echo "Waiting for Storybook to be ready..."
+          timeout 60 bash -c 'until curl -f http://localhost:6006; do sleep 2; done'
+          
+      - name: Run Visual Regression Tests
+        run: npm run test:visual:ci
+        env:
+          CI: true
+          
+      - name: Stop Storybook server
+        if: always()
+        run: |
+          if [ -f storybook.pid ]; then
+            kill $(cat storybook.pid) || true
+            rm storybook.pid
+          fi
+
+      - name: Upload Visual Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-test-results
+          path: |
+            test-results/visual/
+            playwright-report/
+          retention-days: 30
+
+      - name: Check Visual Diff Threshold
+        if: failure()
+        run: |
+          echo "🚨 Visual regression tests failed!"
+          echo "Visual differences detected that exceed the 0.1% threshold."
+          echo "Please review the visual test results in the artifacts."
+          exit 1
+
+  # E2E Tests
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [quality, build]
+    if: github.event_name == 'pull_request'
+
+    strategy:
+      matrix:
+        browser: [chrome, firefox]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application server
+        run: |
+          npm run preview &
+          echo $! > app.pid
+          
+      - name: Wait for application
+        run: |
+          echo "Waiting for application to be ready..."
+          timeout 60 bash -c 'until curl -f http://localhost:5175; do sleep 2; done'
+
+      - name: Run E2E Tests (Chrome)
+        if: matrix.browser == 'chrome'
+        run: npm run test:e2e -- --browser chrome
+        env:
+          CYPRESS_baseUrl: http://localhost:5175
+          
+      - name: Run E2E Tests (Firefox)
+        if: matrix.browser == 'firefox'
+        run: npm run test:e2e -- --browser firefox
+        env:
+          CYPRESS_baseUrl: http://localhost:5175
+
+      - name: Stop application server
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill $(cat app.pid) || true
+            rm app.pid
+          fi
+
+      - name: Upload E2E Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results-${{ matrix.browser }}
+          path: |
+            test-results/cypress/
+            cypress/screenshots/
+            cypress/videos/
+          retention-days: 30
+
+  # Visual Test Summary for PRs
+  visual-test-summary:
+    name: Visual Test Summary
+    runs-on: ubuntu-latest
+    needs: [visual-tests, e2e-tests]
+    if: always() && github.event_name == 'pull_request'
+
+    steps:
+      - name: Download Visual Test Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: visual-test-results
+          path: visual-results/
+
+      - name: Download E2E Test Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: e2e-test-results-*
+          merge-multiple: true
+          path: e2e-results/
+
+      - name: Comment Visual Test Results on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let comment = '## 🎨 Visual Regression Test Results\n\n';
+            
+            // Check visual test status
+            const visualPassed = '${{ needs.visual-tests.result }}' === 'success';
+            const e2ePassed = '${{ needs.e2e-tests.result }}' === 'success';
+            
+            if (visualPassed) {
+              comment += '✅ **Visual Regression Tests**: PASSED - No significant visual changes detected\n';
+            } else {
+              comment += '❌ **Visual Regression Tests**: FAILED - Visual differences exceed 0.1% threshold\n';
+            }
+            
+            if (e2ePassed) {
+              comment += '✅ **E2E Tests**: PASSED - All critical user flows working correctly\n';
+            } else {
+              comment += '❌ **E2E Tests**: FAILED - Critical user flows have issues\n';
+            }
+            
+            comment += '\n### Test Coverage\n';
+            comment += '- 🔐 Authentication flows\n';
+            comment += '- ➕ Add subscription functionality\n';
+            comment += '- 💰 Budget management\n';
+            comment += '- 📱 Responsive design (Mobile/Tablet/Desktop)\n';
+            comment += '- 🎨 Component visual consistency\n';
+            comment += '- 🌓 Theme switching\n';
+            
+            if (!visualPassed || !e2ePassed) {
+              comment += '\n⚠️ **Action Required**: Please review the test failures and update your changes.\n';
+              comment += 'Test artifacts are available for download in the workflow run.\n';
+            }
+            
+            comment += '\n---\n';
+            comment += '_This comment was automatically generated by the ST-040 Visual/E2E test suite._';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
 # Cleanup job for failed runs
 cleanup:
   name: Cleanup
   runs-on: ubuntu-latest
-  needs: [test-summary]
+  needs: [test-summary, visual-test-summary]
   if: always()
 
   steps:
@@ -309,3 +514,4 @@ cleanup:
       run: |
         echo "Workflow completed. All test artifacts and reports have been generated."
         echo "Check the Actions tab for detailed results and downloadable artifacts."
+        echo "Visual regression testing with 0.1% threshold is now active for PRs."

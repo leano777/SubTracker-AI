@@ -1,8 +1,7 @@
-import { Plus, Trash2, Calendar, DollarSign, CreditCard, AlertCircle, Zap } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Calendar, DollarSign, CreditCard, AlertCircle, Zap } from "lucide-react";
+import { useState } from "react";
 
 import type { FullSubscription, PaymentCard } from "../types/subscription";
-import { getFaviconUrl } from "../utils/faviconUtils";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -11,7 +10,6 @@ import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Switch } from "./ui/switch";
 import { Textarea } from "./ui/textarea";
 
 interface SubscriptionFormProps {
@@ -53,98 +51,31 @@ export const SubscriptionForm = ({
   onManageCards,
 }: SubscriptionFormProps) => {
   const [formData, setFormData] = useState({
-    name: "",
-    cost: "",
-    billingCycle: "monthly" as "monthly" | "quarterly" | "yearly" | "variable",
-    nextPayment: "",
-    category: "",
-    description: "",
-    billingUrl: "",
-    subscriptionType: "personal" as "personal" | "business",
-    tags: "",
-    planType: "paid" as "free" | "paid",
-    priority: "medium" as "low" | "medium" | "high",
-    watchlistNotes: "",
-    cardId: "",
-    hasLinkedCard: false,
-    automationEnabled: false, // Always defaults to false
-    variablePricing: {
-      isVariable: false,
-      upcomingChanges: [{ date: "", cost: "", description: "" }],
-    },
+    name: subscription?.name || "",
+    cost: subscription?.cost || 0,
+    billingCycle: subscription?.billingCycle || "monthly",
+    nextPayment: subscription?.nextPayment || "",
+    category: subscription?.category || "",
+    description: subscription?.description || "",
+    billingUrl: subscription?.billingUrl || "",
+    subscriptionType: (subscription?.subscriptionType as "personal" | "business") || "personal",
+    planType: (subscription?.planType as "free" | "paid" | "trial") || "paid",
+    priority: (subscription?.priority as "low" | "medium" | "high") || "medium",
+    watchlistNotes: subscription?.watchlistNotes || "",
+    cardId: subscription?.cardId || "",
+    tags: subscription?.tags?.join(", ") || "",
+    automationEnabled: subscription?.automationEnabled || false,
+    hasLinkedCard: !!subscription?.cardId,
   });
-
-  const [logoUrl, setLogoUrl] = useState<string>("");
-
-  useEffect(() => {
-    if (subscription) {
-      setFormData({
-        name: subscription.name,
-        cost: subscription.cost.toString(),
-        billingCycle: subscription.billingCycle,
-        nextPayment: subscription.nextPayment,
-        category: subscription.category,
-        description: subscription.description || "",
-        billingUrl: subscription.billingUrl || "",
-        subscriptionType: subscription.subscriptionType || "personal",
-        tags: subscription.tags ? subscription.tags.join(", ") : "",
-        planType: (subscription.planType as "paid" | "free") || "paid",
-        priority: (subscription.priority as "medium" | "low" | "high") || "medium",
-        watchlistNotes: subscription.watchlistNotes || "",
-        cardId: subscription.cardId || "",
-        hasLinkedCard: subscription.hasLinkedCard ?? Boolean(subscription.cardId),
-        automationEnabled: false, // Always defaults to false as requested
-        variablePricing: subscription.variablePricing?.isVariable
-          ? {
-              isVariable: true,
-              upcomingChanges: subscription.variablePricing.upcomingChanges || [
-                { date: "", cost: "", description: "" },
-              ],
-            }
-          : {
-              isVariable: false,
-              upcomingChanges: [{ date: "", cost: "", description: "" }],
-            },
-      });
-      setLogoUrl(subscription.logoUrl || "");
-    }
-  }, [subscription]);
-
-  useEffect(() => {
-    if (formData.billingUrl) {
-      const favicon = getFaviconUrl(formData.billingUrl);
-      if (favicon) {
-        setLogoUrl(favicon);
-      }
-    }
-  }, [formData.billingUrl]);
-
-  // Auto-detect card linking status based on card selection
-  useEffect(() => {
-    const hasCardSelected = Boolean(formData.cardId && formData.cardId.trim() !== "");
-    if (formData.hasLinkedCard !== hasCardSelected) {
-      setFormData((prev) => ({
-        ...prev,
-        hasLinkedCard: hasCardSelected,
-      }));
-    }
-  }, [formData.cardId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     const subscriptionData: Omit<FullSubscription, "id"> = {
       name: formData.name,
-      cost: parseFloat(formData.cost),
-      price: parseFloat(formData.cost), // Add price property for compatibility
-      frequency:
-        formData.billingCycle === "variable"
-          ? "monthly"
-          : formData.billingCycle === "quarterly"
-            ? "monthly"
-            : formData.billingCycle === "yearly"
-              ? "yearly"
-              : "monthly", // Map billingCycle to frequency
+      cost: formData.cost,
+      price: formData.cost, // Add price property for compatibility
+      frequency: formData.billingCycle === "yearly" ? "yearly" : "monthly",
       billingCycle: formData.billingCycle,
       nextPayment: formData.nextPayment,
       category: formData.category,
@@ -152,111 +83,56 @@ export const SubscriptionForm = ({
       description: formData.description,
       billingUrl: formData.billingUrl,
       subscriptionType: formData.subscriptionType,
-      tags: formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag),
+      tags: formData.tags.split(',').map(t => t.trim()).filter(t => t.length > 0),
       planType: formData.planType,
       status: isWatchlistMode ? "watchlist" : "active",
       priority: formData.priority,
       dateAdded: subscription?.dateAdded || new Date().toISOString().split("T")[0],
       watchlistNotes: formData.watchlistNotes,
-      logoUrl,
+      logoUrl: subscription?.logoUrl || "",
       cardId: formData.cardId || undefined,
-      hasLinkedCard: formData.hasLinkedCard,
+      hasLinkedCard: !!formData.cardId,
       automationEnabled: formData.automationEnabled,
-      variablePricing:
-        formData.billingCycle === "variable"
-          ? {
-              minPrice: parseFloat(formData.cost) * 0.8,
-              maxPrice: parseFloat(formData.cost) * 1.2,
-              averagePrice: parseFloat(formData.cost),
-              isVariable: true,
-              upcomingChanges: formData.variablePricing.upcomingChanges
-                .filter((change) => change.date && change.cost)
-                .map((change) => ({
-                  date: change.date,
-                  cost: change.cost, // Keep as string to match interface
-                  description: change.description,
-                })),
-            }
-          : undefined,
     };
 
     onSave(subscriptionData);
   };
 
-  const addVariableChange = () => {
-    setFormData((prev) => ({
-      ...prev,
-      variablePricing: {
-        ...prev.variablePricing,
-        upcomingChanges: [
-          ...prev.variablePricing.upcomingChanges,
-          { date: "", cost: "", description: "" },
-        ],
-      },
-    }));
-  };
-
-  const removeVariableChange = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      variablePricing: {
-        ...prev.variablePricing,
-        upcomingChanges: prev.variablePricing.upcomingChanges.filter((_, i) => i !== index),
-      },
-    }));
-  };
-
-  const updateVariableChange = (index: number, field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      variablePricing: {
-        ...prev.variablePricing,
-        upcomingChanges: prev.variablePricing.upcomingChanges.map((change, i) =>
-          i === index ? { ...change, [field]: value } : change
-        ),
-      },
-    }));
-  };
-
-  const defaultCard = cards.find((card) => card.isDefault);
   const selectedCard = cards.find((card) => card.id === formData.cardId);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="name">Service Name</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="e.g., Netflix, Spotify"
-            required
-          />
-        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="name">Service Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g., Netflix, Spotify"
+              required
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="category">Category</Label>
-          <Select
-            value={formData.category}
-            onValueChange={(value) => setFormData({ ...formData, category: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) => setFormData({ ...formData, category: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -270,7 +146,7 @@ export const SubscriptionForm = ({
               type="number"
               step="0.01"
               value={formData.cost}
-              onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })}
               placeholder="29.99"
               className="pl-10"
               required
@@ -299,82 +175,6 @@ export const SubscriptionForm = ({
         </div>
       </div>
 
-      {/* Variable Pricing Configuration */}
-      {formData.billingCycle === "variable" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4" />
-              <span>Upcoming Price Changes</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start space-x-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-700 dark:text-blue-300">
-                <p>
-                  Define when your subscription cost will change. This helps with accurate budget
-                  planning.
-                </p>
-              </div>
-            </div>
-
-            {formData.variablePricing.upcomingChanges.map((change, index) => (
-              <div key={index} className="grid grid-cols-12 gap-3 items-end p-3 border rounded-lg">
-                <div className="col-span-3">
-                  <Label>Change Date</Label>
-                  <Input
-                    type="date"
-                    value={change.date}
-                    onChange={(e) => updateVariableChange(index, "date", e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                  />
-                </div>
-                <div className="col-span-3">
-                  <Label>New Cost</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={change.cost}
-                      onChange={(e) => updateVariableChange(index, "cost", e.target.value)}
-                      placeholder="44.25"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <div className="col-span-5">
-                  <Label>Description (Optional)</Label>
-                  <Input
-                    value={change.description}
-                    onChange={(e) => updateVariableChange(index, "description", e.target.value)}
-                    placeholder="e.g., End of promotional pricing"
-                  />
-                </div>
-                <div className="col-span-1">
-                  {formData.variablePricing.upcomingChanges.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeVariableChange(index)}
-                      className="p-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            <Button type="button" variant="outline" onClick={addVariableChange} className="w-full">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Another Price Change
-            </Button>
-          </CardContent>
-        </Card>
-      )}
 
       <div>
         <Label htmlFor="nextPayment">Next Payment Date</Label>
@@ -476,12 +276,6 @@ export const SubscriptionForm = ({
           onChange={(e) => setFormData({ ...formData, billingUrl: e.target.value })}
           placeholder="https://example.com/billing"
         />
-        {logoUrl && (
-          <div className="mt-2 flex items-center space-x-2 text-sm text-muted-foreground">
-            <img src={logoUrl} alt="Service logo" className="w-4 h-4" />
-            <span>Logo detected automatically</span>
-          </div>
-        )}
       </div>
 
       <div>

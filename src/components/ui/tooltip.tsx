@@ -1,9 +1,11 @@
 "use client";
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { motion } from "framer-motion";
 import * as React from "react";
 
 import { cn } from "./utils";
+import { defaultTransition, motionVariants } from "./motion";
 
 const TooltipProvider = ({
   delayDuration = 0,

@@ -6,6 +6,9 @@ export class PerformanceMonitor {
   private memoryWarningThreshold = 50; // MB
   private renderWarningThreshold = 100; // renders per second
   private componentRenderCounts: Map<string, number> = new Map();
+  // Core Web Vitals monitoring
+  private observers: PerformanceObserver[] = [];
+  private webVitals: Map<string, number> = new Map();
 
   // Monitor component renders to detect infinite loops
   public trackRender(componentName: string) {
@@ -83,6 +86,137 @@ export class PerformanceMonitor {
       console.error("Dependencies:", dependencies);
     }
   }
+
+  // Initialize Core Web Vitals monitoring
+  public initWebVitals() {
+    if ('PerformanceObserver' in window) {
+      // Largest Contentful Paint (LCP)
+      try {
+        const lcpObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const lastEntry = entries[entries.length - 1] as any;
+          if (lastEntry) {
+            this.webVitals.set('LCP', lastEntry.startTime);
+            this.reportWebVital('LCP', lastEntry.startTime);
+          }
+        });
+        lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+        this.observers.push(lcpObserver);
+      } catch (e) {
+        console.warn('LCP observer not supported');
+      }
+
+      // First Input Delay (FID)
+      try {
+        const fidObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry: any) => {
+            const fidValue = entry.processingStart - entry.startTime;
+            this.webVitals.set('FID', fidValue);
+            this.reportWebVital('FID', fidValue);
+          });
+        });
+        fidObserver.observe({ entryTypes: ['first-input'] });
+        this.observers.push(fidObserver);
+      } catch (e) {
+        console.warn('FID observer not supported');
+      }
+
+      // Cumulative Layout Shift (CLS)
+      try {
+        let clsValue = 0;
+        const clsObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry: any) => {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+            }
+          });
+          this.webVitals.set('CLS', clsValue);
+          this.reportWebVital('CLS', clsValue);
+        });
+        clsObserver.observe({ entryTypes: ['layout-shift'] });
+        this.observers.push(clsObserver);
+      } catch (e) {
+        console.warn('CLS observer not supported');
+      }
+    }
+  }
+
+  private reportWebVital(name: string, value: number) {
+    const thresholds = {
+      LCP: { good: 2500, poor: 4000 },
+      FID: { good: 100, poor: 300 },
+      CLS: { good: 0.1, poor: 0.25 }
+    };
+
+    const threshold = thresholds[name as keyof typeof thresholds];
+    if (threshold) {
+      const status = value <= threshold.good ? '✅ GOOD' : 
+                    value <= threshold.poor ? '⚠️ NEEDS IMPROVEMENT' : '❌ POOR';
+      console.log(`${name}: ${value.toFixed(2)} - ${status}`);
+      
+      // Track for Lighthouse optimization
+      if (status.includes('POOR')) {
+        console.warn(`🎯 LIGHTHOUSE OPTIMIZATION NEEDED: ${name} score is poor`);
+      }
+    }
+  }
+
+  // Get Core Web Vitals for reporting
+  public getWebVitals(): Record<string, number> {
+    return Object.fromEntries(this.webVitals);
+  }
+
+  // Bundle analysis for optimization
+  public analyzeBundlePerformance(): void {
+    if ('performance' in window && performance.getEntriesByType) {
+      const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+      
+      const jsResources = resources.filter(r => 
+        r.name.includes('.js') && r.transferSize > 0
+      );
+
+      const cssResources = resources.filter(r => 
+        r.name.includes('.css') && r.transferSize > 0
+      );
+
+      const totalJSSize = jsResources.reduce((sum, r) => sum + r.transferSize, 0);
+      const totalCSSSize = cssResources.reduce((sum, r) => sum + r.transferSize, 0);
+
+      console.group('📊 Bundle Performance Analysis');
+      console.log(`Total JS Size: ${this.formatBytes(totalJSSize)}`);
+      console.log(`Total CSS Size: ${this.formatBytes(totalCSSSize)}`);
+      
+      // Lighthouse recommendations
+      if (totalJSSize > 500000) { // 500KB
+        console.warn('⚠️ LIGHTHOUSE: JS bundle size is large, consider code splitting');
+      }
+      
+      const largestJS = jsResources.reduce((max, r) => 
+        r.transferSize > max.transferSize ? r : max, jsResources[0]
+      );
+      if (largestJS) {
+        console.log(`Largest JS: ${largestJS.name.split('/').pop()} (${this.formatBytes(largestJS.transferSize)})`);
+      }
+      
+      console.groupEnd();
+    }
+  }
+
+  private formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // Clean up observers
+  public disconnect(): void {
+    this.observers.forEach(observer => observer.disconnect());
+    this.observers = [];
+  }
 }
 
 // Create global instance
@@ -142,12 +276,73 @@ export const emergencyCleanup = () => {
   console.log("✅ Emergency cleanup completed");
 };
 
+
+/**
+ * Resource optimization utilities
+ */
+export class ResourceOptimizer {
+  /**
+   * Preload critical resources
+   */
+  static preloadResource(href: string, as: string): void {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.href = href;
+    link.as = as;
+    document.head.appendChild(link);
+  }
+
+  /**
+   * Lazy load images with intersection observer
+   */
+  static initLazyImages(): void {
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target as HTMLImageElement;
+            img.src = img.dataset.src || '';
+            img.classList.remove('lazy');
+            observer.unobserve(img);
+          }
+        });
+      });
+
+      document.querySelectorAll('img[data-src]').forEach(img => {
+        imageObserver.observe(img);
+      });
+    }
+  }
+}
+
+/**
+ * Initialize performance monitoring for Lighthouse optimization
+ */
+export function initializeLighthouseOptimization(): void {
+  // Initialize Core Web Vitals monitoring
+  performanceMonitor.initWebVitals();
+  
+  // Analyze bundle performance after load
+  setTimeout(() => {
+    performanceMonitor.analyzeBundlePerformance();
+  }, 3000);
+  
+  // Initialize lazy loading
+  ResourceOptimizer.initLazyImages();
+  
+  // Clean up on unload
+  window.addEventListener('beforeunload', () => {
+    performanceMonitor.disconnect();
+  });
+}
+
 // Add to window for debugging
 declare global {
   interface Window {
     performanceMonitor: PerformanceMonitor;
     emergencyCleanup: () => void;
     detectCrashPatterns: () => string[];
+    initializeLighthouseOptimization: () => void;
   }
 }
 
@@ -155,4 +350,5 @@ if (typeof window !== "undefined") {
   window.performanceMonitor = performanceMonitor;
   window.emergencyCleanup = emergencyCleanup;
   window.detectCrashPatterns = detectCrashPatterns;
+  window.initializeLighthouseOptimization = initializeLighthouseOptimization;
 }

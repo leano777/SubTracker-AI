@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Toaster } from "sonner";
+import { initializeAccessibility, announce } from "./utils/accessibility/focusManagement";
 
 import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
 import { AppHeader } from "./components/AppHeader";
@@ -27,7 +28,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { useAppHandlers } from "./hooks/useAppHandlers";
 import { useDataManagement } from "./hooks/useDataManagement";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
-import type { FullSubscription, PaymentCard as FullPaymentCard, Notification } from "./types/subscription";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
 import type { AppSettings } from "./types/constants";
 import { dataSyncManager } from "./utils/dataSync";
 import { formatDateForStorage } from "./utils/dateUtils";
@@ -844,6 +845,16 @@ const AppContent = () => {
     handleUpdateCategories,
   ]);
 
+  // Accessibility initialization - Initialize on mount
+  useEffect(() => {
+    try {
+      initializeAccessibility();
+      announce('SubTracker application loaded', 'polite');
+    } catch (error) {
+      console.error('Accessibility initialization failed:', error);
+    }
+  }, []);
+
   // Mount effect - Ensure isMountedRef is true on mount
   useEffect(() => {
     isMountedRef.current = true;
@@ -889,6 +900,23 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Skip Links - Hidden until focused */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:bg-blue-600 focus:text-white focus:px-3 focus:py-2 focus:rounded-md focus:text-sm focus:font-medium focus:no-underline"
+        onClick={(e) => {
+          e.preventDefault();
+          const mainContent = document.getElementById('main-content');
+          if (mainContent) {
+            mainContent.focus();
+            mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            announce('Skipped to main content', 'polite');
+          }
+        }}
+      >
+        Skip to main content
+      </a>
+      
       {/* Header */}
       <AppHeader
         user={user}
@@ -925,11 +953,21 @@ const AppContent = () => {
       />
 
       {/* Main Content */}
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 ${isMobile ? "pb-32" : ""}`}>
+      <main 
+        id="main-content" 
+        role="main"
+        className={`max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 ${isMobile ? "pb-32" : ""}`}
+        tabIndex={-1}
+        aria-label={`${uiState.activeTab.charAt(0).toUpperCase() + uiState.activeTab.slice(1)} content`}
+      >
         <div className="p-4 sm:p-6 min-h-[calc(100vh-140px)] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20">
+          {/* Page Heading - Hidden visually but available to screen readers */}
+          <h1 className="sr-only">
+            SubTracker - {uiState.activeTab.charAt(0).toUpperCase() + uiState.activeTab.slice(1)}
+          </h1>
           {renderTabContent()}
         </div>
-      </div>
+      </main>
 
       {/* Floating Components */}
       <FloatingNotifications

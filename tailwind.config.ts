@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import { designTokens } from './src/theme/theme'
+
 export default {
   darkMode: ["class"],
   content: [
@@ -18,6 +20,7 @@ export default {
     },
     extend: {
       colors: {
+        // Core shadcn/ui colors using CSS custom properties
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -26,14 +29,17 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          ...designTokens.colors.primary,
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          ...designTokens.colors.secondary,
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+          ...designTokens.colors.destructive,
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -42,6 +48,7 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          ...designTokens.colors.accent,
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -68,15 +75,51 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+
+        // Extended Figma design tokens
+        success: designTokens.colors.success,
+        warning: designTokens.colors.warning,
+        neutral: designTokens.colors.neutral,
+
+        // Glass morphism colors
+        glass: {
+          background: 'var(--glass-background)',
+          border: 'var(--glass-border)',
+          shadow: 'var(--glass-shadow)',
+          secondary: 'var(--glass-secondary)',
+          accent: 'var(--glass-accent)',
+        },
+
+        // Text contrast colors
+        'text-on-glass': 'var(--text-on-glass)',
+        'text-on-glass-muted': 'var(--text-on-glass-muted)',
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+
+      // Typography design tokens from Figma
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "Monaco", "Consolas", "monospace"],
+        ...designTokens.typography.fontFamily,
+      },
+      fontSize: {
+        ...designTokens.typography.fontSize,
+      },
+      fontWeight: {
+        ...designTokens.typography.fontWeight,
+      },
+      letterSpacing: {
+        ...designTokens.typography.letterSpacing,
+      },
+      lineHeight: {
+        ...designTokens.typography.lineHeight,
+      },
+
+      // Spacing design tokens from Figma
+      spacing: {
+        ...designTokens.spacing,
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

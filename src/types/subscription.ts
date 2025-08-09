@@ -285,4 +285,16 @@ export interface WeeklyCalculationResult {
   }[];
 }
 
+export interface Notification {
+  id: string;
+  type: "info" | "warning" | "error" | "success";
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionUrl?: string;
+  actionText?: string;
+  subscriptionId?: string;
+}
+
 // Note: Additional types will be available from constants when implemented

@@ -2,9 +2,11 @@
 
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
+import { motion } from "framer-motion";
 import * as React from "react";
 
 import { cn } from "./utils";
+import { defaultTransition, motionVariants } from "./motion";
 
 const Sheet = ({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) => {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;

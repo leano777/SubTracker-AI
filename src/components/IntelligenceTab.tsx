@@ -1,10 +1,12 @@
-import { Brain, Bot, Zap, TrendingUp, Target, Sparkles, Loader2, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { Brain, Bot, Zap, TrendingUp, Target, Sparkles, Loader2, CheckCircle, Calculator } from "lucide-react";
+import { useState, useMemo } from "react";
 
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
+import { getGlassStyles, getTextColors } from "../utils/theme";
 
 import { AIInsightsTab } from "./AIInsightsTab";
+import { EnhancedAIInsightCard } from "./EnhancedAIInsightCard";
 import { SmartAutomationTab } from "./SmartAutomationTab";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
@@ -45,6 +47,10 @@ export const IntelligenceTab = ({
   const isDarkMode =
     typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
+  // Enhanced theme styles
+  const glassStyles = getGlassStyles(isStealthOps, isDarkMode);
+  const textColors = getTextColors(isStealthOps, isDarkMode);
+
   const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
 
   // Mock AI stats
@@ -55,25 +61,98 @@ export const IntelligenceTab = ({
     optimizationScore: 87,
   };
 
-  // Enhanced text colors with Stealth Ops support
-  const getTextColors = () => {
-    if (isStealthOps) {
-      return {
-        primary: "text-white",
-        secondary: "text-gray-300",
-        muted: "text-gray-400",
-        accent: "text-green-400",
-      };
+  // Enhanced AI insights with rich data
+  const enhancedInsights = useMemo(() => [
+    {
+      id: "insight-1",
+      type: "optimization" as const,
+      title: "Switch to Annual Billing",
+      description: "Save 15% on 3 subscriptions by switching from monthly to annual billing cycles",
+      impact: "high" as const,
+      confidence: 0.92,
+      potentialSavings: 89.4,
+      priority: 5,
+      timeframe: "short-term" as const,
+      status: "new" as const,
+      category: "Billing Optimization",
+      aiReasoning: "Based on your payment history, these subscriptions have been consistently active for 8+ months and show no signs of cancellation. Annual billing discounts are guaranteed savings.",
+      actionItems: [
+        "Contact Netflix, Spotify, and Adobe about annual discounts",
+        "Calculate upfront cost impact on cash flow",
+        "Set calendar reminders for annual renewal dates"
+      ],
+      relatedMetrics: [
+        { label: "Current Monthly Cost", value: "$67.50", change: 0, positive: undefined },
+        { label: "Annual Savings", value: "$89.40", change: 15, positive: true }
+      ]
+    },
+    {
+      id: "insight-2",
+      type: "warning" as const,
+      title: "Duplicate Streaming Services",
+      description: "You have 3 streaming services with overlapping content libraries",
+      impact: "medium" as const,
+      confidence: 0.78,
+      potentialSavings: 32.99,
+      priority: 3,
+      timeframe: "immediate" as const,
+      status: "new" as const,
+      category: "Service Optimization",
+      aiReasoning: "Netflix, Hulu, and Disney+ have significant content overlap. Usage data shows you primarily use Netflix (87% of streaming time) while other services are underutilized.",
+      actionItems: [
+        "Compare content libraries and viewing history",
+        "Consider canceling least-used services",
+        "Look into bundle deals that might save money"
+      ],
+      relatedMetrics: [
+        { label: "Netflix Usage", value: "87%", change: 5, positive: true },
+        { label: "Other Services", value: "13%", change: -23, positive: false }
+      ]
+    },
+    {
+      id: "insight-3",
+      type: "opportunity" as const,
+      title: "Business Tax Deduction Opportunity",
+      description: "$245/month in subscriptions qualify for business expense deductions",
+      impact: "high" as const,
+      confidence: 0.85,
+      potentialSavings: 73.5,
+      priority: 4,
+      timeframe: "long-term" as const,
+      status: "viewed" as const,
+      category: "Tax Optimization",
+      aiReasoning: "Adobe Creative Suite, Zoom Pro, and development tools are clearly business-related based on usage patterns during work hours.",
+      actionItems: [
+        "Categorize business vs personal subscriptions",
+        "Consult with tax professional",
+        "Set up separate payment methods for business subscriptions"
+      ],
+      relatedMetrics: [
+        { label: "Deductible Amount", value: "$245", change: 12, positive: true },
+        { label: "Potential Tax Savings", value: "$73.50", change: 12, positive: true }
+      ]
     }
-    return {
-      primary: isDarkMode ? "text-gray-100" : "text-gray-900",
-      secondary: isDarkMode ? "text-gray-300" : "text-gray-700",
-      muted: isDarkMode ? "text-gray-400" : "text-gray-600",
-      accent: isDarkMode ? "text-blue-400" : "text-blue-600",
-    };
+  ], []);
+
+  // Enhanced AI insight handlers
+  const handleInsightAction = async (action: string, insightId: string) => {
+    console.log(`Executing action '${action}' on insight '${insightId}'`);
+    // Simulate action execution
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (action === "apply") {
+      // Handle applying the insight
+      console.log(`Applied insight ${insightId}`);
+    } else if (action === "learn-more") {
+      // Handle learning more about the insight
+      console.log(`Learning more about insight ${insightId}`);
+    }
   };
 
-  const textColors = getTextColors();
+  const handleInsightDismiss = (insightId: string) => {
+    console.log(`Dismissed insight ${insightId}`);
+    // Handle dismissing the insight
+  };
 
   // Run Full Analysis Handler
   const handleRunFullAnalysis = async () => {
@@ -535,7 +614,24 @@ export const IntelligenceTab = ({
         </TabsList>
 
         <TabsContent value="insights">
-          <AIInsightsTab subscriptions={subscriptions} cards={cards} />
+          <div className="space-y-6">
+            {/* Enhanced AI Insights Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {enhancedInsights.map((insight) => (
+                <EnhancedAIInsightCard
+                  key={insight.id}
+                  insight={insight}
+                  onAction={handleInsightAction}
+                  onDismiss={handleInsightDismiss}
+                  isStealthOps={isStealthOps}
+                  isDarkMode={isDarkMode}
+                />
+              ))}
+            </div>
+            
+            {/* Original AI Insights Tab for additional content */}
+            <AIInsightsTab subscriptions={subscriptions} cards={cards} />
+          </div>
         </TabsContent>
 
         <TabsContent value="automation">
@@ -556,11 +652,11 @@ export const IntelligenceTab = ({
             }`}
           >
             <Zap className={`w-5 h-5 ${isStealthOps ? "text-green-400" : ""}`} />
-            <span>{isStealthOps ? "[QUICK AI ACTIONS]" : "Quick AI Actions"}</span>
+            <span>{isStealthOps ? "[ENHANCED AI ACTIONS]" : "Enhanced AI Actions"}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Button
               variant="outline"
               className={`h-auto p-4 flex-col items-start ${
@@ -585,7 +681,7 @@ export const IntelligenceTab = ({
                   />
                 )}
                 <span className={`font-medium ${isStealthOps ? "font-mono tracking-wide" : ""}`}>
-                  {isStealthOps ? "[RUN FULL ANALYSIS]" : "Run Full Analysis"}
+                  {isStealthOps ? "[DEEP ANALYSIS]" : "Deep Analysis"}
                 </span>
               </div>
               <p
@@ -595,11 +691,11 @@ export const IntelligenceTab = ({
               >
                 {isAnalyzing
                   ? isStealthOps
-                    ? "[ANALYZING SUBSCRIPTIONS...]"
-                    : "Analyzing subscriptions..."
+                    ? "[AI ANALYZING...]"
+                    : "AI analyzing..."
                   : isStealthOps
-                    ? "[ANALYZE ALL SUBSCRIPTIONS FOR OPTIMIZATION OPPORTUNITIES]"
-                    : "Analyze all subscriptions for optimization opportunities"}
+                    ? "[COMPREHENSIVE AI AUDIT]"
+                    : "Comprehensive AI audit"}
               </p>
             </Button>
 
@@ -616,7 +712,7 @@ export const IntelligenceTab = ({
               <div className="flex items-center space-x-2 mb-2">
                 <Bot className={`w-5 h-5 ${isStealthOps ? "text-blue-400" : "text-blue-600"}`} />
                 <span className={`font-medium ${isStealthOps ? "font-mono tracking-wide" : ""}`}>
-                  {isStealthOps ? "[SETUP AUTOMATION]" : "Setup Automation"}
+                  {isStealthOps ? "[SMART AUTOMATION]" : "Smart Automation"}
                 </span>
               </div>
               <p
@@ -625,8 +721,8 @@ export const IntelligenceTab = ({
                 }`}
               >
                 {isStealthOps
-                  ? "[CREATE SMART RULES TO AUTOMATICALLY MANAGE SUBSCRIPTIONS]"
-                  : "Create smart rules to automatically manage subscriptions"}
+                  ? "[INTELLIGENT RULE ENGINE]"
+                  : "Intelligent rule engine"}
               </p>
             </Button>
 
@@ -645,7 +741,7 @@ export const IntelligenceTab = ({
                   className={`w-5 h-5 ${isStealthOps ? "text-green-400" : "text-green-600"}`}
                 />
                 <span className={`font-medium ${isStealthOps ? "font-mono tracking-wide" : ""}`}>
-                  {isStealthOps ? "[OPTIMIZE SPENDING]" : "Optimize Spending"}
+                  {isStealthOps ? "[COST OPTIMIZER]" : "Cost Optimizer"}
                 </span>
               </div>
               <p
@@ -654,8 +750,37 @@ export const IntelligenceTab = ({
                 }`}
               >
                 {isStealthOps
-                  ? "[GET PERSONALIZED RECOMMENDATIONS TO REDUCE COSTS]"
-                  : "Get personalized recommendations to reduce costs"}
+                  ? "[MAXIMIZE SAVINGS]"
+                  : "Maximize savings"}
+              </p>
+            </Button>
+
+            <Button
+              variant="outline"
+              className={`h-auto p-4 flex-col items-start ${
+                isStealthOps
+                  ? "tactical-button border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black font-mono tracking-wide"
+                  : ""
+              }`}
+              onClick={() => console.log("What-if scenarios")}
+              style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
+            >
+              <div className="flex items-center space-x-2 mb-2">
+                <Calculator
+                  className={`w-5 h-5 ${isStealthOps ? "text-orange-400" : "text-orange-600"}`}
+                />
+                <span className={`font-medium ${isStealthOps ? "font-mono tracking-wide" : ""}`}>
+                  {isStealthOps ? "[WHAT-IF ANALYSIS]" : "What-If Analysis"}
+                </span>
+              </div>
+              <p
+                className={`text-sm text-left ${
+                  isStealthOps ? "text-gray-300 font-mono tracking-wide" : "text-muted-foreground"
+                }`}
+              >
+                {isStealthOps
+                  ? "[SCENARIO MODELING]"
+                  : "Scenario modeling"}
               </p>
             </Button>
           </div>

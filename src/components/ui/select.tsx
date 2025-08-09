@@ -2,9 +2,11 @@
 
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 
 import { cn } from "./utils";
+import { defaultTransition, motionVariants } from "./motion";
 
 const Select = ({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) => {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
