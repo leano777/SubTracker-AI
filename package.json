@@ -55,6 +55,8 @@
     "verify:visual-setup": "node scripts/verify-visual-setup.js"
   },
   "dependencies": {
+    "@sentry/react": "^7.91.0",
+    "@sentry/tracing": "^7.91.0",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
