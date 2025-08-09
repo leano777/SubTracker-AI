@@ -8,6 +8,7 @@ import { getGlassStyles, getTextColors } from "../utils/theme";
 import { AIInsightsTab } from "./AIInsightsTab";
 import { EnhancedAIInsightCard } from "./EnhancedAIInsightCard";
 import { SmartAutomationTab } from "./SmartAutomationTab";
+import { ForceSyncTest } from "../tests/ForceSyncTest";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -20,12 +21,22 @@ interface IntelligenceTabProps {
   subscriptions: FullSubscription[];
   cards: FullPaymentCard[];
   onAutomationTrigger: (automation: any) => void;
+  triggerDataSync?: () => Promise<void>;
+  syncStatus?: any;
+  lastSyncTime?: string | null;
+  isOnline?: boolean;
+  cloudSyncEnabled?: boolean;
 }
 
 export const IntelligenceTab = ({
   subscriptions,
   cards,
   onAutomationTrigger,
+  triggerDataSync,
+  syncStatus,
+  lastSyncTime,
+  isOnline = true,
+  cloudSyncEnabled = true,
 }: IntelligenceTabProps) => {
   console.log("IntelligenceTab rendering with:", {
     subscriptionsLength: subscriptions?.length,
@@ -643,14 +654,28 @@ export const IntelligenceTab = ({
         </TabsContent>
       </Tabs>
 
+      {/* Force Sync Test Section */}
+      {triggerDataSync && (
+        <div className="space-y-4">
+          <h3 className={`text-lg font-semibold ${textColors.primary} ${
+            isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""
+          }`}>
+            <span>{isStealthOps ? "[FORCE SYNC TEST]" : "Force Sync Test"}</span>
+          </h3>
+          <ForceSyncTest
+            triggerDataSync={triggerDataSync}
+            syncStatus={syncStatus}
+            lastSyncTime={lastSyncTime || null}
+            isOnline={isOnline}
+            cloudSyncEnabled={cloudSyncEnabled}
+          />
+        </div>
+      )}
+
       {/* Enhanced Quick Actions with Stealth Ops Support */}
       <Card className={isStealthOps ? "tactical-surface" : ""}>
         <CardHeader>
-          <CardTitle
-            className={`flex items-center space-x-2 ${textColors.primary} ${
-              isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""
-            }`}
-          >
+          <CardTitle className={`flex items-center space-x-2 ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""}`}>
             <Zap className={`w-5 h-5 ${isStealthOps ? "text-green-400" : ""}`} />
             <span>{isStealthOps ? "[ENHANCED AI ACTIONS]" : "Enhanced AI Actions"}</span>
           </CardTitle>
