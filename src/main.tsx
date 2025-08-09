@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import './styles/globals.css'
 import App from './App.tsx'
 // Initialize performance monitoring for Lighthouse optimization
 import { initializeLighthouseOptimization } from './utils/performance'
