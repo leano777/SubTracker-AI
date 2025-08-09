@@ -34,15 +34,16 @@ interface DashboardTabProps {
   subscriptions: FullSubscription[];
   cards: FullPaymentCard[];
   settings: AppSettings;
-  notifications: Notification[];
+  notifications: AppNotification[];
   weeklyBudgets?: any[];
 }
 
 export const DashboardTab = ({
-  subscriptions,
+  subscriptions = [],
   settings,
-  notifications,
-  cards,
+  notifications = [],
+  cards = [],
+  weeklyBudgets = [],
 }: DashboardTabProps) => {
   console.log("🏠 DashboardTab rendered with:", {
     subscriptionsCount: subscriptions?.length || 0,
@@ -480,34 +481,9 @@ export const DashboardTab = ({
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={spendingTrend}>
-                    <XAxis
-                      dataKey="month"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{
-                        fill: isStealthOps ? "#ffffff" : isDarkMode ? "#e5e7eb" : "#374151",
-                        fontFamily: isStealthOps ? "monospace" : "inherit",
-                        fontSize: isStealthOps ? 12 : 14,
-                      }}
-                    />
-                    <YAxis hide />
-                    <Line
-                      type="monotone"
-                      dataKey="amount"
-                      stroke={isStealthOps ? "#00ff00" : "#3b82f6"}
-                      strokeWidth={3}
-                      dot={{
-                        fill: isStealthOps ? "#00ff00" : "#3b82f6",
-                        strokeWidth: 2,
-                        r: 4,
-                      }}
-                      activeDot={{
-                        r: 6,
-                        stroke: isStealthOps ? "#00ff00" : "#3b82f6",
-                        strokeWidth: 2,
-                        fill: isStealthOps ? "#00ff00" : "#3b82f6",
-                      }}
-                    />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Line type="monotone" dataKey="amount" stroke="#3b82f6" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

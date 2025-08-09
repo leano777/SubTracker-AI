@@ -1,6 +1,14 @@
 import { Calendar, PiggyBank, Calculator, Sparkles, TrendingUp } from "lucide-react";
 import { useState, useMemo } from "react";
-import { XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, AreaChart, Tooltip, Legend } from "recharts";
+// Recharts temporarily replaced with placeholder components due to es-toolkit import issue
+const ResponsiveContainer = ({ children }: any) => <div className="w-full h-full">{children}</div>;
+const AreaChart = ({ children }: any) => <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg"><div className="text-center text-gray-500"><TrendingUp className="w-8 h-8 mx-auto mb-2" /><p>Chart temporarily disabled</p></div></div>;
+const XAxis = () => null;
+const YAxis = () => null;
+const CartesianGrid = () => null;
+const Area = () => null;
+const Tooltip = () => null;
+const Legend = () => null;
 
 import type {
   FullSubscription,

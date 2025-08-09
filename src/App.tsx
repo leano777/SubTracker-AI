@@ -2,10 +2,12 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Toaster } from "sonner";
 import { initializeAccessibility, announce } from "./utils/accessibility/focusManagement";
+import { useTabReducer } from "./hooks/useTabReducer";
 
 import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
 import { AppHeader } from "./components/AppHeader";
 import { DashboardTab } from "./components/DashboardTab";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
 import { FloatingNotifications } from "./components/FloatingNotifications";
 import { ImportDialog } from "./components/ImportDialog";
@@ -29,7 +31,7 @@ import { useAppHandlers } from "./hooks/useAppHandlers";
 import { useDataManagement } from "./hooks/useDataManagement";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
-import type { AppSettings } from "./types/constants";
+import type { AppSettings, AppNotification } from "./types/constants";
 import { dataSyncManager } from "./utils/dataSync";
 import { formatDateForStorage } from "./utils/dateUtils";
 import {
@@ -86,14 +88,16 @@ const AppContent = () => {
     [addCleanup]
   );
 
-  // Core UI State - Simplified and consolidated
-  const [uiState, setUiState] = useState({
-    activeTab: "dashboard",
-    isFormOpen: false,
-    isWatchlistMode: false,
-    globalSearchTerm: "",
-    isMobileMenuOpen: false,
-  });
+  // Core UI State - Using TabReducer for simplified management
+  const {
+    uiState,
+    setActiveTab,
+    setIsFormOpen,
+    setIsWatchlistMode,
+    setGlobalSearchTerm,
+    setIsMobileMenuOpen,
+    resetUIState,
+  } = useTabReducer();
 
   // Modal State - Consolidated to prevent race conditions
   const [modalState, setModalState] = useState({
@@ -111,10 +115,10 @@ const AppContent = () => {
     sidePeekSubscription: null as FullSubscription | null,
   });
 
-  // Connection State - TEMPORARILY DISABLE SYNC TO TEST ISSUE
+  // Connection State
   const [connectionState, setConnectionState] = useState(() => ({
     isOnline: navigator.onLine,
-    cloudSyncEnabled: false, // TEMPORARILY DISABLED - TESTING SYNC FREEZE ISSUE
+    cloudSyncEnabled: true,
   }));
 
   // Stable user reference - Only derive userId to prevent object reference changes
@@ -259,53 +263,24 @@ const AppContent = () => {
     };
   }, [isAuthenticated, stableUserId, loadUserData]);
 
-  // Stable handlers - FIXED: Simplified dependencies with React.Dispatch compatibility
-  const stableHandlers = useMemo(() => {
-    return {
-      setActiveTab: (tab: string) => {
-        if (isMountedRef.current) {
-          setUiState((prev) => ({ ...prev, activeTab: tab }));
-        }
-      },
-      setIsFormOpen: (open: boolean | ((prev: boolean) => boolean)) => {
-        if (isMountedRef.current) {
-          if (typeof open === "function") {
-            setUiState((prev) => ({ ...prev, isFormOpen: open(prev.isFormOpen) }));
-          } else {
-            setUiState((prev) => ({ ...prev, isFormOpen: open }));
-          }
-        }
-      },
-      setIsWatchlistMode: (mode: boolean | ((prev: boolean) => boolean)) => {
-        if (isMountedRef.current) {
-          if (typeof mode === "function") {
-            setUiState((prev) => ({ ...prev, isWatchlistMode: mode(prev.isWatchlistMode) }));
-          } else {
-            setUiState((prev) => ({ ...prev, isWatchlistMode: mode }));
-          }
-        }
-      },
-      setEditingSubscription: (
-        subscription:
-          | FullSubscription
-          | null
-          | ((prev: FullSubscription | null) => FullSubscription | null)
-      ) => {
-        if (isMountedRef.current) {
-          if (typeof subscription === "function") {
-            setEditingState((prev) => ({
-              ...prev,
-              editingSubscription: subscription(prev.editingSubscription),
-            }));
-          } else {
-            setEditingState((prev) => ({ ...prev, editingSubscription: subscription }));
-          }
-        }
-      },
-    };
-  }, []); // Empty dependency array - these are state setters
+  // Editing subscription handler - Simplified with useCallback for stable identity
+  const setEditingSubscription = useCallback((
+    subscription:
+      | FullSubscription
+      | null
+      | ((prev: FullSubscription | null) => FullSubscription | null)
+  ) => {
+    if (typeof subscription === "function") {
+      setEditingState((prev) => ({
+        ...prev,
+        editingSubscription: subscription(prev.editingSubscription),
+      }));
+    } else {
+      setEditingState((prev) => ({ ...prev, editingSubscription: subscription }));
+    }
+  }, []);
 
-  // App Handlers - FIXED: Stable data management references
+  // App Handlers - Using simplified stable handlers from tab reducer
   const appHandlersConfig = useMemo(
     () => ({
       subscriptions,
@@ -316,7 +291,10 @@ const AppContent = () => {
       setAppSettings,
       notifications,
       setNotifications,
-      ...stableHandlers,
+      setActiveTab,
+      setIsFormOpen,
+      setIsWatchlistMode,
+      setEditingSubscription,
       editingSubscription: editingState.editingSubscription,
     }),
     [
@@ -328,7 +306,10 @@ const AppContent = () => {
       setAppSettings,
       notifications,
       setNotifications,
-      stableHandlers,
+      setActiveTab,
+      setIsFormOpen,
+      setIsWatchlistMode,
+      setEditingSubscription,
       editingState.editingSubscription,
     ]
   );
@@ -359,13 +340,7 @@ const AppContent = () => {
         setSubscriptions?.([]);
         setPaymentCards?.([]);
         setNotifications?.([]);
-        setUiState({
-          activeTab: "overview",
-          isFormOpen: false,
-          isWatchlistMode: false,
-          globalSearchTerm: "",
-          isMobileMenuOpen: false,
-        });
+        resetUIState();
         setModalState({
           isCardModalOpen: false,
           isSidePeekOpen: false,
@@ -385,7 +360,7 @@ const AppContent = () => {
     } catch (error) {
       console.error("Logout failed:", error);
     }
-  }, [signOut, setSubscriptions, setPaymentCards, setNotifications]);
+  }, [signOut, setSubscriptions, setPaymentCards, setNotifications, resetUIState]);
 
   // Modal handlers - FIXED: Consolidated state updates
   const modalHandlers = useMemo(
@@ -461,13 +436,7 @@ const AppContent = () => {
       setNotifications?.([]);
       setAppSettings?.(defaultAppSettings);
 
-      setUiState({
-        activeTab: "overview",
-        isFormOpen: false,
-        isWatchlistMode: false,
-        globalSearchTerm: "",
-        isMobileMenuOpen: false,
-      });
+      resetUIState();
 
       setEditingState({
         editingSubscription: null,
@@ -488,6 +457,7 @@ const AppContent = () => {
     setAppSettings,
     defaultAppSettings,
     modalHandlers,
+    resetUIState,
   ]);
 
   // Data recovery handler - FIXED: Proper validation and error handling
@@ -495,7 +465,7 @@ const AppContent = () => {
     (data: {
       subscriptions?: FullSubscription[];
       paymentCards?: FullPaymentCard[];
-      notifications?: Notification[];
+      notifications?: AppNotification[];
       appSettings?: Partial<AppSettings>;
     }) => {
       if (!isMountedRef.current) return;
@@ -512,7 +482,7 @@ const AppContent = () => {
           setNotifications?.(data.notifications);
         }
         if (data.appSettings && typeof data.appSettings === "object") {
-          setAppSettings?.(data.appSettings as Partial<AppSettings>);
+          setAppSettings?.(data.appSettings as AppSettings);
         }
 
         modalHandlers.closeDataRecovery();
@@ -800,6 +770,11 @@ const AppContent = () => {
               subscriptions={props.subscriptions}
               cards={props.cards}
               onAutomationTrigger={() => {}}
+              triggerDataSync={handleDataSync}
+              syncStatus={syncStatus}
+              lastSyncTime={lastSyncTime}
+              isOnline={connectionState.isOnline}
+              cloudSyncEnabled={connectionState.cloudSyncEnabled}
             />
           );
         default:
@@ -814,7 +789,7 @@ const AppContent = () => {
             <button
               onClick={() => {
                 if (isMountedRef.current) {
-                  setUiState((prev) => ({ ...prev, activeTab: "overview" }));
+                  setActiveTab("overview");
                 }
               }}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
@@ -843,6 +818,11 @@ const AppContent = () => {
     handleViewSubscription,
     handleUpdateSubscriptionDate,
     handleUpdateCategories,
+    handleDataSync,
+    syncStatus,
+    lastSyncTime,
+    connectionState.isOnline,
+    connectionState.cloudSyncEnabled,
   ]);
 
   // Accessibility initialization - Initialize on mount
@@ -921,13 +901,9 @@ const AppContent = () => {
       <AppHeader
         user={user}
         activeTab={uiState.activeTab}
-        setActiveTab={stableHandlers.setActiveTab}
+        setActiveTab={setActiveTab}
         globalSearchTerm={uiState.globalSearchTerm}
-        setGlobalSearchTerm={(term: string) => {
-          if (isMountedRef.current) {
-            setUiState((prev) => ({ ...prev, globalSearchTerm: term }));
-          }
-        }}
+        setGlobalSearchTerm={setGlobalSearchTerm}
         isOnline={connectionState.isOnline}
         cloudSyncEnabled={connectionState.cloudSyncEnabled}
         isAuthenticated={isAuthenticated}
@@ -936,11 +912,7 @@ const AppContent = () => {
         isLoggingOut={false}
         isMobile={isMobile}
         isMobileMenuOpen={uiState.isMobileMenuOpen}
-        setIsMobileMenuOpen={(open: boolean) => {
-          if (isMountedRef.current) {
-            setUiState((prev) => ({ ...prev, isMobileMenuOpen: open }));
-          }
-        }}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
         isDarkMode={themeValues.isDarkMode}
         isStealthOps={themeValues.isStealthOps}
         textColors={themeValues.textColors}
@@ -965,7 +937,13 @@ const AppContent = () => {
           <h1 className="sr-only">
             SubTracker - {uiState.activeTab.charAt(0).toUpperCase() + uiState.activeTab.slice(1)}
           </h1>
-          {renderTabContent()}
+          <ErrorBoundary
+            fallbackTitle="Tab Content Error"
+            fallbackMessage="There was an error loading this tab. This helps prevent the entire app from crashing."
+            onRetry={() => setActiveTab("dashboard")}
+          >
+            {renderTabContent()}
+          </ErrorBoundary>
         </div>
       </main>
 
@@ -979,7 +957,7 @@ const AppContent = () => {
 
       <QuickActionButton
         activeTab={uiState.activeTab}
-        onTabChange={stableHandlers.setActiveTab}
+        onTabChange={setActiveTab}
         onAddNew={openAddForm}
         subscriptionsCount={computedValues.activeSubscriptionsCount}
         aiInsightsCount={computedValues.unreadNotificationsCount}
@@ -1002,7 +980,7 @@ const AppContent = () => {
       )}
 
       {/* Modals */}
-      <Dialog open={uiState.isFormOpen} onOpenChange={stableHandlers.setIsFormOpen}>
+      <Dialog open={uiState.isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent
           className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/30"
           aria-describedby="subscription-form-dialog-description"

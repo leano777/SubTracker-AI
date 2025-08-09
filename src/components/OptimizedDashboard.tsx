@@ -1,17 +1,17 @@
 // Performance-optimized dashboard component using React 18 concurrent features
-import React, { memo, useMemo, startTransition, Suspense } from 'react';
-import { usePerformantTransition, useDeferredWithStatus, createTransitionSetter } from '../utils/concurrent';
+import React, { memo, useMemo, Suspense } from 'react';
+import { usePerformantTransition, useDeferredWithStatus } from '../utils/concurrent';
 import { LazyChartBundle } from './LazyCharts';
 import type { FullSubscription, PaymentCard } from '../types/subscription';
 
-// Lazy load heavy dashboard components
-const LazySpendingChart = React.lazy(() => import('./SpendingChart').catch(() => ({ 
-  default: () => <div>Failed to load chart</div> 
-})));
+// Lazy load heavy dashboard components - temporarily disabled due to missing components
+// const LazySpendingChart = React.lazy(() => import('./SpendingChart').catch(() => ({ 
+//   default: () => <div>Failed to load chart</div> 
+// })));
 
-const LazyInsightsPanel = React.lazy(() => import('./InsightsPanel').catch(() => ({ 
-  default: () => <div>Failed to load insights</div> 
-})));
+// const LazyInsightsPanel = React.lazy(() => import('./InsightsPanel').catch(() => ({ 
+//   default: () => <div>Failed to load insights</div> 
+// })));
 
 interface OptimizedDashboardProps {
   subscriptions: FullSubscription[];

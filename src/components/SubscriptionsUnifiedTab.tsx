@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 
-import type { FullSubscription, PaymentCard } from "../types/subscription";
+import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 import {
   calculateMonthlyAmount,
   formatCurrency,
@@ -49,7 +49,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface SubscriptionsUnifiedTabProps {
   subscriptions: FullSubscription[];
-  cards: PaymentCard[];
+  cards: FullPaymentCard[];
   onEdit: (subscription: FullSubscription) => void;
   onDelete: (id: string) => void;
   onCancel: (id: string) => void;
@@ -60,8 +60,8 @@ interface SubscriptionsUnifiedTabProps {
 }
 
 export const SubscriptionsUnifiedTab = ({
-  subscriptions,
-  cards,
+  subscriptions = [],
+  cards = [],
   onEdit,
   onDelete,
   onCancel,

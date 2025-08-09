@@ -25,7 +25,7 @@ import { useDataManagement } from "./hooks/useDataManagement";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
 import createAppRouter from "./router";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
-import type { AppSettings } from "./types/constants";
+import type { AppSettings, AppNotification } from "./types/constants";
 import { dataSyncManager } from "./utils/dataSync";
 import { formatDateForStorage } from "./utils/dateUtils";
 import {
@@ -477,7 +477,7 @@ const AppContent = () => {
     (data: {
       subscriptions?: FullSubscription[];
       paymentCards?: FullPaymentCard[];
-      notifications?: Notification[];
+      notifications?: AppNotification[];
       appSettings?: Partial<AppSettings>;
     }) => {
       if (!isMountedRef.current) return;
@@ -494,7 +494,7 @@ const AppContent = () => {
           setNotifications?.(data.notifications);
         }
         if (data.appSettings && typeof data.appSettings === "object") {
-          setAppSettings?.(data.appSettings as Partial<AppSettings>);
+          setAppSettings?.(data.appSettings as AppSettings);
         }
 
         modalHandlers.closeDataRecovery();
@@ -862,7 +862,8 @@ const AppContent = () => {
         isMobile={isMobile}
       />
 
-      {/* Side Peek */}
+      {/* Side Peek - temporarily disabled */}
+      {/*
       {editingState.sidePeekSubscription && (
         <SubscriptionSidePeek
           subscription={editingState.sidePeekSubscription}
@@ -876,8 +877,10 @@ const AppContent = () => {
           onActivateFromWatchlist={handleActivateFromWatchlist}
         />
       )}
+      */}
 
-      {/* Global Modals */}
+      {/* Global Modals - temporarily disabled */}
+      {/*
       <Dialog open={uiState.isFormOpen} onOpenChange={stableHandlers.setIsFormOpen}>
         <DialogContent
           className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/30"
@@ -978,12 +981,16 @@ const AppContent = () => {
         existingCards={paymentCards || []}
       />
 
-      {/* Toast Notifications */}
+      */}
+
+      {/* Toast Notifications - temporarily disabled */}
+      {/*
       <Toaster
         position="bottom-right"
         richColors
         theme={themeValues.isDarkMode ? "dark" : "light"}
       />
+      */}
     </div>
   );
 };
