@@ -1,3 +1,4 @@
+/// <reference path="./vitest-globals.d.ts" />
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
 import { expect, afterEach, beforeEach, vi } from "vitest";

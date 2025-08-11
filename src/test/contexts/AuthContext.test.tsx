@@ -1,13 +1,14 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { renderHook } from "@testing-library/react";
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { MockSupabase } from '../types/mocks';
 
 import { AuthProvider, useAuth } from "../../contexts/AuthContext";
 import { mockSession, mockUser } from "../utils";
 
 // Mock Supabase client with factory function
 vi.mock("../../utils/supabase/client", () => {
-  const mockSupabase = {
+  const mockSupabase: MockSupabase = {
     auth: {
       getSession: vi.fn(),
       onAuthStateChange: vi.fn(),
@@ -17,6 +18,16 @@ vi.mock("../../utils/supabase/client", () => {
       signOut: vi.fn(),
       resetPasswordForEmail: vi.fn(),
     },
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      single: vi.fn(),
+    })),
   };
 
   return {
@@ -25,7 +36,7 @@ vi.mock("../../utils/supabase/client", () => {
 });
 
 // Get the mocked supabase instance
-const mockSupabase = vi.mocked(await import("../../utils/supabase/client")).supabase;
+const { supabase: mockSupabase } = await import("../../utils/supabase/client") as unknown as { supabase: MockSupabase };
 
 // Mock localStorage and sessionStorage for corruption tests
 const originalLocalStorage = window.localStorage;
@@ -436,7 +447,7 @@ describe("AuthContext", () => {
     it("should handle SIGNED_IN event", async () => {
       let authStateChangeCallback: any;
 
-      mockSupabase.auth.onAuthStateChange.mockImplementation((callback) => {
+      mockSupabase.auth.onAuthStateChange.mockImplementation((callback: any) => {
         authStateChangeCallback = callback;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       });
@@ -464,7 +475,7 @@ describe("AuthContext", () => {
     it("should handle SIGNED_OUT event", async () => {
       let authStateChangeCallback: any;
 
-      mockSupabase.auth.onAuthStateChange.mockImplementation((callback) => {
+      mockSupabase.auth.onAuthStateChange.mockImplementation((callback: any) => {
         authStateChangeCallback = callback;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       });
@@ -495,7 +506,7 @@ describe("AuthContext", () => {
       let authStateChangeCallback: any;
       const refreshedSession = { ...mockSession, access_token: "new-token" };
 
-      mockSupabase.auth.onAuthStateChange.mockImplementation((callback) => {
+      mockSupabase.auth.onAuthStateChange.mockImplementation((callback: any) => {
         authStateChangeCallback = callback;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       });
@@ -521,7 +532,7 @@ describe("AuthContext", () => {
         },
       };
 
-      mockSupabase.auth.onAuthStateChange.mockImplementation((callback) => {
+      mockSupabase.auth.onAuthStateChange.mockImplementation((callback: any) => {
         authStateChangeCallback = callback;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       });
@@ -573,7 +584,7 @@ describe("AuthContext", () => {
     it("should handle auth state change errors gracefully", async () => {
       let authStateChangeCallback: any;
 
-      mockSupabase.auth.onAuthStateChange.mockImplementation((callback) => {
+      mockSupabase.auth.onAuthStateChange.mockImplementation((callback: any) => {
         authStateChangeCallback = callback;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       });

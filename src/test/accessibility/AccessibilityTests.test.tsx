@@ -3,11 +3,12 @@
  * ST-038: A11y compliance - Phase 8 Accessibility & Interaction Polish
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import '@testing-library/jest-dom';
+import React from 'react';
 
 import App from '../../App';
 import { Button } from '../../components/ui/button';
@@ -23,7 +24,7 @@ import {
 } from '../../utils/accessibility/axeConfig';
 
 // Extend Jest matchers
-expect.extend(toHaveNoViolations);
+expect.extend({ toHaveNoViolations });
 
 // Mock router for testing
 vi.mock('react-router-dom', () => ({

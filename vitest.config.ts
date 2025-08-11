@@ -10,6 +10,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: true,
+    typecheck: {
+      tsconfig: './tsconfig.app.json',
+      include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}']
+    },
     // Coverage configuration
     coverage: {
       provider: 'v8',

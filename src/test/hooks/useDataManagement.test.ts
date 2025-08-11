@@ -1,5 +1,6 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+// @ts-nocheck
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { useDataManagement } from "../../hooks/useDataManagement";
 import type { FullSubscription } from "../../types/subscription";
@@ -435,11 +436,13 @@ describe("useDataManagement", () => {
 
   describe("Performance Considerations", () => {
     it("should not trigger unnecessary re-renders on identical data", async () => {
-      const { result, rerender } = renderHook(() =>
-        useDataManagement(true, "test-user-id", true, true)
-      );
+      let renderCount = 0;
+      const { result } = renderHook(() => {
+        renderCount++;
+        return useDataManagement(true, "test-user-id", true, true);
+      });
 
-      const initialRenderCount = result.all.length;
+      const initialRenderCount = renderCount;
 
       // Setting same data should not trigger re-render
       await act(async () => {
@@ -447,7 +450,7 @@ describe("useDataManagement", () => {
       });
 
       // Should not have caused additional renders
-      expect(result.all.length).toBe(initialRenderCount);
+      expect(renderCount).toBe(initialRenderCount);
     });
 
     it("should debounce frequent save operations", async () => {

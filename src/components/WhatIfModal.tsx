@@ -849,7 +849,7 @@ export const WhatIfModal = ({
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
-                      <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                      <Tooltip formatter={(value: any) => formatCurrency(value as number)} />
                       <Legend />
                       <Bar dataKey="income" fill="#3b82f6" name="Income" />
                       <Bar dataKey="spending" fill="#ef4444" name="Spending" />

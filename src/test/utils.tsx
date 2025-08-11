@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { vi } from "vitest";
 
 import { AuthProvider } from "../contexts/AuthContext";
-import type { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 
 // Mock data generators
@@ -15,10 +15,13 @@ export const createMockSubscription = (
   id: "test-sub-1",
   name: "Test Subscription",
   price: 9.99,
+  cost: 9.99,
   frequency: "monthly",
+  billingCycle: "monthly",
   nextPayment: "2024-01-15",
   category: "Entertainment",
   status: "active",
+  isActive: true,
   dateAdded: "2024-01-01",
   description: "A test subscription",
   website: "https://test.com",
@@ -63,7 +66,7 @@ export const createMockAppSettings = (overrides: Partial<AppSettings> = {}): App
   ...overrides,
 });
 
-export const createMockNotification = (overrides: Partial<Notification> = {}): Notification => ({
+export const createMockNotification = (overrides: Partial<AppNotification> = {}): AppNotification => ({
   id: "test-notification-1",
   type: "info",
   title: "Test Notification",
@@ -227,7 +230,7 @@ export const createProfiler = () => {
 
   const onRender = (
     id: string,
-    phase: "mount" | "update",
+    phase: "mount" | "update" | "nested-update",
     actualDuration: number,
     baseDuration: number,
     startTime: number,

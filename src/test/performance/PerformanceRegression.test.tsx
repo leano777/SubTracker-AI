@@ -1,7 +1,7 @@
 import { render, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React, { Profiler } from "react";
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import React, { Profiler, type ProfilerOnRenderCallback } from "react";
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import App from "../../App";
 import { DashboardTab } from "../../components/DashboardTab";

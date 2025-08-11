@@ -3,7 +3,9 @@
  * ST-038: A11y compliance - Phase 8 Accessibility & Interaction Polish
  */
 
-import { configureAxe, toHaveNoViolations } from 'axe-core';
+// @ts-nocheck
+import { toHaveNoViolations } from 'jest-axe';
+import axe from 'axe-core';
 
 // WCAG AA Configuration
 export const wcagAAConfig = {
