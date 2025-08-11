@@ -5,7 +5,6 @@ import {
   CheckCircle,
   Target,
   Clock,
-  DollarSign,
   Zap,
   ShieldAlert,
 } from "lucide-react";

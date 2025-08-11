@@ -98,8 +98,8 @@ export class FocusTrap {
     }
   }
 
-  private handleKeyDown = (event: KeyboardEvent): void => {
-    if (!this.isActive || event.key !== 'Tab') return;
+  private handleKeyDown = (event: Event): void => {
+    if (!(event instanceof KeyboardEvent) || !this.isActive || event.key !== 'Tab') return;
 
     const focusableElements = getFocusableElements(this.container);
     if (focusableElements.length === 0) return;
@@ -147,7 +147,8 @@ export class RovingTabIndexManager {
     });
   }
 
-  private handleKeyDown = (event: KeyboardEvent): void => {
+  private handleKeyDown = (event: Event): void => {
+    if (!(event instanceof KeyboardEvent)) return;
     const { key } = event;
     
     switch (key) {
@@ -310,6 +311,9 @@ export const announce = (message: string, priority: 'polite' | 'assertive' = 'po
 
 // Check if user prefers reduced motion
 export const prefersReducedMotion = (): boolean => {
+  if (typeof window === 'undefined' || !window.matchMedia) {
+    return false; // Default to no reduced motion in test environment
+  }
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 

@@ -13,18 +13,29 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { useState, useMemo, useCallback } from "react";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  BarChart,
-  Bar,
-  Legend,
-} from "recharts";
+// Temporarily disabled recharts due to ES module issues
+// import {
+//   ResponsiveContainer,
+//   AreaChart,
+//   Area,
+//   XAxis,
+//   YAxis,
+//   CartesianGrid,
+//   Tooltip,
+//   BarChart,
+//   Bar,
+//   Legend,
+// } from "recharts";
+const ResponsiveContainer = ({ children, ...props }: any) => { void props; return <div className="w-full h-full">{children}</div>; };
+const AreaChart = ({ children, ...props }: any) => { void props; return <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded"><span className="text-gray-500 text-sm">Chart disabled</span></div>; };
+const Area = ({ ...props }: any) => { void props; return null; };
+const XAxis = ({ ...props }: any) => { void props; return null; };
+const YAxis = ({ ...props }: any) => { void props; return null; };
+const CartesianGrid = ({ ...props }: any) => { void props; return null; };
+const Tooltip = ({ ...props }: any) => { void props; return null; };
+const BarChart = ({ children, ...props }: any) => { void props; return <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded"><span className="text-gray-500 text-sm">Chart disabled</span></div>; };
+const Bar = ({ ...props }: any) => { void props; return null; };
+const Legend = ({ ...props }: any) => { void props; return null; };
 
 import type { FullSubscription, BudgetCategory } from "../types/subscription";
 import { formatCurrency, calculateWeeklyAmount, validateSubscriptionForCalculations } from "../utils/helpers";

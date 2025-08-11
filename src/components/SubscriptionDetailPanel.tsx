@@ -33,7 +33,6 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Switch } from "./ui/switch";
 import { Textarea } from "./ui/textarea";
@@ -77,7 +76,6 @@ interface SubscriptionDetailPanelProps {
   onCancel: (id: string) => void;
   onReactivate: (id: string) => void;
   onActivateFromWatchlist: (id: string) => void;
-  onClose: () => void;
 }
 
 export const SubscriptionDetailPanel = ({
@@ -88,13 +86,12 @@ export const SubscriptionDetailPanel = ({
   onCancel,
   onReactivate,
   onActivateFromWatchlist,
-  onClose,
 }: SubscriptionDetailPanelProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SubscriptionFormData>({
-    resolver: zodResolver(subscriptionSchema),
+    resolver: zodResolver(subscriptionSchema) as any,
     defaultValues: {
       name: subscription.name,
       cost: subscription.cost,
@@ -104,7 +101,7 @@ export const SubscriptionDetailPanel = ({
       description: subscription.description || "",
       billingUrl: subscription.billingUrl || "",
       subscriptionType: (subscription.subscriptionType || "personal") as "personal" | "business",
-      tags: subscription.tags?.join(", ") || "",
+      tags: Array.isArray(subscription.tags) ? subscription.tags.join(", ") : subscription.tags || "",
       planType: (subscription.planType || "paid") as "free" | "paid" | "trial",
       priority: subscription.priority as any,
       watchlistNotes: subscription.watchlistNotes || "",
@@ -132,7 +129,7 @@ export const SubscriptionDetailPanel = ({
         description: data.description,
         billingUrl: data.billingUrl,
         subscriptionType: data.subscriptionType,
-        tags: Array.isArray(data.tags) ? data.tags : typeof data.tags === 'string' ? 
+        tags: typeof data.tags === 'string' ? 
           data.tags.split(',').map(t => t.trim()).filter(t => t.length > 0) : [],
         planType: data.planType,
         priority: data.priority,
@@ -144,7 +141,11 @@ export const SubscriptionDetailPanel = ({
           maxPrice: data.cost * 1.2,
           averagePrice: data.cost,
           isVariable: true,
-          upcomingChanges: data.variablePricing.upcomingChanges || [],
+          upcomingChanges: (data.variablePricing.upcomingChanges || []).map(change => ({
+            date: change.date || '',
+            cost: change.cost || '0',
+            description: change.description || ''
+          })),
         } : undefined,
         hasLinkedCard: !!data.cardId,
       };

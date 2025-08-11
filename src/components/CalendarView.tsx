@@ -15,7 +15,7 @@ import {
   MousePointer2,
   Navigation,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 
 import type { FullSubscription as Subscription, WeeklyBudget } from "../types/subscription";
@@ -137,30 +137,38 @@ export const CalendarView = ({
     return formatDateForStorage(date);
   };
 
-  // Simple subscription occurrence calculation with FIXED date parsing
-  const getSubscriptionsForDate = (targetDate: Date): Subscription[] => {
-    const result: Subscription[] = [];
-
-    // Filter subscriptions based on user preferences
+  // Optimized subscription occurrence calculation with memoization
+  const subscriptionCache = useMemo(() => {
+    const cache = new Map<string, Subscription[]>();
+    
+    // Filter subscriptions based on user preferences once
     const filteredSubscriptions = subscriptions.filter((sub) => {
       if (sub.status === "cancelled" && !showCancelledSubscriptions) return false;
       if (sub.status === "watchlist" && !showWatchlistItems) return false;
       return true;
     });
 
+    return { filteredSubscriptions, cache };
+  }, [subscriptions, showCancelledSubscriptions, showWatchlistItems]);
+
+  const getSubscriptionsForDate = useCallback((targetDate: Date): Subscription[] => {
+    const dateKey = formatDateForStorage(targetDate);
+    
+    // Check cache first
+    if (subscriptionCache.cache.has(dateKey)) {
+      return subscriptionCache.cache.get(dateKey)!;
+    }
+
+    const result: Subscription[] = [];
+    const { filteredSubscriptions } = subscriptionCache;
+
     filteredSubscriptions.forEach((subscription) => {
       // Use centralized date parsing for consistency
       const nextPaymentDate = parseStoredDate(subscription.nextPayment);
 
-      console.log("🔍 [CALENDAR] Checking subscription:", subscription.name);
-      console.log("🔍 [CALENDAR] Stored nextPayment:", subscription.nextPayment);
-      console.log("🔍 [CALENDAR] Parsed nextPayment date:", nextPaymentDate.toDateString());
-      console.log("🔍 [CALENDAR] Target date:", targetDate.toDateString());
-
       // Check if this subscription occurs on the target date
       // Use centralized date comparison to avoid timezone issues
       if (isSameDate(subscription.nextPayment, formatDateForStorage(targetDate))) {
-        console.log("✅ [CALENDAR] Found match for subscription:", subscription.name);
         result.push(subscription);
         return;
       }
@@ -222,8 +230,10 @@ export const CalendarView = ({
       }
     });
 
+    // Cache the result
+    subscriptionCache.cache.set(dateKey, result);
     return result;
-  };
+  }, [subscriptionCache]);
 
   // Generate calendar days for month view with proper date handling
   const generateCalendarDays = (): CalendarDay[] => {

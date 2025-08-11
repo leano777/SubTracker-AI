@@ -6,7 +6,7 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_APP_SETTINGS,
 } from "../data/mockData";
-import type { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 import { DEFAULT_BUDGET_CATEGORIES } from "../types/subscription";
 import { saveUserDataToCache, loadUserDataFromCache, clearUserDataCache } from "../utils/cache";
@@ -34,7 +34,7 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
   }
 
   // Enhanced frequency validation and migration with more robust handling
-  const determineFrequency = (sub: any): "monthly" | "yearly" | "weekly" | "daily" => {
+  const determineFrequency = (sub: any): "monthly" | "yearly" | "weekly" | "daily" | "quarterly" => {
     // Try multiple possible field names for frequency
     const freq =
       sub.frequency || sub.billingCycle || sub.billing_cycle || sub.cycle || sub.interval;
@@ -95,7 +95,7 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
       case "q":
       case "3":
       case "every 3 months":
-        return "monthly";
+        return "quarterly";
 
       case "bi-weekly":
       case "biweekly":
@@ -139,7 +139,7 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
     const determinedPrice = determinePrice(subscription);
 
     // Ensure the frequency is one of our valid options
-    const validFrequencies = ["monthly", "yearly", "weekly", "daily"];
+    const validFrequencies = ["monthly", "yearly", "weekly", "daily", "quarterly"];
     const finalFrequency = validFrequencies.includes(determinedFrequency)
       ? determinedFrequency
       : "monthly";
@@ -158,7 +158,7 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
   const determinedPrice = determinePrice(subscription);
 
   // Final safety check - ensure frequency is valid
-  const validFrequencies = ["monthly", "yearly", "weekly", "daily"];
+  const validFrequencies = ["monthly", "yearly", "weekly", "daily", "quarterly"];
   const safeFrequency = validFrequencies.includes(determinedFrequency)
     ? determinedFrequency
     : "monthly";
@@ -200,7 +200,7 @@ const migrateSubscriptionData = (subscription: any): FullSubscription => {
   // Validate the final migrated object
   if (
     !migrated.frequency ||
-    !["monthly", "yearly", "weekly", "daily"].includes(migrated.frequency)
+    !["monthly", "yearly", "weekly", "daily", "quarterly"].includes(migrated.frequency)
   ) {
     console.error(
       `❌ Migration failed validation for "${migrated.name}" - invalid frequency: ${migrated.frequency}, forcing to monthly`
@@ -393,7 +393,7 @@ export const useDataManagement = (
     }
   });
   const [appSettings, setAppSettings] = useState<AppSettings>(INITIAL_APP_SETTINGS);
-  const [notifications, setNotifications] = useState<Notification[]>(() => {
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
     // Only use demo data if not authenticated
     return isAuthenticated ? [] : INITIAL_NOTIFICATIONS;
   });
@@ -833,7 +833,7 @@ export const useDataManagement = (
   const saveUserData = async (data: {
     subscriptions: FullSubscription[];
     paymentCards: FullPaymentCard[];
-    notifications: Notification[];
+    notifications: AppNotification[];
     appSettings: AppSettings;
     hasInitialized: boolean;
     dataCleared: boolean;

@@ -187,13 +187,13 @@ export const SubscriptionListEnhanced = ({
           {/* Quick Indicators */}
           <div className="flex items-center gap-1 mr-3">
             {card && (
-              <CreditCard className="w-3 h-3 text-green-600" title="Card linked" />
+              <CreditCard className="w-3 h-3 text-green-600" />
             )}
             {subscription.automationEnabled && (
-              <Zap className="w-3 h-3 text-blue-600" title="Automation enabled" />
+              <Zap className="w-3 h-3 text-blue-600" />
             )}
             {daysUntil !== null && daysUntil <= 3 && subscription.status === "active" && (
-              <AlertTriangle className="w-3 h-3 text-red-500" title="Due soon" />
+              <AlertTriangle className="w-3 h-3 text-red-500" />
             )}
           </div>
 
@@ -584,7 +584,6 @@ export const SubscriptionListEnhanced = ({
               onCancel={onCancel}
               onReactivate={onReactivate}
               onActivateFromWatchlist={onActivateFromWatchlist}
-              onClose={() => onSubscriptionSelect(null)}
             />
           )}
         </SheetContent>

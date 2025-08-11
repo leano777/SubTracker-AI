@@ -18,7 +18,7 @@ import {
 import { useState } from "react";
 
 import { formatCurrency } from "../utils/helpers";
-import { getGlassStyles, getTextColors } from "../utils/theme";
+import { getTextColors } from "../utils/theme";
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -68,7 +68,6 @@ export const EnhancedAIInsightCard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isActing, setIsActing] = useState(false);
 
-  const glassStyles = getGlassStyles(isStealthOps, isDarkMode);
   const textColors = getTextColors(isStealthOps, isDarkMode);
 
   const getInsightIcon = (type: string) => {

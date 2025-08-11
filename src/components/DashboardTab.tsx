@@ -12,9 +12,19 @@ import {
   Eye,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+// Temporarily disable recharts due to ES module issues
+// import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+const LineChart = ({ children, ...props }: any) => { void props; return (
+  <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded">
+    <div className="text-gray-500 text-sm">Chart disabled</div>
+  </div>
+); };
+const Line = ({ ...props }: any) => { void props; return null; };
+const XAxis = ({ ...props }: any) => { void props; return null; };
+const YAxis = ({ ...props }: any) => { void props; return null; };
+const ResponsiveContainer = ({ children, ...props }: any) => { void props; return <div className="w-full h-full">{children}</div>; };
 
-import type { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 import { getDaysUntil, parseStoredDate } from "../utils/dateUtils";
 import {
@@ -43,7 +53,6 @@ export const DashboardTab = ({
   settings,
   notifications = [],
   cards = [],
-  weeklyBudgets = [],
 }: DashboardTabProps) => {
   console.log("🏠 DashboardTab rendered with:", {
     subscriptionsCount: subscriptions?.length || 0,
@@ -73,8 +82,8 @@ export const DashboardTab = ({
   const isStealthOps = currentTheme === "stealth-ops";
 
   // Calculate key metrics with error handling
-  let activeSubscriptions = [];
-  let cancelledSubscriptions = [];
+  let activeSubscriptions: FullSubscription[] = [];
+  let cancelledSubscriptions: FullSubscription[] = [];
   let totalMonthlySpend = 0;
   let totalYearlySpend = 0;
 

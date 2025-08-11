@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { useAuth } from "../contexts/AuthContext";
+// import { useAuth } from "../contexts/AuthContext"; // Removed to prevent circular dependency
 
 import { AuthModal } from "./AuthModal";
 import { Alert, AlertDescription } from "./ui/alert";
@@ -22,7 +22,8 @@ import { Card, CardContent } from "./ui/card";
 
 export const LandingPage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const { googleAuthAvailable } = useAuth();
+  // Remove useAuth dependency to prevent circular dependency
+  const googleAuthAvailable = true; // Default to true, AuthModal will handle the actual state
 
   const features = [
     {

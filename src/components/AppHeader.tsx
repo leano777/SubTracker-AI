@@ -79,6 +79,7 @@ const MobileNavigation = ({
     {tabs.map((tab) => (
       <button
         key={tab.id}
+        data-tab={tab.id}
         onClick={() => {
           setActiveTab(tab.id);
           setIsMobileMenuOpen(false);
@@ -184,6 +185,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
+                  data-tab={tab.id}
                   onClick={() => {
                     setActiveTab(tab.id);
                   }}
@@ -323,7 +325,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   isOnline,
                   cloudSyncEnabled,
                   syncStatus,
-                  isStealthOps
+                  isStealthOps,
+                  lastSyncTime
                 )}
               </Badge>
             </div>

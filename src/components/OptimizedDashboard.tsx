@@ -1,8 +1,8 @@
 // Performance-optimized dashboard component using React 18 concurrent features
-import React, { memo, useMemo, Suspense } from 'react';
+import { memo, useMemo, Suspense } from 'react';
 import { usePerformantTransition, useDeferredWithStatus } from '../utils/concurrent';
 import { LazyChartBundle } from './LazyCharts';
-import type { FullSubscription, PaymentCard } from '../types/subscription';
+import type { FullSubscription } from '../types/subscription';
 
 // Lazy load heavy dashboard components - temporarily disabled due to missing components
 // const LazySpendingChart = React.lazy(() => import('./SpendingChart').catch(() => ({ 
@@ -15,7 +15,6 @@ import type { FullSubscription, PaymentCard } from '../types/subscription';
 
 interface OptimizedDashboardProps {
   subscriptions: FullSubscription[];
-  cards: PaymentCard[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
@@ -23,7 +22,6 @@ interface OptimizedDashboardProps {
 // Memoized component to prevent unnecessary re-renders
 export const OptimizedDashboard = memo<OptimizedDashboardProps>(({
   subscriptions,
-  cards,
   searchQuery,
   onSearchChange
 }) => {
@@ -199,7 +197,7 @@ export const OptimizedDashboard = memo<OptimizedDashboardProps>(({
                   outerRadius={100}
                   fill="#3B82F6"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }: { name: any; percent: any }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 />
                 <LazyChartBundle.Tooltip />
               </LazyChartBundle.PieChart>

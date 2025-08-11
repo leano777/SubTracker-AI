@@ -7,6 +7,7 @@ import { useTabReducer } from "./hooks/useTabReducer";
 import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
 import { AppHeader } from "./components/AppHeader";
 import { DashboardTab } from "./components/DashboardTab";
+import { DebugToolButton } from "./components/DebugToolButton";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
 import { FloatingNotifications } from "./components/FloatingNotifications";
@@ -597,11 +598,11 @@ const AppContent = () => {
     [setSubscriptions, createTrackedTimeout]
   );
 
-  // Categories update handler for planning tab
-  const handleUpdateCategories = useCallback((categories: any) => {
-    if (!isMountedRef.current) return;
-    // TODO: Implement category updates when needed
-  }, []);
+  // Categories update handler for planning tab - currently unused
+  // const handleUpdateCategories = useCallback((categories: any) => {
+  //   if (!isMountedRef.current) return;
+  //   // TODO: Implement category updates when needed
+  // }, []);
 
   // Side peek handlers - FIXED: Proper state management with timing
   const sidePeekHandlers = useMemo(
@@ -761,7 +762,7 @@ const AppContent = () => {
               weeklyBudgets={props.weeklyBudgets}
               onViewSubscription={handleViewSubscription}
               onUpdateSubscriptionDate={handleUpdateSubscriptionDate}
-              onUpdateCategories={handleUpdateCategories}
+              onUpdateCategories={() => {/* TODO: Implement */}}
             />
           );
         case "intelligence":
@@ -817,7 +818,7 @@ const AppContent = () => {
     openWatchlistForm,
     handleViewSubscription,
     handleUpdateSubscriptionDate,
-    handleUpdateCategories,
+    // handleUpdateCategories, // temporarily disabled
     handleDataSync,
     syncStatus,
     lastSyncTime,
@@ -938,6 +939,7 @@ const AppContent = () => {
             SubTracker - {uiState.activeTab.charAt(0).toUpperCase() + uiState.activeTab.slice(1)}
           </h1>
           <ErrorBoundary
+            key={`tab-${uiState.activeTab}`}
             fallbackTitle="Tab Content Error"
             fallbackMessage="There was an error loading this tab. This helps prevent the entire app from crashing."
             onRetry={() => setActiveTab("dashboard")}
@@ -1086,6 +1088,9 @@ const AppContent = () => {
         richColors
         theme={themeValues.isDarkMode ? "dark" : "light"}
       />
+      
+      {/* Debug Tool Button - Development Only */}
+      <DebugToolButton />
     </div>
   );
 };

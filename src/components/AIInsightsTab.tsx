@@ -57,10 +57,14 @@ interface CategoryAnalysis {
   recommendations: string[];
 }
 
-export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
+export const AIInsightsTab = ({ subscriptions = [], cards = [] }: AIInsightsTabProps) => {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedInsightType, setSelectedInsightType] = useState<string>("all");
+
+  // Add safety checks
+  const safeSubscriptions = Array.isArray(subscriptions) ? subscriptions : [];
+  const safeCards = Array.isArray(cards) ? cards : [];
 
   // Detect theme
   const isStealthOps =
@@ -90,14 +94,16 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
 
   // AI Analysis Engine
   const generateInsights = useMemo(() => {
-    const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
+    const activeSubscriptions = safeSubscriptions.filter((sub) => sub.status === "active");
     const monthlyTotal = activeSubscriptions.reduce((total, sub) => {
       const monthly =
-        sub.billingCycle === "monthly"
-          ? sub.cost
-          : sub.billingCycle === "quarterly"
-            ? sub.cost / 3
-            : sub.cost / 12;
+        sub.frequency === "monthly"
+          ? sub.price
+          : sub.frequency === "quarterly"
+            ? sub.price / 3
+            : sub.frequency === "yearly"
+              ? sub.price / 12
+              : sub.price;
       return total + monthly;
     }, 0);
 
@@ -107,11 +113,13 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
     const categorySpending = activeSubscriptions.reduce(
       (acc, sub) => {
         const monthly =
-          sub.billingCycle === "monthly"
-            ? sub.cost
-            : sub.billingCycle === "quarterly"
-              ? sub.cost / 3
-              : sub.cost / 12;
+          sub.frequency === "monthly"
+            ? sub.price
+            : sub.frequency === "quarterly"
+              ? sub.price / 3
+              : sub.frequency === "yearly"
+                ? sub.price / 12
+                : sub.price;
         acc[sub.category] = (acc[sub.category] || 0) + monthly;
         return acc;
       },
@@ -159,11 +167,13 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
       if (subs.length > 2) {
         const totalCost = subs.reduce((sum, sub) => {
           const monthly =
-            sub.billingCycle === "monthly"
-              ? sub.cost
-              : sub.billingCycle === "quarterly"
-                ? sub.cost / 3
-                : sub.cost / 12;
+            sub.frequency === "monthly"
+              ? sub.price
+              : sub.frequency === "quarterly"
+                ? sub.price / 3
+                : sub.frequency === "yearly"
+                  ? sub.price / 12
+                  : sub.price;
           return sum + monthly;
         }, 0);
 
@@ -187,11 +197,11 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
     });
 
     // 3. Yearly vs Monthly Billing Optimization
-    const monthlyBilled = activeSubscriptions.filter((sub) => sub.billingCycle === "monthly");
+    const monthlyBilled = activeSubscriptions.filter((sub) => sub.frequency === "monthly");
     if (monthlyBilled.length > 3) {
       const potentialYearlySavings = monthlyBilled.reduce((total, sub) => {
         // Assume 15% savings on yearly billing
-        const annualCost = sub.cost * 12;
+        const annualCost = sub.price * 12;
         const yearlyDiscount = annualCost * 0.15;
         return total + yearlyDiscount;
       }, 0);
@@ -220,11 +230,13 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
       .map((sub) => ({
         ...sub,
         monthlyEquivalent:
-          sub.billingCycle === "monthly"
-            ? sub.cost
-            : sub.billingCycle === "quarterly"
-              ? sub.cost / 3
-              : sub.cost / 12,
+          sub.frequency === "monthly"
+            ? sub.price
+            : sub.frequency === "quarterly"
+              ? sub.price / 3
+              : sub.frequency === "yearly"
+                ? sub.price / 12
+                : sub.price,
       }))
       .filter((sub) => sub.monthlyEquivalent > 50)
       .sort((a, b) => b.monthlyEquivalent - a.monthlyEquivalent);
@@ -270,7 +282,7 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
     }
 
     // 6. Card Utilization Analysis
-    if (cards.length > 1) {
+    if (safeCards.length > 1) {
       const cardUsage = activeSubscriptions.reduce(
         (acc, sub) => {
           if (sub.cardId) {
@@ -281,7 +293,7 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
         {} as Record<string, number>
       );
 
-      const underutilizedCards = cards.filter((card) => (cardUsage[card.id] || 0) < 2);
+      const underutilizedCards = safeCards.filter((card) => (cardUsage[card.id] || 0) < 2);
       if (underutilizedCards.length > 0) {
         insights.push({
           id: "card-utilization",
@@ -322,11 +334,11 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
     }
 
     return insights;
-  }, [subscriptions, cards]);
+  }, [subscriptions, safeCards]);
 
   // Spending Pattern Analysis
   const spendingPatterns = useMemo(() => {
-    const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
+    const activeSubscriptions = safeSubscriptions.filter((sub) => sub.status === "active");
     const patterns: SpendingPattern[] = [];
 
     // Generate 6 months of data (simulated historical + predictions)
@@ -337,11 +349,13 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
       // Simulate some variation in spending
       const baseAmount = activeSubscriptions.reduce((total, sub) => {
         const monthly =
-          sub.billingCycle === "monthly"
-            ? sub.cost
-            : sub.billingCycle === "quarterly"
-              ? sub.cost / 3
-              : sub.cost / 12;
+          sub.frequency === "monthly"
+            ? sub.price
+            : sub.frequency === "quarterly"
+              ? sub.price / 3
+              : sub.frequency === "yearly"
+                ? sub.price / 12
+                : sub.price;
         return total + monthly;
       }, 0);
 
@@ -361,16 +375,18 @@ export const AIInsightsTab = ({ subscriptions, cards }: AIInsightsTabProps) => {
 
   // Category Analysis
   const categoryAnalysis = useMemo(() => {
-    const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
+    const activeSubscriptions = safeSubscriptions.filter((sub) => sub.status === "active");
     const categoryData: Record<string, CategoryAnalysis> = {};
 
     activeSubscriptions.forEach((sub) => {
       const monthly =
-        sub.billingCycle === "monthly"
-          ? sub.cost
-          : sub.billingCycle === "quarterly"
-            ? sub.cost / 3
-            : sub.cost / 12;
+        sub.frequency === "monthly"
+          ? sub.price
+          : sub.frequency === "quarterly"
+            ? sub.price / 3
+            : sub.frequency === "yearly"
+              ? sub.price / 12
+              : sub.price;
 
       if (!categoryData[sub.category]) {
         categoryData[sub.category] = {

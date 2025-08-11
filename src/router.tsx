@@ -17,8 +17,8 @@ const DashboardRoute: React.FC<any> = (props) => {
   return (
     <DashboardTab
       subscriptions={props.subscriptions || []}
-      cards={props.cards || []}
-      settings={props.settings || props.defaultAppSettings}
+      cards={props.paymentCards || []}
+      settings={props.appSettings || props.defaultAppSettings}
       notifications={props.notifications || []}
       weeklyBudgets={props.weeklyBudgets || []}
     />
@@ -30,7 +30,7 @@ const SubscriptionsRoute: React.FC<any> = (props) => {
   return (
     <SubscriptionsUnifiedTab
       subscriptions={props.subscriptions || []}
-      cards={props.cards || []}
+      cards={props.paymentCards || []}
       onEdit={props.openEditForm}
       onDelete={props.handleDeleteSubscription}
       onCancel={props.handleCancelSubscription}
@@ -60,7 +60,7 @@ const IntelligenceRoute: React.FC<any> = (props) => {
   return (
     <IntelligenceTab
       subscriptions={props.subscriptions || []}
-      cards={props.cards || []}
+      cards={props.paymentCards || []}
       onAutomationTrigger={() => {}}
     />
   );

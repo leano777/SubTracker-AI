@@ -7,12 +7,9 @@ import {
   CalendarDays,
   Brain,
   Search,
-  User,
   ChevronDown,
   Loader2,
   LogOut,
-  RefreshCw,
-  Menu,
   Bell,
   Settings,
 } from "lucide-react";
@@ -43,10 +40,10 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-  useSidebar,
+  // useSidebar, // unused
 } from "./ui/sidebar";
-import { Separator } from "./ui/separator";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+// import { Separator } from "./ui/separator";
+// import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { useIsMobile } from "./ui/use-mobile";
 import { motionVariants, defaultTransition } from "./ui/motion";
 import type { SyncStatus } from "../utils/dataSync";
@@ -133,7 +130,7 @@ const AppHeader: React.FC<{
   cloudSyncEnabled,
   isAuthenticated,
   syncStatus,
-  lastSyncTime,
+  // lastSyncTime, // unused in header
   isLoggingOut,
   isDarkMode,
   isStealthOps,
@@ -143,7 +140,7 @@ const AppHeader: React.FC<{
   dataSyncManager,
   openSettingsModal,
   handleQuickLogout,
-  handleConfirmLogout,
+  // handleConfirmLogout, // unused in header
   unreadNotificationsCount = 0,
   currentPageTitle,
 }) => {
@@ -364,7 +361,7 @@ const AppSidebar: React.FC<{
   isStealthOps: boolean;
   textColors: ReturnType<typeof getTextColors>;
   user?: any;
-}> = ({ isDarkMode, isStealthOps, textColors, user }) => {
+}> = ({ isDarkMode, isStealthOps, textColors }) => {
   const location = useLocation();
   const navigate = useNavigate();
 

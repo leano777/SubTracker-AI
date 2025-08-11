@@ -23,7 +23,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { useAppHandlers } from "./hooks/useAppHandlers";
 import { useDataManagement } from "./hooks/useDataManagement";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
-import createAppRouter from "./router";
+import createModernAppRouter from "./modernRouter";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "./types/subscription";
 import type { AppSettings, AppNotification } from "./types/constants";
 import { dataSyncManager } from "./utils/dataSync";
@@ -794,7 +794,7 @@ const AppContent = () => {
 
   // Create router with current props
   const router = useMemo(() => {
-    return createAppRouter(appShellProps);
+    return createModernAppRouter(appShellProps);
   }, [appShellProps]);
 
   // Mount effect

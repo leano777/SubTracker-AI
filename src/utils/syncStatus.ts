@@ -65,14 +65,27 @@ export const getSyncStatusText = (
   isOnline: boolean,
   cloudSyncEnabled: boolean,
   syncStatus: SyncStatus | null,
-  isStealthOps: boolean
+  isStealthOps: boolean,
+  lastSyncTime?: string | null
 ) => {
   if (!isAuthenticated) return isStealthOps ? "[NOT SIGNED IN]" : "Not signed in";
   if (!isOnline) return isStealthOps ? "[OFFLINE]" : "Offline";
   if (!cloudSyncEnabled) return isStealthOps ? "[LOCAL ONLY]" : "Local only";
   if (syncStatus?.type === "loading") return isStealthOps ? "[SYNCING...]" : "Syncing...";
   if (syncStatus?.type === "saving") return isStealthOps ? "[SAVING...]" : "Saving...";
-  if (syncStatus?.type === "success") return isStealthOps ? "[SYNCED]" : "Synced";
+  if (syncStatus?.type === "success") {
+    if (lastSyncTime) {
+      try {
+        const syncTime = new Date(lastSyncTime);
+        const timeString = syncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        return isStealthOps ? `[SYNCED · ${timeString}]` : `Synced · ${timeString}`;
+      } catch {
+        // If time parsing fails, fall back to simple "Synced"
+        return isStealthOps ? "[SYNCED]" : "Synced";
+      }
+    }
+    return isStealthOps ? "[SYNCED]" : "Synced";
+  }
   if (syncStatus?.type === "error") {
     const { message } = syncStatus;
     if (message.includes("Server offline") || message.includes("Server unavailable")) {

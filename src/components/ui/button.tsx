@@ -75,7 +75,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       'data-focus-visible': true,
       // Support keyboard activation
       ...(props.onClick && !asChild && {
-        onKeyDown: (event: React.KeyboardEvent) => {
+        onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             props.onClick?.(event as any);

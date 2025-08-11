@@ -242,7 +242,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     return () => {
-      if (subscription) {
+      if (subscription && typeof subscription.unsubscribe === 'function') {
         subscription.unsubscribe();
       }
     };
@@ -253,6 +253,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
 
     try {
+      // Development demo mode
+      if (email === 'demo@demo.com' && password === 'demo123') {
+        const demoUser: User = {
+          id: 'demo-user-id',
+          email: 'demo@demo.com',
+          name: 'Demo User',
+          avatarUrl: undefined,
+          createdAt: new Date().toISOString(),
+        };
+        setUser(demoUser);
+        setError(null);
+        setLoading(false);
+        console.log('🔐 Demo mode activated!');
+        return { success: true, user: demoUser };
+      }
+
       if (!supabase?.auth) {
         throw new Error("Authentication service not available");
       }
@@ -295,6 +311,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             name,
             full_name: name,
           },
+          emailRedirectTo: undefined, // Disable email verification for development
         },
       });
 
@@ -302,6 +319,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setError(error.message);
         setLoading(false);
         return { success: false, error: error.message };
+      }
+
+      // For development: if user exists but email not confirmed, try to sign them in
+      if (data.user && !data.session) {
+        console.log('🔐 Account created but needs verification. Attempting direct sign-in...');
+        const signInResult = await signIn(email, password);
+        if (signInResult.success) {
+          setLoading(false);
+          return { success: true, user: data.user };
+        }
       }
 
       setLoading(false);

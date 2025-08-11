@@ -1,4 +1,4 @@
-import type { Notification } from "../types/constants";
+import type { AppNotification } from "../types/constants";
 import type { RecoveryData } from "../types/recovery";
 import { LEGACY_STORAGE_KEYS } from "../types/recovery";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";

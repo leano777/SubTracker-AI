@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import type { Notification } from "../types/constants";
+import type { AppNotification } from "../types/constants";
 import type {
   Subscription as FullSubscription,
   PaymentCard as FullPaymentCard,
@@ -72,7 +72,7 @@ interface MobileNavProps {
   activeTab: string;
   subscriptions: FullSubscription[];
   paymentCards: FullPaymentCard[];
-  notifications: Notification[];
+  notifications: AppNotification[];
   onTabChange: (tab: string) => void;
 }
 

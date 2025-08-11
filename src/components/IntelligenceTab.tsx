@@ -3,12 +3,13 @@ import { useState, useMemo } from "react";
 
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 import { formatCurrency } from "../utils/helpers";
-import { getGlassStyles, getTextColors } from "../utils/theme";
+import { getTextColors } from "../utils/theme";
 
-import { AIInsightsTab } from "./AIInsightsTab";
-import { EnhancedAIInsightCard } from "./EnhancedAIInsightCard";
-import { SmartAutomationTab } from "./SmartAutomationTab";
-import { ForceSyncTest } from "../tests/ForceSyncTest";
+// Temporarily commenting out to isolate errors
+// import { AIInsightsTab } from "./AIInsightsTab";
+// import { EnhancedAIInsightCard } from "./EnhancedAIInsightCard";
+// import { SmartAutomationTab } from "./SmartAutomationTab";
+// import { ForceSyncTest } from "../tests/ForceSyncTest";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -18,9 +19,9 @@ import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface IntelligenceTabProps {
-  subscriptions: FullSubscription[];
-  cards: FullPaymentCard[];
-  onAutomationTrigger: (automation: any) => void;
+  subscriptions?: FullSubscription[];
+  cards?: FullPaymentCard[];
+  onAutomationTrigger?: (automation: any) => void;
   triggerDataSync?: () => Promise<void>;
   syncStatus?: any;
   lastSyncTime?: string | null;
@@ -29,8 +30,8 @@ interface IntelligenceTabProps {
 }
 
 export const IntelligenceTab = ({
-  subscriptions,
-  cards,
+  subscriptions = [],
+  cards = [],
   onAutomationTrigger,
   triggerDataSync,
   syncStatus,
@@ -59,7 +60,6 @@ export const IntelligenceTab = ({
     typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
   // Enhanced theme styles
-  const glassStyles = getGlassStyles(isStealthOps, isDarkMode);
   const textColors = getTextColors(isStealthOps, isDarkMode);
 
   const activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
@@ -626,35 +626,30 @@ export const IntelligenceTab = ({
 
         <TabsContent value="insights">
           <div className="space-y-6">
-            {/* Enhanced AI Insights Grid */}
+            {/* Enhanced AI Insights Grid - TEMPORARILY DISABLED */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {enhancedInsights.map((insight) => (
-                <EnhancedAIInsightCard
-                  key={insight.id}
-                  insight={insight}
-                  onAction={handleInsightAction}
-                  onDismiss={handleInsightDismiss}
-                  isStealthOps={isStealthOps}
-                  isDarkMode={isDarkMode}
-                />
-              ))}
+              <div className="p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-center text-gray-600">AI Insights temporarily disabled for debugging</p>
+                <p className="text-center text-gray-500 text-sm mt-2">Enhanced AI Insight Cards will be restored</p>
+              </div>
             </div>
             
-            {/* Original AI Insights Tab for additional content */}
-            <AIInsightsTab subscriptions={subscriptions} cards={cards} />
+            {/* Original AI Insights Tab for additional content - TEMPORARILY DISABLED */}
+            <div className="p-4 border border-gray-300 rounded">
+              <p className="text-gray-600">AI Insights Tab temporarily disabled for debugging</p>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="automation">
-          <SmartAutomationTab
-            subscriptions={subscriptions}
-            cards={cards}
-            onAutomationTrigger={onAutomationTrigger}
-          />
+          <div className="p-8 border-2 border-dashed border-gray-300 rounded-lg">
+            <p className="text-center text-gray-600">Smart Automation temporarily disabled for debugging</p>
+            <p className="text-center text-gray-500 text-sm mt-2">SmartAutomationTab will be restored</p>
+          </div>
         </TabsContent>
       </Tabs>
 
-      {/* Force Sync Test Section */}
+      {/* Force Sync Test Section - TEMPORARILY DISABLED */}
       {triggerDataSync && (
         <div className="space-y-4">
           <h3 className={`text-lg font-semibold ${textColors.primary} ${
@@ -662,13 +657,9 @@ export const IntelligenceTab = ({
           }`}>
             <span>{isStealthOps ? "[FORCE SYNC TEST]" : "Force Sync Test"}</span>
           </h3>
-          <ForceSyncTest
-            triggerDataSync={triggerDataSync}
-            syncStatus={syncStatus}
-            lastSyncTime={lastSyncTime || null}
-            isOnline={isOnline}
-            cloudSyncEnabled={cloudSyncEnabled}
-          />
+          <div className="p-4 border border-gray-300 rounded">
+            <p className="text-gray-600">Force Sync Test temporarily disabled for debugging</p>
+          </div>
         </div>
       )}
 
@@ -940,7 +931,7 @@ export const IntelligenceTab = ({
               </Button>
               <Button
                 onClick={() => {
-                  onAutomationTrigger({ type: "setup_complete" });
+                  onAutomationTrigger?.({ type: "setup_complete" });
                   setShowAutomationSetup(false);
                 }}
                 className={`${

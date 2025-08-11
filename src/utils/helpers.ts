@@ -625,7 +625,7 @@ export function generateWeekOptions(
   weeksAhead: number = 8,
   weeksBehind: number = 4
 ): Array<{ value: string; label: string; date: string }> {
-  const options = [];
+  const options: Array<{ value: string; label: string; date: string }> = [];
   const currentDate = new Date();
 
   for (let i = -weeksBehind; i <= weeksAhead; i++) {

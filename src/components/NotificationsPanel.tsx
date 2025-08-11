@@ -1,7 +1,7 @@
 import { Bell, X, Check, AlertCircle, Info, AlertTriangle, Sparkles } from "lucide-react";
 import { useState } from "react";
 
-import type { Notification } from "../types/constants";
+import type { AppNotification } from '../types/constants';
 
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 
 interface NotificationsPanelProps {
-  notifications: Notification[];
+  notifications: AppNotification[];
   onMarkAsRead: (notificationId: string) => void;
   onMarkAllAsRead: () => void;
   onDeleteNotification: (notificationId: string) => void;

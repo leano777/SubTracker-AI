@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import type { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
 
 interface UseAppHandlersProps {
@@ -10,8 +10,8 @@ interface UseAppHandlersProps {
   setPaymentCards: React.Dispatch<React.SetStateAction<FullPaymentCard[]>>;
   appSettings: AppSettings;
   setAppSettings: React.Dispatch<React.SetStateAction<AppSettings>>;
-  notifications: Notification[];
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  notifications: AppNotification[];
+  setNotifications: React.Dispatch<React.SetStateAction<AppNotification[]>>;
   setActiveTab: (tab: string) => void;
   setIsFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsWatchlistMode: React.Dispatch<React.SetStateAction<boolean>>;

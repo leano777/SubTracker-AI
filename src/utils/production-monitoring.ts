@@ -92,7 +92,7 @@ export class ProductionMonitor {
       const navigationEntries = performance.getEntriesByType('navigation');
       if (navigationEntries.length > 0) {
         const nav = navigationEntries[0] as PerformanceNavigationTiming;
-        this.metrics.pageLoadTime = nav.loadEventEnd - nav.navigationStart;
+        this.metrics.pageLoadTime = nav.loadEventEnd - (nav as any).navigationStart;
       }
     }
     
@@ -212,7 +212,7 @@ ${this.generateRecommendations()}
   }
 
   private generateRecommendations(): string {
-    const recommendations = [];
+    const recommendations: string[] = [];
     
     if (this.metrics.performanceScore < 80) {
       recommendations.push('- Investigate performance bottlenecks');
@@ -283,7 +283,7 @@ export const checkFigmaParityFeatures = () => {
       return {
         feature,
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   });

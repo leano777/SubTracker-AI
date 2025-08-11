@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import React from 'react';
 
 // Sentry configuration for production monitoring
 export function initSentry() {
@@ -11,10 +10,8 @@ export function initSentry() {
         // Performance monitoring
         new Sentry.BrowserTracing({
           // Capture interactions like clicks, form submissions
-          routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-            React.createElement,
-            // Router history will be integrated later
-          ),
+          // Routing instrumentation disabled for now - requires router integration
+          // routingInstrumentation: Sentry.reactRouterV6Instrumentation(),
         }),
         // Replay sessions for debugging
         new Sentry.Replay({

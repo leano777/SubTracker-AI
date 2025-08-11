@@ -1,4 +1,4 @@
-import type { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 
 // Define WeeklyBudget locally

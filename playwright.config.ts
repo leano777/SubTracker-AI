@@ -5,6 +5,40 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests/visual',
+  
+  // Also scan for additional E2E tests
+  projects: [
+    // Visual regression tests
+    {
+      name: 'visual-chromium',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
+    
+    // Comprehensive E2E tests
+    {
+      name: 'e2e-chromium',
+      testDir: './tests/e2e-playwright',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
+    
+    // Mobile E2E tests
+    {
+      name: 'e2e-mobile',
+      testDir: './tests/e2e-playwright',
+      use: { 
+        ...devices['Pixel 5'],
+        viewport: { width: 393, height: 851 }
+      },
+    },
+
+    // Original visual test projects
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

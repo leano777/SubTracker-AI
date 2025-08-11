@@ -224,7 +224,7 @@ export const performanceMonitor = new PerformanceMonitor();
 
 // Helper function to detect problematic patterns
 export const detectCrashPatterns = () => {
-  const patterns = [];
+  const patterns: string[] = [];
 
   // Check for excessive DOM nodes
   const domNodes = document.querySelectorAll("*").length;

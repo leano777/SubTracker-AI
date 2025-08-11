@@ -50,11 +50,7 @@ export const subscriptionSchema = z.object({
   
   tags: z
     .string()
-    .optional()
-    .transform((val) => {
-      if (!val) return [];
-      return val.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
-    }),
+    .optional(),
   
   planType: z.enum(["free", "paid", "trial"]),
   

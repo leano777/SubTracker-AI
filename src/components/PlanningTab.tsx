@@ -1,14 +1,23 @@
 import { Calendar, PiggyBank, Calculator, Sparkles, TrendingUp } from "lucide-react";
 import { useState, useMemo } from "react";
-// Recharts temporarily replaced with placeholder components due to es-toolkit import issue
-const ResponsiveContainer = ({ children }: any) => <div className="w-full h-full">{children}</div>;
-const AreaChart = ({ children }: any) => <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg"><div className="text-center text-gray-500"><TrendingUp className="w-8 h-8 mx-auto mb-2" /><p>Chart temporarily disabled</p></div></div>;
-const XAxis = () => null;
-const YAxis = () => null;
-const CartesianGrid = () => null;
-const Area = () => null;
-const Tooltip = () => null;
-const Legend = () => null;
+// Temporarily disable recharts due to ES module compatibility issues
+// import { ResponsiveContainer, AreaChart, XAxis, YAxis, CartesianGrid, Area, Tooltip } from "recharts";
+const ResponsiveContainer = ({ children, ...props }: any) => { void props; return <div className="w-full h-full">{children}</div>; };
+const AreaChart = ({ children, ...props }: any) => { void props; return (
+  <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
+    <div className="text-center text-gray-500">
+      <TrendingUp className="w-8 h-8 mx-auto mb-2" />
+      <p>Charts temporarily disabled</p>
+      <p className="text-sm">ES module compatibility issue</p>
+    </div>
+  </div>
+); };
+const XAxis = ({ ...props }: any) => { void props; return null; };
+const YAxis = ({ ...props }: any) => { void props; return null; }; 
+const CartesianGrid = ({ ...props }: any) => { void props; return null; };
+const Area = ({ ...props }: any) => { void props; return null; };
+const Tooltip = ({ ...props }: any) => { void props; return null; };
+const Legend = ({ ...props }: any) => { void props; return null; };
 
 import type {
   FullSubscription,
@@ -46,8 +55,8 @@ interface PlanningTabProps {
 }
 
 export const PlanningTab = ({
-  subscriptions,
-  weeklyBudgets,
+  subscriptions = [],
+  weeklyBudgets = [],
   onViewSubscription,
   onUpdateSubscriptionDate,
   onUpdateCategories,
@@ -156,7 +165,15 @@ export const PlanningTab = ({
 
   // Calculate category spending over time for charts
   const spendingTrendData = useMemo(() => {
-    const weeks = [];
+    const weeks: Array<{
+      week: string;
+      date: string;
+      totalSpending: number;
+      subscriptionCount: number;
+      businessTools: number;
+      entertainment: number;
+      utilities: number;
+    }> = [];
     const currentDate = new Date();
 
     for (let i = -8; i <= 4; i++) {
@@ -275,7 +292,6 @@ export const PlanningTab = ({
         ) * 4.33; // Convert to monthly
       }, 0);
 
-      const utilizationRate = category.weeklyAllocation > 0 ? (spent / (category.weeklyAllocation * 4.33)) * 100 : 0;
       const isOverBudget = spent > (category.weeklyAllocation * 4.33);
       
       return {
@@ -605,7 +621,7 @@ export const PlanningTab = ({
                     <YAxis 
                       fontSize={12} 
                       stroke={isStealthOps ? "#888888" : undefined}
-                      tickFormatter={(value) => formatCurrency(value)}
+                      tickFormatter={(value: any) => formatCurrency(value)}
                     />
                     <Tooltip 
                       contentStyle={{
@@ -614,7 +630,7 @@ export const PlanningTab = ({
                         borderRadius: isStealthOps ? "0.125rem" : undefined,
                         color: isStealthOps ? "#ffffff" : undefined,
                       }}
-                      formatter={(value) => [formatCurrency(value as number), ""]}
+                      formatter={(value: any) => [formatCurrency(value as number), ""]}
                       labelStyle={{
                         color: isStealthOps ? "#ffffff" : undefined,
                         fontFamily: isStealthOps ? "monospace" : undefined,

@@ -11,6 +11,9 @@ interface PayPeriodRequirement {
 }
 import { validateSubscriptionForCalculations } from "./helpers";
 
+// Verbose calculation logging flag - only enable in development
+const VERBOSE_CALC = false;
+
 // Get the Thursday that starts the current or next pay period (Thursday-to-Wednesday)
 // For Thursday-Wednesday pay periods, always return the current Thursday if today is
 // Thursday through Wednesday, or the next Thursday if we need to start fresh
@@ -128,17 +131,21 @@ function calculateSubscriptionOccurrences(
     return occurrences;
   }
 
-  console.log(`🔍 Calculating occurrences for ${validatedSub.name}:`);
-  console.log(`   📅 Next payment: ${validatedSub.nextPayment}`);
-  console.log(`   📆 Period: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`);
-  console.log(`   🔄 Frequency: ${validatedSub.frequency}`);
-  console.log(`   ✅ Status: ${validatedSub.status}`);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`🔍 Calculating occurrences for ${validatedSub.name}:`);
+    console.log(`   📅 Next payment: ${validatedSub.nextPayment}`);
+    console.log(`   📆 Period: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`);
+    console.log(`   🔄 Frequency: ${validatedSub.frequency}`);
+    console.log(`   ✅ Status: ${validatedSub.status}`);
+  }
 
   const nextPaymentDate = parseDate(validatedSub.nextPayment);
   const normalizedStart = normalizeDate(periodStart);
   const normalizedEnd = normalizeDate(periodEnd);
 
-  console.log(`   🎯 Parsed payment date: ${formatDate(nextPaymentDate)}`);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`   🎯 Parsed payment date: ${formatDate(nextPaymentDate)}`);
+  }
 
   // Helper function to add months while preserving day of month (handles edge cases)
   const addMonths = (date: Date, months: number): Date => {
@@ -168,16 +175,22 @@ function calculateSubscriptionOccurrences(
   const tempDate = new Date(nextPaymentDate);
   const maxBackwardLookup = 36; // Look back up to 36 cycles (3 years for monthly)
 
-  console.log(`   ⬅️ Looking backwards from ${formatDate(tempDate)}...`);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`   ⬅️ Looking backwards from ${formatDate(tempDate)}...`);
+  }
 
   for (let i = 0; i < maxBackwardLookup; i++) {
     if (tempDate < normalizedStart) {
-      console.log(`   🛑 Reached date before period start: ${formatDate(tempDate)}`);
+      if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+        console.log(`   🛑 Reached date before period start: ${formatDate(tempDate)}`);
+      }
       break;
     }
 
     if (tempDate >= normalizedStart && tempDate <= normalizedEnd) {
-      console.log(`   ✅ Found occurrence (backward): ${formatDate(tempDate)}`);
+      if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+        console.log(`   ✅ Found occurrence (backward): ${formatDate(tempDate)}`);
+      }
       occurrences.push({
         date: new Date(tempDate),
         cost: getSubscriptionCostForDate(validatedSub),
@@ -206,11 +219,15 @@ function calculateSubscriptionOccurrences(
   currentDate = new Date(nextPaymentDate);
   const maxForwardLookup = 36; // Look ahead up to 36 cycles
 
-  console.log(`   ➡️ Looking forwards from ${formatDate(currentDate)}...`);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`   ➡️ Looking forwards from ${formatDate(currentDate)}...`);
+  }
 
   for (let i = 0; i < maxForwardLookup; i++) {
     if (currentDate > normalizedEnd) {
-      console.log(`   🛑 Reached date after period end: ${formatDate(currentDate)}`);
+      if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+        console.log(`   🛑 Reached date after period end: ${formatDate(currentDate)}`);
+      }
       break;
     }
 
@@ -221,13 +238,17 @@ function calculateSubscriptionOccurrences(
       );
 
       if (!existingDate) {
-        console.log(`   ✅ Found occurrence (forward): ${formatDate(currentDate)}`);
+        if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+          console.log(`   ✅ Found occurrence (forward): ${formatDate(currentDate)}`);
+        }
         occurrences.push({
           date: new Date(currentDate),
           cost: getSubscriptionCostForDate(validatedSub),
         });
       } else {
-        console.log(`   🔄 Skipping duplicate: ${formatDate(currentDate)}`);
+        if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+          console.log(`   🔄 Skipping duplicate: ${formatDate(currentDate)}`);
+        }
       }
     }
 
@@ -257,10 +278,13 @@ function calculateSubscriptionOccurrences(
         normalizeDate(occurrence.date).getTime() !== normalizeDate(array[index - 1].date).getTime()
     );
 
-  console.log(`   📊 Final occurrences for ${validatedSub.name}: ${sortedOccurrences.length}`);
-  sortedOccurrences.forEach((occ) => {
-    console.log(`      - ${formatDate(occ.date)}: $${occ.cost}`);
-  });
+  // Keep one summary line per calculation cycle to avoid main-thread jank
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`   📊 Final occurrences for ${validatedSub.name}: ${sortedOccurrences.length}`);
+    sortedOccurrences.forEach((occ) => {
+      console.log(`      - ${formatDate(occ.date)}: $${occ.cost}`);
+    });
+  }
 
   return sortedOccurrences;
 }
@@ -281,10 +305,6 @@ export function getUpcomingSubscriptions(
   status: string;
   subscriptionType: string;
 }> {
-  console.log(`\n📊 === CALCULATING SUBSCRIPTIONS FOR PAY PERIOD ===`);
-  console.log(`📅 Period: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`);
-  console.log(`🎯 Include all statuses: ${includeAllStatuses}`);
-
   const upcomingSubscriptions: Array<{
     id: string;
     name: string;
@@ -301,19 +321,26 @@ export function getUpcomingSubscriptions(
     ? subscriptions // Include ALL subscriptions (active, cancelled, watchlist)
     : subscriptions.filter((sub) => sub.isActive && sub.status === "active"); // Only active
 
-  console.log(`📋 Total subscriptions: ${subscriptions.length}`);
-  console.log(`📋 Processing ${filteredSubscriptions.length} filtered subscriptions`);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`\n📊 === CALCULATING SUBSCRIPTIONS FOR PAY PERIOD ===`);
+    console.log(`📅 Period: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`);
+    console.log(`🎯 Include all statuses: ${includeAllStatuses}`);
+    console.log(`📋 Total subscriptions: ${subscriptions.length}`);
+    console.log(`📋 Processing ${filteredSubscriptions.length} filtered subscriptions`);
 
-  // Log subscription details for debugging
-  filteredSubscriptions.forEach((sub) => {
-    console.log(`   📦 ${sub.name}: ${sub.nextPayment} (${sub.status}, ${sub.frequency})`);
-  });
+    // Log subscription details for debugging
+    filteredSubscriptions.forEach((sub) => {
+      console.log(`   📦 ${sub.name}: ${sub.nextPayment} (${sub.status}, ${sub.frequency})`);
+    });
+  }
 
   filteredSubscriptions.forEach((subscription, index) => {
     try {
-      console.log(
-        `\n🔄 Processing subscription ${index + 1}/${filteredSubscriptions.length}: ${subscription.name}`
-      );
+      if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+        console.log(
+          `\n🔄 Processing subscription ${index + 1}/${filteredSubscriptions.length}: ${subscription.name}`
+        );
+      }
 
       const occurrences = calculateSubscriptionOccurrences(subscription, periodStart, periodEnd);
 
@@ -330,10 +357,12 @@ export function getUpcomingSubscriptions(
         });
       });
 
-      if (occurrences.length > 0) {
-        console.log(`✅ ${subscription.name}: Added ${occurrences.length} occurrence(s) to period`);
-      } else {
-        console.log(`❌ ${subscription.name}: No occurrences found in this period`);
+      if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+        if (occurrences.length > 0) {
+          console.log(`✅ ${subscription.name}: Added ${occurrences.length} occurrence(s) to period`);
+        } else {
+          console.log(`❌ ${subscription.name}: No occurrences found in this period`);
+        }
       }
     } catch (error) {
       console.error(`❌ Error processing subscription ${subscription.name}:`, error);
@@ -344,28 +373,34 @@ export function getUpcomingSubscriptions(
     (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
   );
 
-  console.log(`\n📊 === PAY PERIOD CALCULATION SUMMARY ===`);
-  console.log(`✅ Found ${sortedSubscriptions.length} total subscription occurrences`);
-  console.log(
-    `💰 Total amount: $${sortedSubscriptions.reduce((sum, sub) => sum + sub.cost, 0).toFixed(2)}`
-  );
+  // Keep one summary line per calculation cycle
+  const totalAmount = sortedSubscriptions.reduce((sum, sub) => sum + sub.cost, 0);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`📊 Pay period calc: ${sortedSubscriptions.length} occurrences, $${totalAmount.toFixed(2)} total`);
+  }
 
-  if (sortedSubscriptions.length > 0) {
-    console.log(`📅 Occurrences by date:`);
-    sortedSubscriptions.forEach((sub) => {
-      console.log(`   - ${sub.dueDate}: ${sub.name} ($${sub.cost})`);
-    });
-  } else {
-    console.log(`❌ No subscription occurrences found in this period`);
-    console.log(`🔍 Debug info:`);
-    console.log(`   - Period start: ${periodStart.toISOString()}`);
-    console.log(`   - Period end: ${periodEnd.toISOString()}`);
-    console.log(`   - Filtered subscriptions: ${filteredSubscriptions.length}`);
-    if (filteredSubscriptions.length > 0) {
-      console.log(`   - Next payment dates:`);
-      filteredSubscriptions.forEach((sub) => {
-        console.log(`     • ${sub.name}: ${sub.nextPayment}`);
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`\n📊 === PAY PERIOD CALCULATION SUMMARY ===`);
+    console.log(`✅ Found ${sortedSubscriptions.length} total subscription occurrences`);
+    console.log(`💰 Total amount: $${totalAmount.toFixed(2)}`);
+
+    if (sortedSubscriptions.length > 0) {
+      console.log(`📅 Occurrences by date:`);
+      sortedSubscriptions.forEach((sub) => {
+        console.log(`   - ${sub.dueDate}: ${sub.name} ($${sub.cost})`);
       });
+    } else {
+      console.log(`❌ No subscription occurrences found in this period`);
+      console.log(`🔍 Debug info:`);
+      console.log(`   - Period start: ${periodStart.toISOString()}`);
+      console.log(`   - Period end: ${periodEnd.toISOString()}`);
+      console.log(`   - Filtered subscriptions: ${filteredSubscriptions.length}`);
+      if (filteredSubscriptions.length > 0) {
+        console.log(`   - Next payment dates:`);
+        filteredSubscriptions.forEach((sub) => {
+          console.log(`     • ${sub.name}: ${sub.nextPayment}`);
+        });
+      }
     }
   }
 
@@ -437,46 +472,50 @@ export function calculatePayPeriodRequirements(
   periodCount: number = 12,
   includeAllStatuses: boolean = true
 ): PayPeriodRequirement[] {
-  console.log(`\n🗓️ === CALCULATING PAY PERIOD REQUIREMENTS ===`);
-  console.log(`📊 Periods to calculate: ${periodCount}`);
-  console.log(`📋 Total subscriptions: ${subscriptions.length}`);
-  console.log(`🎯 Include all statuses: ${includeAllStatuses}`);
-
-  // Log current date and subscription info for debugging
-  const now = new Date();
-  const currentPayPeriodStart = getCurrentPayPeriodThursday(now);
-  const currentPayPeriodEnd = new Date(currentPayPeriodStart);
-  currentPayPeriodEnd.setDate(currentPayPeriodEnd.getDate() + 6);
-
-  console.log(`⏰ Current date: ${formatDate(now)} (Day ${now.getDay()})`);
-  console.log(`📅 Current ISO: ${now.toISOString()}`);
-  console.log(
-    `🗓️ Current pay period: ${formatDate(currentPayPeriodStart)} to ${formatDate(currentPayPeriodEnd)} (Thu-Wed)`
-  );
-  console.log(`🎯 Day of week mapping: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat`);
-
-  console.log(`\n📦 Subscription overview:`);
-  subscriptions.forEach((sub) => {
-    console.log(`   • ${sub.name}: ${sub.nextPayment} (${sub.status}, ${sub.frequency})`);
-  });
-
   const thursdays = getNextThursdays(periodCount);
   const requirements: PayPeriodRequirement[] = [];
+  
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`\n🗓️ === CALCULATING PAY PERIOD REQUIREMENTS ===`);
+    console.log(`📊 Periods to calculate: ${periodCount}`);
+    console.log(`📋 Total subscriptions: ${subscriptions.length}`);
+    console.log(`🎯 Include all statuses: ${includeAllStatuses}`);
 
-  console.log(`\n📅 Thursday-to-Wednesday pay periods:`);
-  thursdays.forEach((thursday, index) => {
-    const endDate = new Date(thursday);
-    endDate.setDate(endDate.getDate() + 6); // Wednesday (6 days after Thursday)
-    console.log(`   ${index + 1}. ${formatDate(thursday)} to ${formatDate(endDate)} (Thu-Wed)`);
-  });
+    // Log current date and subscription info for debugging
+    const now = new Date();
+    const currentPayPeriodStart = getCurrentPayPeriodThursday(now);
+    const currentPayPeriodEnd = new Date(currentPayPeriodStart);
+    currentPayPeriodEnd.setDate(currentPayPeriodEnd.getDate() + 6);
+
+    console.log(`⏰ Current date: ${formatDate(now)} (Day ${now.getDay()})`);
+    console.log(`📅 Current ISO: ${now.toISOString()}`);
+    console.log(
+      `🗓️ Current pay period: ${formatDate(currentPayPeriodStart)} to ${formatDate(currentPayPeriodEnd)} (Thu-Wed)`
+    );
+    console.log(`🎯 Day of week mapping: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat`);
+
+    console.log(`\n📦 Subscription overview:`);
+    subscriptions.forEach((sub) => {
+      console.log(`   • ${sub.name}: ${sub.nextPayment} (${sub.status}, ${sub.frequency})`);
+    });
+
+    console.log(`\n📅 Thursday-to-Wednesday pay periods:`);
+    thursdays.forEach((thursday, index) => {
+      const endDate = new Date(thursday);
+      endDate.setDate(endDate.getDate() + 6); // Wednesday (6 days after Thursday)
+      console.log(`   ${index + 1}. ${formatDate(thursday)} to ${formatDate(endDate)} (Thu-Wed)`);
+    });
+  }
 
   thursdays.forEach((thursday, index) => {
     const periodStart = normalizeDate(new Date(thursday));
     const periodEnd = normalizeDate(new Date(thursday));
     periodEnd.setDate(periodEnd.getDate() + 6); // One week from Thursday (Thu-Wed)
 
-    console.log(`\n🔄 === PROCESSING PERIOD ${index + 1}/${periodCount} ===`);
-    console.log(`📅 Period: ${formatDate(periodStart)} - ${formatDate(periodEnd)} (Thu-Wed)`);
+    if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+      console.log(`\n🔄 === PROCESSING PERIOD ${index + 1}/${periodCount} ===`);
+      console.log(`📅 Period: ${formatDate(periodStart)} - ${formatDate(periodEnd)} (Thu-Wed)`);
+    }
 
     try {
       const periodSubscriptions = getUpcomingSubscriptions(
@@ -503,9 +542,11 @@ export function calculatePayPeriodRequirements(
         subscriptions: periodSubscriptions,
       });
 
-      console.log(
-        `✅ Period ${index + 1} complete: ${periodSubscriptions.length} subscriptions, $${totalRequired.toFixed(2)}`
-      );
+      if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+        console.log(
+          `✅ Period ${index + 1} complete: ${periodSubscriptions.length} subscriptions, $${totalRequired.toFixed(2)}`
+        );
+      }
     } catch (error) {
       console.error(`❌ Error calculating period ${index + 1}:`, error);
 
@@ -521,18 +562,24 @@ export function calculatePayPeriodRequirements(
     }
   });
 
-  console.log(`\n📊 === FINAL CALCULATION SUMMARY ===`);
-  console.log(`✅ Successfully calculated ${requirements.length} pay period requirements`);
-  console.log(
-    `💰 Total across all periods: $${requirements.reduce((sum, req) => sum + req.requiredAmount, 0).toFixed(2)}`
-  );
+  // Keep one essential summary line per calculation cycle
+  const totalAcrossAllPeriods = requirements.reduce((sum, req) => sum + req.requiredAmount, 0);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🗓️ Pay period requirements: ${requirements.length} periods, $${totalAcrossAllPeriods.toFixed(2)} total`);
+  }
 
-  // Log summary of each period
-  requirements.forEach((req, index) => {
-    console.log(
-      `   Period ${index + 1}: $${req.requiredAmount.toFixed(2)} (${req.subscriptions.length} subscriptions)`
-    );
-  });
+  if (process.env.NODE_ENV === 'development' && VERBOSE_CALC) {
+    console.log(`\n📊 === FINAL CALCULATION SUMMARY ===`);
+    console.log(`✅ Successfully calculated ${requirements.length} pay period requirements`);
+    console.log(`💰 Total across all periods: $${totalAcrossAllPeriods.toFixed(2)}`);
+
+    // Log summary of each period
+    requirements.forEach((req, index) => {
+      console.log(
+        `   Period ${index + 1}: $${req.requiredAmount.toFixed(2)} (${req.subscriptions.length} subscriptions)`
+      );
+    });
+  }
 
   return requirements;
 }

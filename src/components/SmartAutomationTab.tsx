@@ -33,7 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 interface SmartAutomationTabProps {
   subscriptions: Subscription[];
   cards: PaymentCard[];
-  onAutomationTrigger: (automation: any) => void;
+  onAutomationTrigger?: (automation: any) => void;
 }
 
 interface AutomationRule {
@@ -264,7 +264,7 @@ export const SmartAutomationTab = ({
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     if (rule) {
-      onAutomationTrigger({
+      onAutomationTrigger?.({
         ruleId,
         ruleName: rule.name,
         testMode: true,

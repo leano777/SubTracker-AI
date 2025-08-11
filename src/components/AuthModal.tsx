@@ -355,7 +355,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           <div className="text-center text-sm">
             {mode === "signin" && (
               <>
-                <p className="text-muted-foreground mb-2">
+                <div className="text-muted-foreground mb-2">
                   Don't have an account?{" "}
                   <Button
                     type="button"
@@ -365,7 +365,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   >
                     Sign up
                   </Button>
-                </p>
+                </div>
                 <Button
                   type="button"
                   variant="link"
@@ -378,7 +378,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             )}
 
             {mode === "signup" && (
-              <p className="text-muted-foreground">
+              <div className="text-muted-foreground">
                 Already have an account?{" "}
                 <Button
                   type="button"
@@ -388,11 +388,11 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 >
                   Sign in
                 </Button>
-              </p>
+              </div>
             )}
 
             {mode === "reset" && (
-              <p className="text-muted-foreground">
+              <div className="text-muted-foreground">
                 Remember your password?{" "}
                 <Button
                   type="button"
@@ -402,7 +402,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 >
                   Sign in
                 </Button>
-              </p>
+              </div>
             )}
           </div>
         </div>

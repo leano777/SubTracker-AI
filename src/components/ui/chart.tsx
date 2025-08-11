@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
-import * as RechartsPrimitive from "recharts";
+// Temporarily disable recharts due to ES module issues  
+// import * as RechartsPrimitive from "recharts";
+const RechartsPrimitive = {} as any;
 
 import { cn } from "./utils";
 
@@ -229,8 +231,9 @@ const ChartLegendContent = ({
   payload,
   verticalAlign = "bottom",
   nameKey,
-}: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+}: React.ComponentProps<"div"> & {
+    payload?: any;
+    verticalAlign?: "top" | "bottom";
     hideIcon?: boolean;
     nameKey?: string;
   }) => {

@@ -5,9 +5,17 @@ let supabaseInstance: SupabaseClient | null = null;
 
 // Singleton pattern - create client only once
 export const createClient = (): SupabaseClient => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  
+  // Basic validation
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Missing Supabase configuration');
+  }
+  
   supabaseInstance ??= createSupabaseClient(
-    import.meta.env.VITE_SUPABASE_URL as string,
-    import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+    supabaseUrl,
+    supabaseKey,
     {
       auth: {
         storage: typeof window !== "undefined" ? window.localStorage : undefined,

@@ -2,7 +2,7 @@ import { AlertTriangle, RefreshCw, Download, CheckCircle, XCircle, Clock } from 
 import { useEffect } from "react";
 
 import { useDataRecovery } from "../hooks/useDataRecovery";
-import type { AppSettings, Notification } from "../types/constants";
+import type { AppSettings, AppNotification } from "../types/constants";
 import type { RecoverySource } from "../types/recovery";
 import type { FullSubscription, PaymentCard as FullPaymentCard } from "../types/subscription";
 
@@ -22,7 +22,7 @@ interface DataRecoveryDialogProps {
   onDataRecovered: (data: {
     subscriptions: FullSubscription[];
     paymentCards: FullPaymentCard[];
-    notifications: Notification[];
+    notifications: AppNotification[];
     appSettings: AppSettings;
   }) => void;
 }

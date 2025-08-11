@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Grid3X3, List, Plus, Eye } from "lucide-react";
+import { Grid3X3, List, Plus } from "lucide-react";
 
 import type { FullSubscription, PaymentCard } from "../types/subscription";
 

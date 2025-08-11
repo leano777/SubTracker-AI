@@ -1,12 +1,12 @@
 import { Bell, X } from "lucide-react";
 import { useState } from "react";
 
-import type { Notification } from "../types/constants";
+import type { AppNotification } from "../types/constants";
 
 import { Button } from "./ui/button";
 
 interface FloatingNotificationsProps {
-  notifications: Notification[];
+  notifications: AppNotification[];
   onMarkAsRead: (id: string) => void;
   onMarkAllAsRead: () => void;
   isDarkMode: boolean;

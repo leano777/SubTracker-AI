@@ -6,7 +6,7 @@ export interface FullSubscription {
   price: number;
   cost: number;
   // Both frequency and billingCycle for compatibility
-  frequency: "monthly" | "yearly" | "weekly" | "daily";
+  frequency: "monthly" | "yearly" | "weekly" | "daily" | "quarterly";
   billingCycle: "monthly" | "quarterly" | "yearly" | "variable";
   nextPayment: string;
   category: string;
@@ -285,16 +285,14 @@ export interface WeeklyCalculationResult {
   }[];
 }
 
-export interface Notification {
-  id: string;
-  type: "info" | "warning" | "error" | "success";
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
+// Import and re-export notification type from constants
+import type { AppNotification } from './constants';
+export type { AppNotification };
+
+// Legacy Notification type for backwards compatibility
+export type Notification = AppNotification & {
   actionUrl?: string;
   actionText?: string;
-  subscriptionId?: string;
-}
+};
 
 // Note: Additional types will be available from constants when implemented

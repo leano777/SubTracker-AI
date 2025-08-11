@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 
 interface QuickActionButtonProps {
   activeTab: string;
-  onTabChange: (tab: string) => void;
+  onTabChange: (tab: string) => void; // Dispatches { type: 'TAB_SET', payload: tab }
   onAddNew: () => void;
   subscriptionsCount: number;
   aiInsightsCount: number;

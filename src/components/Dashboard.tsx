@@ -81,36 +81,19 @@ export const Dashboard = ({ subscriptions }: DashboardProps) => {
     }
   }, 0);
 
-  // Calculate potential monthly spending after trials
-  const potentialMonthlySpending =
-    totalMonthlySpending +
-    trialSubscriptions.reduce((total, sub) => {
-      switch (sub.billingCycle) {
-        case "monthly":
-          return total + sub.cost;
-        case "quarterly":
-          return total + sub.cost / 3;
-        case "yearly":
-          return total + sub.cost / 12;
-        default:
-          return total;
-      }
-    }, 0);
 
   // Enhanced metrics with trends
   const previousPeriodSpending = useMemo(() => {
-    const now = new Date();
-    let startDate: Date;
     
     switch (selectedTimeRange) {
       case "7d":
-        startDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+        // 14 days ago for comparison
         break;
       case "30d":
-        startDate = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+        // 60 days ago for comparison
         break;
       case "ytd":
-        startDate = new Date(now.getFullYear() - 1, 0, 1);
+        // Previous year for comparison
         break;
       default:
         return totalMonthlySpending * 0.85; // Mock comparison

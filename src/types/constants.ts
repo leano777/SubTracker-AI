@@ -109,7 +109,7 @@ export interface AppSettings {
   };
 }
 
-export interface Notification {
+export interface AppNotification {
   id: string;
   type: "warning" | "info" | "success" | "trial" | "reminder";
   title: string;
