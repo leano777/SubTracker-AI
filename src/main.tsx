@@ -2,8 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles/globals.css'
 
-// Using full RouterApp with ModernAppShell and all features
-import RouterApp from "./RouterApp.tsx";
+// Using simplified app with Zustand state management
+import SimplifiedApp from "./SimplifiedApp.tsx";
 // Global error boundary for the entire app
 import { SimpleErrorBoundary } from "./components/SimpleErrorBoundary";
 
@@ -53,7 +53,7 @@ const AppFallback = () => (
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SimpleErrorBoundary fallback={<AppFallback />}>
-      <RouterApp />
+      <SimplifiedApp />
     </SimpleErrorBoundary>
   </StrictMode>
 );
