@@ -1,28 +1,50 @@
-# SubTracker AI - Subscription Tracking Application
+# SubTracker AI - Personal Financial Dashboard
 
-> A modern, AI-powered subscription tracking application built with React, TypeScript, and Supabase.
+> A comprehensive personal financial management platform with subscription tracking, budget pods, investment portfolio, and financial notebooks.
 
-[![CI Status](https://github.com/yourusername/subtracker-ai/workflows/ci/badge.svg)](https://github.com/yourusername/subtracker-ai/actions)
+[![CI Status](https://github.com/leano777/SubTracker-AI/workflows/ci/badge.svg)](https://github.com/leano777/SubTracker-AI/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.1-blue.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.1-646CFF.svg)](https://vitejs.dev/)
 
-## 📋 Project Overview
+## 🏦 Project Overview
 
-SubTracker AI is a comprehensive subscription management platform that helps users track, analyze, and optimize their recurring subscriptions. Built with modern web technologies, it features real-time synchronization, AI-powered insights, and a responsive design that works across all devices.
+SubTracker AI has evolved into a comprehensive personal financial dashboard that combines subscription management with advanced budgeting, investment tracking, and financial planning tools. Built with modern web technologies and featuring a mobile-first responsive design.
 
-### ✨ Key Features
+### 🎯 Core Financial Modules
 
-- 📊 **Dashboard Analytics**: Visual overview of spending patterns and subscription health
-- 🤖 **AI Insights**: Smart recommendations for cost optimization
-- 🔄 **Real-time Sync**: Cloud synchronization across devices via Supabase
-- 📱 **Mobile Responsive**: Optimized for desktop, tablet, and mobile
-- 🎨 **Modern UI**: Clean, intuitive interface with dark/light themes
-- 📈 **Budget Management**: Set limits and track spending against budgets
-- 🔔 **Smart Notifications**: Renewal reminders and budget alerts
-- 📅 **Calendar View**: Visual timeline of upcoming payments
-- 💳 **Payment Tracking**: Monitor different payment methods
-- 📊 **Export/Import**: Data portability and backup options
+#### 💳 **Subscription Management**
+- Smart subscription tracking with enhanced categorization
+- Watchlist for potential subscriptions with detailed evaluation notes
+- Thursday paycheck optimization with pay period calculator
+- Advanced form design with quick templates and cost analysis
+
+#### 🏦 **Budget Pods System** *(NEW)*
+- Monthly budget allocation into targeted "pods" (Vehicle, Rent, Food, Subscriptions, Emergency)
+- Real-time balance tracking with contribution/withdrawal history
+- Auto-transfer settings and smart warning thresholds
+- Visual progress indicators and priority management
+
+#### 📈 **Investment Portfolio** *(NEW)*
+- Multi-platform investment tracking (Robinhood, Coinbase, Sequence, etc.)
+- Real-time performance metrics with total return calculations
+- Advanced filtering by platform, asset type, and performance
+- Conviction and risk level tracking for investment decisions
+
+#### 📚 **Financial Notebooks** *(NEW)*
+- Rich note-taking system for investment thesis documentation
+- Multiple notebook types: Investment Thesis, Strategy, Research, Plans, Reviews
+- Task management with completion tracking and due dates
+- Smart linking to investments, goals, and subscriptions
+
+### ✨ Advanced Features
+
+- 📊 **Smart Pay Period Calculator**: Thursday paycheck optimization with variance tracking
+- 📱 **Mobile-First Design**: Quick-glance cards and thumb-friendly navigation
+- 🎨 **Modern UI/UX**: Glass morphism, responsive design, and intuitive workflows
+- 🔄 **Real-time Updates**: Seamless data flow between all financial modules
+- 💾 **LocalStorage Persistence**: Reliable data storage with demo mode
+- 🔍 **Advanced Search**: Cross-module search capabilities and filtering
 
 ## 🛠 Tech Stack
 
@@ -38,9 +60,12 @@ SubTracker AI is a comprehensive subscription management platform that helps use
 - **React Hook Form** - Form handling
 
 ### Backend & Services
-- **Supabase** - Backend-as-a-Service (Database, Auth, Real-time)
-- **PostgreSQL** - Database (via Supabase)
-- **Row Level Security** - Data security
+- **LocalAuth Context** - Demo-friendly authentication system
+- **LocalStorage** - Client-side data persistence
+- **Zustand Persistence** - State management with middleware
+- **Future: Supabase** - Backend-as-a-Service integration (Phase 4)
+- **Future: PostgreSQL** - Database (via Supabase)
+- **Future: API Integrations** - Sequence.io, Coinbase, Robinhood
 
 ### Development Tools
 - **Vitest** - Testing framework
@@ -57,15 +82,16 @@ Before getting started, ensure you have:
 - **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
 - **npm** or **yarn** - Package manager
 - **Git** - Version control
-- **Supabase Account** - [Sign up here](https://supabase.com)
 
-## 🚀 Local Setup
+> **Note**: No external services required! The app runs completely offline with demo data.
+
+## 🚀 Quick Start
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/subtracker-ai.git
-cd subtracker-ai
+git clone https://github.com/leano777/SubTracker-AI.git
+cd SubTracker-AI/subtracker-ai
 ```
 
 ### 2. Install Dependencies
@@ -74,49 +100,40 @@ cd subtracker-ai
 npm install
 ```
 
-### 3. Environment Configuration
-
-1. Copy the example environment file:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-2. Configure your Supabase credentials in `.env.local`:
-   ```env
-   # Supabase Configuration (Required)
-   VITE_SUPABASE_URL=https://your-project-id.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-public-anon-key
-   
-   # Optional Feature Flags
-   VITE_ENABLE_ANALYTICS=false
-   VITE_ENABLE_DEBUG_MODE=false
-   VITE_ENABLE_EXPERIMENTAL_FEATURES=false
-   
-   # Development Settings
-   VITE_APP_ENV=development
-   ```
-
-### 4. Supabase Setup
-
-To get your Supabase credentials:
-
-1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
-2. Create a new project or select existing
-3. Go to **Settings** → **API**
-4. Copy the **Project URL** and **anon public key**
-5. Update your `.env.local` file
-
-#### Database Schema (Optional)
-
-The app will create necessary tables automatically. For manual setup, see `/supabase/migrations/`.
-
-### 5. Start Development Server
+### 3. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:5178`
+
+### 4. Demo Mode
+
+The app automatically loads with comprehensive demo data including:
+- 📱 **8 Active Subscriptions** with realistic payment schedules
+- 💰 **5 Budget Pods** with transaction history
+- 📈 **3 Investment Holdings** with performance tracking  
+- 📚 **4 Financial Notebooks** with investment research
+- 🎯 **Financial Goals** and comprehensive notifications
+
+Simply click **"Quick Start with Demo Account"** to explore all features!
+
+## 🎯 Phase 3 Complete Features
+
+### ✅ **Fully Functional Modules**
+- 💳 **Enhanced Subscription Management** with watchlist and evaluation notes
+- 🏦 **Budget Pods System** with 5 categories and auto-transfer settings
+- 📈 **Investment Portfolio** with multi-platform tracking
+- 📚 **Financial Notebooks** with rich documentation features
+- 🧮 **Smart Pay Period Calculator** optimized for Thursday paychecks
+- 📱 **Mobile-First Dashboard** with quick-glance financial cards
+
+### 🔄 **Local Data Management**
+- All data persisted in LocalStorage
+- No external API dependencies
+- Reliable demo experience
+- Ready for Phase 4 API integrations
 
 ## 🌍 Environment Variables
 
@@ -193,6 +210,44 @@ Check the following for error details:
 - Browser console
 - Network requests in DevTools
 - Supabase dashboard logs
+
+## 🗺️ Project Roadmap
+
+### ✅ **Phase 1 - Foundation** (COMPLETED)
+- [x] App architecture simplification  
+- [x] Zustand state management implementation
+- [x] Mobile-first dashboard design
+- [x] Financial data type system
+
+### ✅ **Phase 2 - Core Features** (COMPLETED)
+- [x] Enhanced subscription forms with templates
+- [x] Watchlist with detailed evaluation notes
+- [x] Smart pay period calculator for Thursday paychecks
+- [x] Comprehensive demo data integration
+
+### ✅ **Phase 3 - Advanced Modules** (COMPLETED)
+- [x] Budget Pods system with 5 categories
+- [x] Investment Portfolio with multi-platform tracking
+- [x] Financial Notebooks for investment documentation
+- [x] Complete navigation integration
+
+### 🔄 **Phase 4 - Polish & Forms** (IN PROGRESS)
+- [ ] Complete investment creation forms
+- [ ] Budget pod creation and management forms
+- [ ] Notebook creation with rich text editor
+- [ ] Enhanced mobile widgets for new modules
+
+### 🔮 **Phase 5 - API Integration** (PLANNED)
+- [ ] Sequence.io account connectivity
+- [ ] Coinbase API for crypto portfolio sync
+- [ ] Robinhood API for stock holdings
+- [ ] Automated transaction categorization
+
+### 🚀 **Phase 6 - Production** (FUTURE)
+- [ ] Real-time data synchronization
+- [ ] Advanced analytics and reporting
+- [ ] Multi-user support and sharing
+- [ ] Premium features and monetization
 
 ## 🚀 Deployment Workflow
 
