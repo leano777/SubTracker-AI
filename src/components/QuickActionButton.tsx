@@ -21,6 +21,7 @@ export const QuickActionButton = ({
   aiInsightsCount,
   isMobile,
 }: QuickActionButtonProps) => {
+  console.log("🔧 QuickActionButton rendered with props:", { activeTab, onAddNew: !!onAddNew, isMobile });
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Detect stealth ops theme
@@ -110,7 +111,21 @@ export const QuickActionButton = ({
     return (
       <div className="fixed bottom-4 right-4 z-40">
         <Button
-          onClick={onAddNew}
+          onClick={() => {
+            alert("Plus button clicked!"); // Simple test
+            console.log("🔥 Desktop Plus Button clicked - calling onAddNew");
+            console.log("🔍 onAddNew function:", onAddNew);
+            if (onAddNew) {
+              try {
+                onAddNew();
+                console.log("✅ onAddNew called successfully");
+              } catch (error) {
+                console.error("❌ Error calling onAddNew:", error);
+              }
+            } else {
+              console.error("❌ onAddNew is undefined!");
+            }
+          }}
           size="lg"
           className={`h-14 w-14 text-white shadow-lg hover:shadow-xl transition-all duration-300 ${
             isStealthOps
@@ -166,6 +181,7 @@ export const QuickActionButton = ({
                     <Button
                       key={action.id}
                       onClick={() => {
+                        console.log(`🔥 Mobile ${action.label} button clicked - calling action`);
                         action.action();
                         setIsExpanded(false);
                       }}

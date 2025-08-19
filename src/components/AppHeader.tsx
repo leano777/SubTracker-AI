@@ -454,7 +454,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   }
                 />
                 <DropdownMenuItem
-                  onClick={openSettingsModal}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Settings menu clicked");
+                    openSettingsModal();
+                  }}
                   className={`cursor-pointer ${safeTextColors.onGlass} ${
                     isStealthOps
                       ? "hover:bg-gray-800 hover:text-green-400 font-mono tracking-wide"
@@ -472,7 +477,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
                 {/* Enhanced Logout Options with tactical styling */}
                 <DropdownMenuItem
-                  onClick={handleQuickLogout}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Quick logout clicked");
+                    handleQuickLogout(e);
+                  }}
                   className={`cursor-pointer focus:text-blue-400 hover:bg-blue-500/10 ${
                     isStealthOps
                       ? "text-green-400 hover:bg-green-500/10 hover:text-green-300 font-mono tracking-wide"
@@ -491,7 +501,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  onClick={handleConfirmLogout}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Confirm logout clicked");
+                    handleConfirmLogout();
+                  }}
                   className={`cursor-pointer focus:text-red-400 hover:bg-red-500/10 ${
                     isStealthOps
                       ? "text-red-400 hover:bg-red-500/10 hover:text-red-300 font-mono tracking-wide"

@@ -93,6 +93,18 @@ const SimplifiedAppContent = () => {
     deleteBudgetPod,
     addToBudgetPod,
     withdrawFromBudgetPod,
+    // Income sources
+    incomeSources,
+    paycheckAllocations,
+    currentPayCycleSummary,
+    setIncomeSources,
+    setPaycheckAllocations,
+    setPayCycleSummary,
+    addIncomeSource,
+    updateIncomeSource,
+    deleteIncomeSource,
+    createPaycheckAllocation,
+    updatePaycheckAllocation,
     addInvestment,
     updateInvestment,
     deleteInvestment,
@@ -133,9 +145,13 @@ const SimplifiedAppContent = () => {
       setFinancialGoals(demoData.financialGoals);
       setNotebookEntries(demoData.notebookEntries);
       setBudgetPods(demoData.budgetPods);
+      // Initialize income data
+      setIncomeSources(demoData.incomeSources);
+      setPaycheckAllocations(demoData.paycheckAllocations);
+      setPayCycleSummary(demoData.currentPayCycleSummary);
       setDemoDataLoaded(true);
     }
-  }, [isAuthenticated, demoDataLoaded, subscriptions.length, setSubscriptions, setPaymentCards, setNotifications, setWeeklyBudgets, setBills, setInvestments, setFinancialGoals, setNotebookEntries, setBudgetPods]);
+  }, [isAuthenticated, demoDataLoaded, subscriptions.length, setSubscriptions, setPaymentCards, setNotifications, setWeeklyBudgets, setBills, setInvestments, setFinancialGoals, setNotebookEntries, setBudgetPods, setIncomeSources, setPaycheckAllocations, setPayCycleSummary]);
 
   // Handle subscription form submission
   const handleSubscriptionSave = (subscriptionData: Partial<FullSubscription>) => {
@@ -459,11 +475,28 @@ const SimplifiedAppContent = () => {
             {activeView === 'budget' && (
               <BudgetPods
                 budgetPods={budgetPods}
-                onAddPod={addBudgetPod}
+                incomeSources={incomeSources}
+                paycheckAllocations={paycheckAllocations}
+                payCycleSummary={currentPayCycleSummary}
+                onAddPod={(podData) => {
+                  const now = new Date().toISOString();
+                  const pod = {
+                    id: `pod-${Date.now()}`,
+                    createdDate: now,
+                    lastModified: now,
+                    ...podData,
+                  };
+                  addBudgetPod(pod);
+                }}
                 onUpdatePod={updateBudgetPod}
                 onDeletePod={deleteBudgetPod}
                 onAddFunds={addToBudgetPod}
                 onWithdrawFunds={withdrawFromBudgetPod}
+                onAddIncomeSource={addIncomeSource}
+                onUpdateIncomeSource={updateIncomeSource}
+                onDeleteIncomeSource={deleteIncomeSource}
+                onCreatePaycheckAllocation={createPaycheckAllocation}
+                onUpdatePaycheckAllocation={updatePaycheckAllocation}
               />
             )}
             

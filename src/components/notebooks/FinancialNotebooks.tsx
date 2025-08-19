@@ -53,6 +53,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import type { NotebookEntry } from '../../types/financial';
+import { NotebookForm } from '../forms/NotebookForm';
 
 interface FinancialNotebooksProps {
   notebooks: NotebookEntry[];
@@ -92,11 +93,13 @@ const CONFIDENCE_COLORS = {
 const NotebookCard = ({ 
   notebook, 
   onUpdate, 
-  onDelete 
+  onDelete,
+  onEdit
 }: {
   notebook: NotebookEntry;
   onUpdate: (updates: Partial<NotebookEntry>) => void;
   onDelete: () => void;
+  onEdit?: (notebook: NotebookEntry) => void;
 }) => {
   const [showFullView, setShowFullView] = useState(false);
   
@@ -170,7 +173,7 @@ const NotebookCard = ({
                 <Pin className="w-4 h-4 mr-2" />
                 {notebook.isPinned ? 'Unpin' : 'Pin'}
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit?.(notebook)}>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>
@@ -352,6 +355,8 @@ export const FinancialNotebooks = ({
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('lastModified');
   const [showArchived, setShowArchived] = useState(false);
+  const [showNotebookForm, setShowNotebookForm] = useState(false);
+  const [editingNotebook, setEditingNotebook] = useState<NotebookEntry | null>(null);
 
   // Filter and sort notebooks
   const filteredNotebooks = useMemo(() => {
@@ -391,6 +396,32 @@ export const FinancialNotebooks = ({
   const totalTasks = notebooks.reduce((sum, n) => sum + (n.tasks?.length || 0), 0);
   const completedTasks = notebooks.reduce((sum, n) => sum + (n.tasks?.filter(t => t.completed).length || 0), 0);
 
+  // Handle notebook form actions
+  const handleNotebookSave = (notebookData: NotebookEntry) => {
+    if (editingNotebook) {
+      onUpdateNotebook(editingNotebook.id, notebookData);
+    } else {
+      onAddNotebook(notebookData);
+    }
+    setShowNotebookForm(false);
+    setEditingNotebook(null);
+  };
+
+  const handleNotebookCancel = () => {
+    setShowNotebookForm(false);
+    setEditingNotebook(null);
+  };
+
+  const handleAddNew = () => {
+    setEditingNotebook(null);
+    setShowNotebookForm(true);
+  };
+
+  const handleEditNotebook = (notebook: NotebookEntry) => {
+    setEditingNotebook(notebook);
+    setShowNotebookForm(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -401,25 +432,10 @@ export const FinancialNotebooks = ({
             Document your investment ideas, strategies, and financial planning
           </p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Notebook
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Notebook</DialogTitle>
-              <DialogDescription>
-                Start documenting your financial thoughts and strategies
-              </DialogDescription>
-            </DialogHeader>
-            <div className="text-center py-4 text-muted-foreground">
-              Notebook creation form coming soon...
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleAddNew}>
+          <Plus className="w-4 h-4 mr-2" />
+          New Notebook
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -523,22 +539,10 @@ export const FinancialNotebooks = ({
                     : "No notebooks match your current filters"
                   }
                 </p>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First Notebook
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Create New Notebook</DialogTitle>
-                    </DialogHeader>
-                    <div className="text-center py-4 text-muted-foreground">
-                      Notebook creation form coming soon...
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button onClick={handleAddNew}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Your First Notebook
+                </Button>
               </CardContent>
             </Card>
           ) : (
@@ -549,6 +553,7 @@ export const FinancialNotebooks = ({
                   notebook={notebook}
                   onUpdate={(updates) => onUpdateNotebook(notebook.id, updates)}
                   onDelete={() => onDeleteNotebook(notebook.id)}
+                  onEdit={handleEditNotebook}
                 />
               ))}
             </div>
@@ -574,6 +579,7 @@ export const FinancialNotebooks = ({
                   notebook={notebook}
                   onUpdate={(updates) => onUpdateNotebook(notebook.id, updates)}
                   onDelete={() => onDeleteNotebook(notebook.id)}
+                  onEdit={handleEditNotebook}
                 />
               ))}
             </div>
@@ -592,11 +598,35 @@ export const FinancialNotebooks = ({
                   notebook={notebook}
                   onUpdate={(updates) => onUpdateNotebook(notebook.id, updates)}
                   onDelete={() => onDeleteNotebook(notebook.id)}
+                  onEdit={handleEditNotebook}
                 />
               ))}
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Notebook Form Modal */}
+      <Dialog open={showNotebookForm} onOpenChange={setShowNotebookForm}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingNotebook ? 'Edit Financial Notebook' : 'Create New Notebook'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingNotebook 
+                ? 'Update your financial documentation and analysis' 
+                : 'Document your investment ideas, strategies, and financial planning'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <NotebookForm
+            notebook={editingNotebook || undefined}
+            onSave={handleNotebookSave}
+            onCancel={handleNotebookCancel}
+            mode={editingNotebook ? 'edit' : 'create'}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

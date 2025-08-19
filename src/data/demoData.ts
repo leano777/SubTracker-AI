@@ -1,6 +1,15 @@
 import type { FullSubscription, FullPaymentCard, WeeklyBudget } from '../types/subscription';
 import type { AppNotification } from '../types/constants';
-import type { Investment, Bill, FinancialGoal, NotebookEntry, BudgetPod } from '../types/financial';
+import type { 
+  Investment, 
+  Bill, 
+  FinancialGoal, 
+  NotebookEntry, 
+  BudgetPod,
+  IncomeSource,
+  PaycheckAllocation,
+  PayCycleSummary
+} from '../types/financial';
 
 // Helper to generate dates
 const addDays = (date: Date, days: number): string => {
@@ -415,30 +424,27 @@ export const demoFinancialGoals: FinancialGoal[] = [
 export const demoNotifications: AppNotification[] = [
   {
     id: 'notif-1',
-    type: 'payment_due',
+    type: 'warning',
     title: 'Payment Due Today',
     message: 'ChatGPT Plus payment of $20.00 is due today',
     timestamp: today.toISOString(),
     read: false,
-    priority: 'high',
   },
   {
     id: 'notif-2',
-    type: 'payment_upcoming',
+    type: 'info',
     title: 'Upcoming Payment',
     message: 'Adobe Creative Cloud payment of $54.99 due tomorrow',
     timestamp: today.toISOString(),
     read: false,
-    priority: 'medium',
   },
   {
     id: 'notif-3',
-    type: 'savings_tip',
+    type: 'success',
     title: 'Savings Opportunity',
     message: 'Switch Microsoft 365 to annual billing and save $20/year',
     timestamp: addDays(today, -1),
     read: false,
-    priority: 'low',
   },
 ];
 
@@ -716,6 +722,155 @@ export const demoBudgetPods: BudgetPod[] = [
   },
 ];
 
+// Demo Income Sources for weekly paycheck scenario
+export const demoIncomeSources: IncomeSource[] = [
+  {
+    id: 'income-1',
+    name: 'Elite SD Construction - Salary',
+    type: 'salary',
+    frequency: 'weekly',
+    grossAmount: 1250.00, // $5000/month weekly
+    netAmount: 875.00,     // ~70% after taxes/deductions
+    taxes: 275.00,
+    benefits: 75.00,
+    retirement: 25.00,
+    payDates: [
+      addDays(today, 3),   // This Thursday
+      addDays(today, 10),  // Next Thursday
+      addDays(today, 17),  // Following Thursday
+      addDays(today, 24),  // Week after
+    ],
+    isActive: true,
+    employer: 'Elite SD Construction',
+    notes: 'Weekly payroll every Thursday. Direct deposit.',
+    createdDate: '2024-01-01T00:00:00.000Z',
+    lastModified: new Date().toISOString(),
+  },
+  {
+    id: 'income-2',
+    name: 'Freelance Consulting',
+    type: 'freelance',
+    frequency: 'irregular',
+    grossAmount: 800.00,  // Variable monthly
+    netAmount: 720.00,    // Less taxes since self-employed
+    taxes: 80.00,
+    payDates: [
+      addDays(today, 15),  // Mid-month payment
+    ],
+    isActive: true,
+    employer: 'Various Clients',
+    notes: 'Construction consulting projects. Payment varies by project.',
+    createdDate: '2024-03-01T00:00:00.000Z',
+    lastModified: new Date().toISOString(),
+  },
+];
+
+// Demo Paycheck Allocations - showing how Marco maps his weekly paycheck to pods
+export const demoPaycheckAllocations: PaycheckAllocation[] = [
+  {
+    id: 'allocation-1',
+    incomeSourceId: 'income-1',
+    payDate: addDays(today, 3), // This Thursday
+    grossAmount: 1250.00,
+    netAmount: 875.00,
+    podAllocations: [
+      { podId: 'pod-2', amount: 300.00, percentage: 34.3 }, // Rent & Housing (priority 1)
+      { podId: 'pod-1', amount: 100.00, percentage: 11.4 }, // Vehicle Fund
+      { podId: 'pod-3', amount: 125.00, percentage: 14.3 }, // Food & Groceries
+      { podId: 'pod-4', amount: 37.50, percentage: 4.3 },   // Subscriptions
+      { podId: 'pod-5', amount: 75.00, percentage: 8.6 },   // Emergency Fund
+      { podId: 'pod-6', amount: 50.00, percentage: 5.7 },   // Entertainment
+    ],
+    fixedExpenses: [
+      { name: 'Rent', amount: 300.00, category: 'rent' },
+      { name: 'Car Insurance', amount: 45.00, category: 'insurance' },
+    ],
+    remainingAmount: 187.50, // After pod allocations and fixed expenses
+    isPlanned: true,
+    isProcessed: false,
+    notes: 'Standard weekly allocation. Prioritizing rent and vehicle fund.',
+  },
+  {
+    id: 'allocation-2',
+    incomeSourceId: 'income-1',
+    payDate: addDays(today, 10), // Next Thursday
+    grossAmount: 1250.00,
+    netAmount: 875.00,
+    podAllocations: [
+      { podId: 'pod-2', amount: 300.00, percentage: 34.3 }, // Rent & Housing
+      { podId: 'pod-1', amount: 100.00, percentage: 11.4 }, // Vehicle Fund
+      { podId: 'pod-3', amount: 125.00, percentage: 14.3 }, // Food & Groceries
+      { podId: 'pod-4', amount: 37.50, percentage: 4.3 },   // Subscriptions
+      { podId: 'pod-5', amount: 75.00, percentage: 8.6 },   // Emergency Fund
+      { podId: 'pod-6', amount: 50.00, percentage: 5.7 },   // Entertainment
+    ],
+    fixedExpenses: [
+      { name: 'Phone Bill', amount: 65.00, category: 'utilities' },
+      { name: 'Internet', amount: 80.00, category: 'utilities' },
+    ],
+    remainingAmount: 142.50, // After pod allocations and fixed expenses
+    isPlanned: true,
+    isProcessed: false,
+    notes: 'Utilities week. Adjusted remaining after phone and internet.',
+  },
+];
+
+// Demo Pay Cycle Summary - Monthly view with weekly breakdown
+export const demoPayCycleSummary: PayCycleSummary = {
+  period: 'monthly',
+  startDate: new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0],
+  endDate: new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0],
+  totalIncome: 4220.00,    // 4 weeks * $875 + freelance
+  totalAllocated: 2755.00, // Total allocated to pods
+  totalFixedExpenses: 490.00,
+  totalRemaining: 975.00,
+  paychecks: demoPaycheckAllocations,
+  podFunding: [
+    {
+      podId: 'pod-1',
+      targetAmount: 400.00,
+      allocatedAmount: 400.00, // Fully funded
+      remainingNeeded: 0,
+      isFunded: true,
+    },
+    {
+      podId: 'pod-2',
+      targetAmount: 1200.00,
+      allocatedAmount: 1200.00, // Fully funded
+      remainingNeeded: 0,
+      isFunded: true,
+    },
+    {
+      podId: 'pod-3',
+      targetAmount: 500.00,
+      allocatedAmount: 500.00, // Fully funded
+      remainingNeeded: 0,
+      isFunded: true,
+    },
+    {
+      podId: 'pod-4',
+      targetAmount: 150.00,
+      allocatedAmount: 150.00, // Fully funded
+      remainingNeeded: 0,
+      isFunded: true,
+    },
+    {
+      podId: 'pod-5',
+      targetAmount: 300.00,
+      allocatedAmount: 300.00, // Fully funded
+      remainingNeeded: 0,
+      isFunded: true,
+    },
+    {
+      podId: 'pod-6',
+      targetAmount: 200.00,
+      allocatedAmount: 200.00, // Fully funded
+      remainingNeeded: 0,
+      isFunded: true,
+    },
+  ],
+};
+
 export const initializeDemoData = () => {
   return {
     subscriptions: [...demoSubscriptions, ...demoWatchlistItems],
@@ -727,6 +882,9 @@ export const initializeDemoData = () => {
     notebookEntries: demoNotebookEntries,
     weeklyBudgets: generateWeeklyBudgets(),
     budgetPods: demoBudgetPods,
+    incomeSources: demoIncomeSources,
+    paycheckAllocations: demoPaycheckAllocations,
+    currentPayCycleSummary: demoPayCycleSummary,
   };
 };
 

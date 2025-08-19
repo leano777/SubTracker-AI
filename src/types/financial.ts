@@ -234,6 +234,77 @@ export interface Transaction {
   reconciledDate?: string;
 }
 
+// Paycheck and income tracking
+export interface IncomeSource {
+  id: string;
+  name: string;
+  type: 'salary' | 'hourly' | 'contract' | 'freelance' | 'side_hustle' | 'passive' | 'other';
+  frequency: 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'yearly' | 'irregular';
+  grossAmount: number;
+  netAmount: number;
+  // Deductions
+  taxes?: number;
+  benefits?: number;
+  retirement?: number;
+  otherDeductions?: number;
+  // Schedule
+  payDates: string[]; // Next few pay dates
+  isActive: boolean;
+  // Metadata
+  employer?: string;
+  notes?: string;
+  createdDate: string;
+  lastModified: string;
+}
+
+// Paycheck allocation mapping
+export interface PaycheckAllocation {
+  id: string;
+  incomeSourceId: string;
+  payDate: string;
+  grossAmount: number;
+  netAmount: number;
+  // Pod allocations from this paycheck
+  podAllocations: {
+    podId: string;
+    amount: number;
+    percentage: number;
+  }[];
+  // Fixed expenses
+  fixedExpenses: {
+    name: string;
+    amount: number;
+    category: 'rent' | 'utilities' | 'insurance' | 'loan' | 'other';
+  }[];
+  // Remaining after allocations
+  remainingAmount: number;
+  // Status
+  isPlanned: boolean; // vs actual
+  isProcessed: boolean;
+  // Notes
+  notes?: string;
+}
+
+// Pay cycle summary for visualization
+export interface PayCycleSummary {
+  period: 'weekly' | 'monthly';
+  startDate: string;
+  endDate: string;
+  totalIncome: number;
+  totalAllocated: number;
+  totalFixedExpenses: number;
+  totalRemaining: number;
+  paychecks: PaycheckAllocation[];
+  // Pod funding status
+  podFunding: {
+    podId: string;
+    targetAmount: number;
+    allocatedAmount: number;
+    remainingNeeded: number;
+    isFunded: boolean;
+  }[];
+}
+
 // Monthly budget pods for organized saving
 export interface BudgetPod {
   id: string;
@@ -247,6 +318,12 @@ export interface BudgetPod {
   isActive: boolean;
   autoTransfer: boolean;
   transferDay?: number; // Day of month to auto-transfer
+  // Income allocation preferences
+  fundingPreferences?: {
+    preferredPaychecks: 'first' | 'last' | 'all' | 'custom'; // Which paychecks in cycle
+    minimumPerPaycheck?: number; // Minimum amount per paycheck
+    maxPercentagePerPaycheck?: number; // Max % of paycheck for this pod
+  };
   // Associated items
   linkedSubscriptions?: string[]; // Subscription IDs that draw from this pod
   linkedBills?: string[]; // Bill IDs that draw from this pod
@@ -258,6 +335,7 @@ export interface BudgetPod {
     date: string;
     amount: number;
     note?: string;
+    paycheckId?: string; // Link to specific paycheck
   }[];
   withdrawals?: {
     date: string;

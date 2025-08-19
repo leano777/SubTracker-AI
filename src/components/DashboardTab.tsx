@@ -12,17 +12,6 @@ import {
   Eye,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-// Temporarily disable recharts due to ES module issues
-// import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
-const LineChart = ({ children, ...props }: any) => { void props; return (
-  <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded">
-    <div className="text-gray-500 text-sm">Chart disabled</div>
-  </div>
-); };
-const Line = ({ ...props }: any) => { void props; return null; };
-const XAxis = ({ ...props }: any) => { void props; return null; };
-const YAxis = ({ ...props }: any) => { void props; return null; };
-const ResponsiveContainer = ({ children, ...props }: any) => { void props; return <div className="w-full h-full">{children}</div>; };
 
 import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
@@ -46,6 +35,10 @@ interface DashboardTabProps {
   settings: AppSettings;
   notifications: AppNotification[];
   weeklyBudgets?: any[];
+  onAddNew?: () => void;
+  onViewCalendar?: () => void;
+  onManageCards?: () => void;
+  onCheckWatchlist?: () => void;
 }
 
 export const DashboardTab = ({
@@ -53,6 +46,10 @@ export const DashboardTab = ({
   settings,
   notifications = [],
   cards = [],
+  onAddNew,
+  onViewCalendar,
+  onManageCards,
+  onCheckWatchlist,
 }: DashboardTabProps) => {
   console.log("🏠 DashboardTab rendered with:", {
     subscriptionsCount: subscriptions?.length || 0,
@@ -81,11 +78,13 @@ export const DashboardTab = ({
   const isDarkMode = currentTheme === "dark";
   const isStealthOps = currentTheme === "stealth-ops";
 
-  // Calculate key metrics with error handling
+  // Calculate key metrics with error handling and timeframe filtering
   let activeSubscriptions: FullSubscription[] = [];
   let cancelledSubscriptions: FullSubscription[] = [];
   let totalMonthlySpend = 0;
   let totalYearlySpend = 0;
+  let displayAmount = 0;
+  let timeframeMultiplier = 1;
 
   try {
     activeSubscriptions = subscriptions.filter((sub) => sub.status === "active");
@@ -96,10 +95,29 @@ export const DashboardTab = ({
     }, 0);
     totalYearlySpend = totalMonthlySpend * 12;
 
+    // Apply timeframe multiplier based on selected timeframe
+    switch (selectedTimeframe) {
+      case "quarter":
+        timeframeMultiplier = 3;
+        displayAmount = totalMonthlySpend * 3;
+        break;
+      case "year":
+        timeframeMultiplier = 12;
+        displayAmount = totalYearlySpend;
+        break;
+      default: // month
+        timeframeMultiplier = 1;
+        displayAmount = totalMonthlySpend;
+        break;
+    }
+
     console.log("💰 Calculations:", {
       activeCount: activeSubscriptions.length,
       totalMonthly: totalMonthlySpend,
       totalYearly: totalYearlySpend,
+      selectedTimeframe,
+      timeframeMultiplier,
+      displayAmount,
     });
   } catch (error) {
     console.error("Error calculating metrics:", error);
@@ -307,9 +325,9 @@ export const DashboardTab = ({
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <QuickStatsCard
-          title="Monthly Spend"
-          value={formatCurrency(totalMonthlySpend)}
-          change="+5.2% from last month"
+          title={`${selectedTimeframe.charAt(0).toUpperCase() + selectedTimeframe.slice(1)}ly Spend`}
+          value={formatCurrency(displayAmount)}
+          change={`+5.2% from last ${selectedTimeframe}`}
           icon={DollarSign}
           trend="up"
           color="blue"
@@ -340,199 +358,11 @@ export const DashboardTab = ({
         />
       </div>
 
-      {/* Enhanced Alerts and Notifications with Stealth Ops Support */}
-      {(notifications.filter((n) => !n.read).length > 0 || upcomingPayments.length > 0) && (
-        <Card
-          className={`${
-            isStealthOps
-              ? "tactical-surface border-2 border-yellow-400 tactical-glow"
-              : "border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-900/20"
-          }`}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle
-              className={`flex items-center gap-2 ${
-                isStealthOps
-                  ? "text-yellow-400 font-mono tracking-wide tactical-text-glow"
-                  : "text-orange-800 dark:text-orange-200"
-              }`}
-            >
-              <Bell className={`w-5 h-5 ${isStealthOps ? "text-yellow-400" : ""}`} />
-              {isStealthOps ? "[⚠ ATTENTION REQUIRED ⚠]" : "Attention Required"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {upcomingPayments.length > 0 && (
-              <div
-                className={`flex items-center justify-between p-3 ${
-                  isStealthOps
-                    ? "tactical-surface border border-gray-600"
-                    : "bg-white dark:bg-gray-800 rounded-lg"
-                }`}
-                style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-              >
-                <div className="flex items-center gap-3">
-                  <AlertCircle
-                    className={`w-5 h-5 ${isStealthOps ? "text-yellow-400" : "text-orange-500"}`}
-                  />
-                  <div>
-                    <div
-                      className={`font-medium ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-                    >
-                      {isStealthOps ? "[UPCOMING PAYMENTS]" : "Upcoming Payments"}
-                    </div>
-                    <div
-                      className={`text-sm ${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-                    >
-                      {isStealthOps
-                        ? `[${upcomingPayments.length} PAYMENT${upcomingPayments.length !== 1 ? "S" : ""} DUE IN NEXT 7 DAYS]`
-                        : `${upcomingPayments.length} payment${upcomingPayments.length !== 1 ? "s" : ""} due in the next 7 days`}
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className={`${
-                    isStealthOps
-                      ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide"
-                      : ""
-                  }`}
-                  style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-                >
-                  {isStealthOps ? "[VIEW]" : "View"} <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </div>
-            )}
-
-            {notifications
-              .filter((n) => !n.read)
-              .slice(0, 2)
-              .map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`flex items-center justify-between p-3 ${
-                    isStealthOps
-                      ? "tactical-surface border border-gray-600"
-                      : "bg-white dark:bg-gray-800 rounded-lg"
-                  }`}
-                  style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-2 h-2 ${isStealthOps ? "" : "rounded-full"} ${
-                        notification.type === "warning"
-                          ? isStealthOps
-                            ? "bg-yellow-400"
-                            : "bg-yellow-500"
-                          : notification.type === "trial"
-                            ? isStealthOps
-                              ? "bg-blue-400"
-                              : "bg-blue-500"
-                            : isStealthOps
-                              ? "bg-green-400"
-                              : "bg-green-500"
-                      }`}
-                      style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-                    />
-                    <div>
-                      <div
-                        className={`font-medium ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-                      >
-                        {isStealthOps
-                          ? `[${notification.title.toUpperCase()}]`
-                          : notification.title}
-                      </div>
-                      <div
-                        className={`text-sm ${textColors.muted} line-clamp-1 ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-                      >
-                        {isStealthOps
-                          ? `[${notification.message.toUpperCase()}]`
-                          : notification.message}
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className={`${
-                      isStealthOps
-                        ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide"
-                        : ""
-                    }`}
-                    style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-                  >
-                    {isStealthOps ? "[VIEW]" : "View"}
-                  </Button>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Spending Overview */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Spending Trend Chart */}
-          <Card className={isStealthOps ? "tactical-surface" : ""}>
-            <CardHeader>
-              <CardTitle
-                className={`flex items-center gap-2 ${textColors.primary} ${
-                  isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""
-                }`}
-              >
-                <TrendingUp className={`w-5 h-5 ${isStealthOps ? "text-green-400" : ""}`} />
-                {isStealthOps ? "[SPENDING TREND]" : "Spending Trend"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={spendingTrend}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Line type="monotone" dataKey="amount" stroke="#3b82f6" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div
-                className={`flex items-center justify-between mt-4 pt-4 ${
-                  isStealthOps ? "border-t border-gray-600" : "border-t"
-                }`}
-              >
-                <div>
-                  <div
-                    className={`text-sm ${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-                  >
-                    {isStealthOps ? "[AVERAGE MONTHLY]" : "Average Monthly"}
-                  </div>
-                  <div
-                    className={`font-semibold ${textColors.primary} ${
-                      isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""
-                    }`}
-                  >
-                    {formatCurrency(totalMonthlySpend)}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div
-                    className={`text-sm ${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}
-                  >
-                    {isStealthOps ? "[TREND]" : "Trend"}
-                  </div>
-                  <div
-                    className={`flex items-center gap-1 ${
-                      isStealthOps ? "text-green-400 font-mono tracking-wide" : "text-green-600"
-                    }`}
-                  >
-                    <TrendingUp className="w-3 h-3" />
-                    {isStealthOps ? "[+5.2%]" : "+5.2%"}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Category Breakdown */}
           <Card className={isStealthOps ? "tactical-surface" : ""}>
@@ -639,6 +469,10 @@ export const DashboardTab = ({
             </CardHeader>
             <CardContent className="space-y-3">
               <Button
+                onClick={() => {
+                  console.log("🔥 Add New Subscription clicked");
+                  onAddNew?.();
+                }}
                 className={`w-full justify-start ${
                   isStealthOps
                     ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide"
@@ -651,6 +485,10 @@ export const DashboardTab = ({
                 {isStealthOps ? "[ADD NEW SUBSCRIPTION]" : "Add New Subscription"}
               </Button>
               <Button
+                onClick={() => {
+                  console.log("🔥 View Calendar clicked");
+                  onViewCalendar?.();
+                }}
                 className={`w-full justify-start ${
                   isStealthOps
                     ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide"
@@ -663,6 +501,10 @@ export const DashboardTab = ({
                 {isStealthOps ? "[VIEW CALENDAR]" : "View Calendar"}
               </Button>
               <Button
+                onClick={() => {
+                  console.log("🔥 Manage Cards clicked");
+                  onManageCards?.();
+                }}
                 className={`w-full justify-start ${
                   isStealthOps
                     ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide"
@@ -675,6 +517,10 @@ export const DashboardTab = ({
                 {isStealthOps ? "[MANAGE CARDS]" : "Manage Cards"}
               </Button>
               <Button
+                onClick={() => {
+                  console.log("🔥 Check Watchlist clicked");
+                  onCheckWatchlist?.();
+                }}
                 className={`w-full justify-start ${
                   isStealthOps
                     ? "tactical-button border-green-400 text-green-400 hover:bg-green-400 hover:text-black font-mono tracking-wide"

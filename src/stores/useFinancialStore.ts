@@ -2,7 +2,16 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { FullSubscription, FullPaymentCard, WeeklyBudget, BudgetCategory } from '../types/subscription';
 import type { AppSettings, AppNotification } from '../types/constants';
-import type { Investment, Bill, FinancialGoal, NotebookEntry, BudgetPod } from '../types/financial';
+import type { 
+  Investment, 
+  Bill, 
+  FinancialGoal, 
+  NotebookEntry, 
+  BudgetPod,
+  IncomeSource,
+  PaycheckAllocation,
+  PayCycleSummary
+} from '../types/financial';
 
 interface FinancialStore {
   // Core Data
@@ -19,6 +28,11 @@ interface FinancialStore {
   financialGoals: FinancialGoal[];
   notebookEntries: NotebookEntry[];
   budgetPods: BudgetPod[];
+  
+  // Income & Paycheck Tracking
+  incomeSources: IncomeSource[];
+  paycheckAllocations: PaycheckAllocation[];
+  currentPayCycleSummary?: PayCycleSummary;
   
   // UI State
   activeView: 'dashboard' | 'subscriptions' | 'watchlist' | 'portfolio' | 'notebooks' | 'budget' | 'settings';
@@ -88,6 +102,21 @@ interface FinancialStore {
   deleteBudgetPod: (id: string) => void;
   addToBudgetPod: (id: string, amount: number, note?: string) => void;
   withdrawFromBudgetPod: (id: string, amount: number, reason: string) => void;
+
+  // Actions - Income Sources
+  setIncomeSources: (sources: IncomeSource[]) => void;
+  addIncomeSource: (source: Omit<IncomeSource, 'id' | 'createdDate' | 'lastModified'>) => void;
+  updateIncomeSource: (id: string, updates: Partial<IncomeSource>) => void;
+  deleteIncomeSource: (id: string) => void;
+
+  // Actions - Paycheck Allocations
+  setPaycheckAllocations: (allocations: PaycheckAllocation[]) => void;
+  createPaycheckAllocation: (allocation: Omit<PaycheckAllocation, 'id'>) => void;
+  updatePaycheckAllocation: (id: string, updates: Partial<PaycheckAllocation>) => void;
+  deletePaycheckAllocation: (id: string) => void;
+
+  // Actions - Pay Cycle Summary
+  setPayCycleSummary: (summary: PayCycleSummary | undefined) => void;
   
   // Actions - Notifications
   setNotifications: (notifications: AppNotification[]) => void;
@@ -165,6 +194,12 @@ const initialState = {
   financialGoals: [],
   notebookEntries: [],
   budgetPods: [],
+  
+  // Income & Paycheck Tracking
+  incomeSources: [],
+  paycheckAllocations: [],
+  currentPayCycleSummary: undefined,
+  
   activeView: 'dashboard' as const,
   isMobileView: false,
   isLoading: false,
@@ -335,6 +370,54 @@ export const useFinancialStore = create<FinancialStore>()(
               : pod
           ),
         })),
+
+      // Income Sources
+      setIncomeSources: (incomeSources) => set({ incomeSources }),
+      addIncomeSource: (sourceData) => {
+        const now = new Date().toISOString();
+        const source: IncomeSource = {
+          id: `income-${Date.now()}`,
+          createdDate: now,
+          lastModified: now,
+          ...sourceData,
+        };
+        set((state) => ({ incomeSources: [...state.incomeSources, source] }));
+      },
+      updateIncomeSource: (id, updates) =>
+        set((state) => ({
+          incomeSources: state.incomeSources.map((source) =>
+            source.id === id ? { ...source, ...updates, lastModified: new Date().toISOString() } : source
+          ),
+        })),
+      deleteIncomeSource: (id) =>
+        set((state) => ({
+          incomeSources: state.incomeSources.filter((source) => source.id !== id),
+        })),
+
+      // Paycheck Allocations
+      setPaycheckAllocations: (paycheckAllocations) => set({ paycheckAllocations }),
+      createPaycheckAllocation: (allocationData) => {
+        const allocation: PaycheckAllocation = {
+          id: `allocation-${Date.now()}`,
+          ...allocationData,
+        };
+        set((state) => ({ 
+          paycheckAllocations: [...state.paycheckAllocations, allocation] 
+        }));
+      },
+      updatePaycheckAllocation: (id, updates) =>
+        set((state) => ({
+          paycheckAllocations: state.paycheckAllocations.map((allocation) =>
+            allocation.id === id ? { ...allocation, ...updates } : allocation
+          ),
+        })),
+      deletePaycheckAllocation: (id) =>
+        set((state) => ({
+          paycheckAllocations: state.paycheckAllocations.filter((allocation) => allocation.id !== id),
+        })),
+
+      // Pay Cycle Summary
+      setPayCycleSummary: (currentPayCycleSummary) => set({ currentPayCycleSummary }),
       
       // Notifications
       setNotifications: (notifications) => set({ notifications }),

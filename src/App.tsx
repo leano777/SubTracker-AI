@@ -549,13 +549,16 @@ const AppContent = () => {
   // Subscription view handler - FIXED: Device-specific logic with error handling
   const handleViewSubscription = useCallback(
     (subscription: FullSubscription) => {
+      console.log("🔍 handleViewSubscription called with:", subscription.name, "isDesktop:", isDesktop);
       if (!subscription || !isMountedRef.current) return;
 
       try {
         if (isDesktop) {
+          console.log("🔍 Setting side peek subscription and opening modal");
           setEditingState((prev) => ({ ...prev, sidePeekSubscription: subscription }));
           setModalState((prev) => ({ ...prev, isSidePeekOpen: true }));
         } else {
+          console.log("🔍 Mobile detected, opening edit form");
           openEditForm?.(subscription);
         }
       } catch (error) {
@@ -728,6 +731,10 @@ const AppContent = () => {
                 settings={props.settings}
                 notifications={props.notifications}
                 weeklyBudgets={props.weeklyBudgets}
+                onAddNew={openAddForm}
+                onViewCalendar={() => setActiveTab("subscriptions")}
+                onManageCards={() => setActiveTab("management")}
+                onCheckWatchlist={openWatchlistForm}
               />
             );
           } catch (error) {
@@ -779,7 +786,15 @@ const AppContent = () => {
             />
           );
         default:
-          return <DashboardTab {...props} />;
+          return (
+            <DashboardTab
+              {...props}
+              onAddNew={openAddForm}
+              onViewCalendar={() => setActiveTab("subscriptions")}
+              onManageCards={() => setActiveTab("management")}
+              onCheckWatchlist={openWatchlistForm}
+            />
+          );
       }
     } catch (error) {
       console.error("Tab content render error:", error);
@@ -933,7 +948,10 @@ const AppContent = () => {
         tabIndex={-1}
         aria-label={`${uiState.activeTab.charAt(0).toUpperCase() + uiState.activeTab.slice(1)} content`}
       >
-        <div className="p-4 sm:p-6 min-h-[calc(100vh-140px)] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20">
+        <div 
+          key={`content-${uiState.activeTab}`}
+          className="p-4 sm:p-6 min-h-[calc(100vh-140px)] bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-white/20 dark:border-gray-700/20"
+        >
           {/* Page Heading - Hidden visually but available to screen readers */}
           <h1 className="sr-only">
             SubTracker - {uiState.activeTab.charAt(0).toUpperCase() + uiState.activeTab.slice(1)}
@@ -944,7 +962,9 @@ const AppContent = () => {
             fallbackMessage="There was an error loading this tab. This helps prevent the entire app from crashing."
             onRetry={() => setActiveTab("dashboard")}
           >
-            {renderTabContent()}
+            <div key={`inner-${uiState.activeTab}`}>
+              {renderTabContent()}
+            </div>
           </ErrorBoundary>
         </div>
       </main>

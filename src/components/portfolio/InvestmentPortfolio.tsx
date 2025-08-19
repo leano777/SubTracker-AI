@@ -51,6 +51,7 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import type { Investment } from '../../types/financial';
+import { InvestmentForm } from '../forms/InvestmentForm';
 
 interface InvestmentPortfolioProps {
   investments: Investment[];
@@ -80,11 +81,13 @@ const PLATFORM_COLORS = {
 const InvestmentCard = ({ 
   investment, 
   onUpdate, 
-  onDelete 
+  onDelete,
+  onEdit
 }: {
   investment: Investment;
   onUpdate: (updates: Partial<Investment>) => void;
   onDelete: () => void;
+  onEdit?: (investment: Investment) => void;
 }) => {
   const [showDetails, setShowDetails] = useState(false);
   
@@ -165,7 +168,7 @@ const InvestmentCard = ({
                 <Eye className="w-4 h-4 mr-2" />
                 View Details
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit?.(investment)}>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Position
               </DropdownMenuItem>
@@ -349,6 +352,8 @@ export const InvestmentPortfolio = ({
   const [filterPlatform, setFilterPlatform] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('value');
+  const [showInvestmentForm, setShowInvestmentForm] = useState(false);
+  const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null);
 
   // Calculate portfolio summary
   const portfolioSummary = useMemo(() => {
@@ -409,6 +414,32 @@ export const InvestmentPortfolio = ({
     return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
   };
 
+  // Handle investment form actions
+  const handleInvestmentSave = (investmentData: Partial<Investment>) => {
+    if (editingInvestment) {
+      onUpdateInvestment(editingInvestment.id, investmentData);
+    } else {
+      onAddInvestment(investmentData as Investment);
+    }
+    setShowInvestmentForm(false);
+    setEditingInvestment(null);
+  };
+
+  const handleInvestmentCancel = () => {
+    setShowInvestmentForm(false);
+    setEditingInvestment(null);
+  };
+
+  const handleAddNew = () => {
+    setEditingInvestment(null);
+    setShowInvestmentForm(true);
+  };
+
+  const handleEditInvestment = (investment: Investment) => {
+    setEditingInvestment(investment);
+    setShowInvestmentForm(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -419,25 +450,10 @@ export const InvestmentPortfolio = ({
             Track your investments across all platforms
           </p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Investment
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Investment</DialogTitle>
-              <DialogDescription>
-                Add a new investment to your portfolio
-              </DialogDescription>
-            </DialogHeader>
-            <div className="text-center py-4 text-muted-foreground">
-              Investment form coming soon...
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleAddNew}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Investment
+        </Button>
       </div>
 
       {/* Portfolio Summary */}
@@ -551,22 +567,10 @@ export const InvestmentPortfolio = ({
                     : "No investments match your current filters"
                   }
                 </p>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Your First Investment
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Add New Investment</DialogTitle>
-                    </DialogHeader>
-                    <div className="text-center py-4 text-muted-foreground">
-                      Investment form coming soon...
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button onClick={handleAddNew}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Investment
+                </Button>
               </CardContent>
             </Card>
           ) : (
@@ -577,6 +581,7 @@ export const InvestmentPortfolio = ({
                   investment={investment}
                   onUpdate={(updates) => onUpdateInvestment(investment.id, updates)}
                   onDelete={() => onDeleteInvestment(investment.id)}
+                  onEdit={handleEditInvestment}
                 />
               ))}
             </div>
@@ -607,6 +612,29 @@ export const InvestmentPortfolio = ({
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Investment Form Modal */}
+      <Dialog open={showInvestmentForm} onOpenChange={setShowInvestmentForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingInvestment ? 'Edit Investment' : 'Add New Investment'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingInvestment 
+                ? 'Update your investment details and strategy' 
+                : 'Add a new investment to your portfolio with detailed tracking'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <InvestmentForm
+            investment={editingInvestment || undefined}
+            onSave={handleInvestmentSave}
+            onCancel={handleInvestmentCancel}
+            mode={editingInvestment ? 'edit' : 'create'}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

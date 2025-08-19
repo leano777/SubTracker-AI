@@ -1,7 +1,6 @@
 // Performance-optimized dashboard component using React 18 concurrent features
 import { memo, useMemo, Suspense } from 'react';
 import { usePerformantTransition, useDeferredWithStatus } from '../utils/concurrent';
-import { LazyChartBundle } from './LazyCharts';
 import type { FullSubscription } from '../types/subscription';
 
 // Lazy load heavy dashboard components - temporarily disabled due to missing components
@@ -159,52 +158,6 @@ export const OptimizedDashboard = memo<OptimizedDashboardProps>(({
         />
       </div>
 
-      {/* Charts with lazy loading and suspense */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">Spending Trend</h3>
-          <Suspense fallback={<LazyChartBundle.ChartLoading />}>
-            <LazyChartBundle.ResponsiveContainer width="100%" height={300}>
-              <LazyChartBundle.AreaChart data={chartData}>
-                <LazyChartBundle.CartesianGrid strokeDasharray="3 3" />
-                <LazyChartBundle.XAxis dataKey="month" />
-                <LazyChartBundle.YAxis />
-                <LazyChartBundle.Tooltip />
-                <LazyChartBundle.Area
-                  type="monotone"
-                  dataKey="spending"
-                  stroke="#3B82F6"
-                  fill="#3B82F6"
-                  fillOpacity={0.3}
-                />
-              </LazyChartBundle.AreaChart>
-            </LazyChartBundle.ResponsiveContainer>
-          </Suspense>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
-          <Suspense fallback={<LazyChartBundle.ChartLoading />}>
-            <LazyChartBundle.ResponsiveContainer width="100%" height={300}>
-              <LazyChartBundle.PieChart>
-                <LazyChartBundle.Pie
-                  data={Object.entries(dashboardMetrics.categoryBreakdown).map(([category, amount]) => ({
-                    name: category,
-                    value: amount
-                  }))}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#3B82F6"
-                  dataKey="value"
-                  label={({ name, percent }: { name: any; percent: any }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                />
-                <LazyChartBundle.Tooltip />
-              </LazyChartBundle.PieChart>
-            </LazyChartBundle.ResponsiveContainer>
-          </Suspense>
-        </div>
-      </div>
 
       {/* Subscription List with virtualization for large datasets */}
       <div className="bg-white rounded-lg shadow-sm border">

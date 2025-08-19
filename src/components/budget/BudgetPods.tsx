@@ -46,15 +46,26 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Switch } from '../ui/switch';
-import type { BudgetPod } from '../../types/financial';
+import type { BudgetPod, IncomeSource, PaycheckAllocation, PayCycleSummary } from '../../types/financial';
+import { BudgetPodForm } from '../forms/BudgetPodForm';
+import { IncomeAllocation } from './IncomeAllocation';
 
 interface BudgetPodsProps {
   budgetPods: BudgetPod[];
+  incomeSources: IncomeSource[];
+  paycheckAllocations: PaycheckAllocation[];
+  payCycleSummary?: PayCycleSummary;
   onAddPod: (pod: Omit<BudgetPod, 'id' | 'createdDate' | 'lastModified'>) => void;
   onUpdatePod: (id: string, updates: Partial<BudgetPod>) => void;
   onDeletePod: (id: string) => void;
   onAddFunds: (id: string, amount: number, note?: string) => void;
   onWithdrawFunds: (id: string, amount: number, reason: string) => void;
+  // Income management
+  onAddIncomeSource: (source: Omit<IncomeSource, 'id' | 'createdDate' | 'lastModified'>) => void;
+  onUpdateIncomeSource: (id: string, updates: Partial<IncomeSource>) => void;
+  onDeleteIncomeSource: (id: string) => void;
+  onCreatePaycheckAllocation: (allocation: Omit<PaycheckAllocation, 'id'>) => void;
+  onUpdatePaycheckAllocation: (id: string, updates: Partial<PaycheckAllocation>) => void;
 }
 
 const POD_ICONS = {
@@ -86,13 +97,15 @@ const BudgetPodCard = ({
   onUpdate, 
   onDelete, 
   onAddFunds, 
-  onWithdrawFunds 
+  onWithdrawFunds,
+  onEdit
 }: {
   pod: BudgetPod;
   onUpdate: (updates: Partial<BudgetPod>) => void;
   onDelete: () => void;
   onAddFunds: (amount: number, note?: string) => void;
   onWithdrawFunds: (amount: number, reason: string) => void;
+  onEdit?: (pod: BudgetPod) => void;
 }) => {
   const [showTransactionDialog, setShowTransactionDialog] = useState<'add' | 'withdraw' | null>(null);
   const [transactionAmount, setTransactionAmount] = useState('');
@@ -153,6 +166,10 @@ const BudgetPodCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(pod)}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Pod
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onUpdate({ isActive: !pod.isActive })}>
                 {pod.isActive ? 'Pause Pod' : 'Activate Pod'}
               </DropdownMenuItem>
@@ -346,12 +363,23 @@ const BudgetPodCard = ({
 
 export const BudgetPods = ({
   budgetPods,
+  incomeSources,
+  paycheckAllocations,
+  payCycleSummary,
   onAddPod,
   onUpdatePod,
   onDeletePod,
   onAddFunds,
   onWithdrawFunds,
+  onAddIncomeSource,
+  onUpdateIncomeSource,
+  onDeleteIncomeSource,
+  onCreatePaycheckAllocation,
+  onUpdatePaycheckAllocation,
 }: BudgetPodsProps) => {
+  const [showPodForm, setShowPodForm] = useState(false);
+  const [editingPod, setEditingPod] = useState<BudgetPod | null>(null);
+
   // Calculate summary statistics
   const summary = useMemo(() => {
     const activePods = budgetPods.filter(p => p.isActive);
@@ -372,6 +400,32 @@ export const BudgetPods = ({
     }).format(amount);
   };
 
+  // Handle pod form actions
+  const handlePodSave = (podData: Omit<BudgetPod, 'id' | 'createdDate' | 'lastModified'>) => {
+    if (editingPod) {
+      onUpdatePod(editingPod.id, podData);
+    } else {
+      onAddPod(podData);
+    }
+    setShowPodForm(false);
+    setEditingPod(null);
+  };
+
+  const handlePodCancel = () => {
+    setShowPodForm(false);
+    setEditingPod(null);
+  };
+
+  const handleAddNew = () => {
+    setEditingPod(null);
+    setShowPodForm(true);
+  };
+
+  const handleEditPod = (pod: BudgetPod) => {
+    setEditingPod(pod);
+    setShowPodForm(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -382,26 +436,10 @@ export const BudgetPods = ({
             Organize your money into targeted savings buckets
           </p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Pod
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Budget Pod</DialogTitle>
-              <DialogDescription>
-                Set up a new savings pod for a specific purpose
-              </DialogDescription>
-            </DialogHeader>
-            {/* Pod creation form would go here */}
-            <div className="text-center py-4 text-muted-foreground">
-              Pod creation form coming soon...
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleAddNew}>
+          <Plus className="w-4 h-4 mr-2" />
+          Create Pod
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -446,6 +484,7 @@ export const BudgetPods = ({
       <Tabs defaultValue="pods" className="w-full">
         <TabsList>
           <TabsTrigger value="pods">My Pods</TabsTrigger>
+          <TabsTrigger value="income">Income Mapping</TabsTrigger>
           <TabsTrigger value="transactions">Recent Activity</TabsTrigger>
         </TabsList>
         
@@ -486,10 +525,26 @@ export const BudgetPods = ({
                   onDelete={() => onDeletePod(pod.id)}
                   onAddFunds={(amount, note) => onAddFunds(pod.id, amount, note)}
                   onWithdrawFunds={(amount, reason) => onWithdrawFunds(pod.id, amount, reason)}
+                  onEdit={handleEditPod}
                 />
               ))}
             </div>
           )}
+        </TabsContent>
+        
+        {/* Income Mapping Tab */}
+        <TabsContent value="income" className="space-y-4">
+          <IncomeAllocation
+            incomeSources={incomeSources}
+            paycheckAllocations={paycheckAllocations}
+            budgetPods={budgetPods}
+            payCycleSummary={payCycleSummary}
+            onAddIncomeSource={onAddIncomeSource}
+            onUpdateIncomeSource={onUpdateIncomeSource}
+            onDeleteIncomeSource={onDeleteIncomeSource}
+            onCreatePaycheckAllocation={onCreatePaycheckAllocation}
+            onUpdatePaycheckAllocation={onUpdatePaycheckAllocation}
+          />
         </TabsContent>
         
         <TabsContent value="transactions" className="space-y-4">
@@ -504,6 +559,29 @@ export const BudgetPods = ({
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Budget Pod Form Modal */}
+      <Dialog open={showPodForm} onOpenChange={setShowPodForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingPod ? 'Edit Budget Pod' : 'Create New Budget Pod'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingPod 
+                ? 'Update your budget pod settings and configuration' 
+                : 'Set up a new savings pod for organized budget management'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <BudgetPodForm
+            pod={editingPod || undefined}
+            onSave={handlePodSave}
+            onCancel={handlePodCancel}
+            mode={editingPod ? 'edit' : 'create'}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

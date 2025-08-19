@@ -14,27 +14,6 @@ import {
   PiggyBank,
 } from "lucide-react";
 import React, { useState, useMemo } from "react";
-// Temporarily disabled recharts due to ES module issues
-// import {
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   ResponsiveContainer,
-//   PieChart,
-//   Pie,
-//   Cell,
-// } from "recharts";
-const BarChart = ({ children, ...props }: any) => { void props; return <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded"><span className="text-gray-500 text-sm">Chart disabled</span></div>; };
-const Bar = ({ ...props }: any) => { void props; return null; };
-const XAxis = ({ ...props }: any) => { void props; return null; };
-const YAxis = ({ ...props }: any) => { void props; return null; };
-const CartesianGrid = ({ ...props }: any) => { void props; return null; };
-const ResponsiveContainer = ({ children, ...props }: any) => { void props; return <div className="w-full h-full">{children}</div>; };
-const PieChart = ({ children, ...props }: any) => { void props; return <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded"><span className="text-gray-500 text-sm">Chart disabled</span></div>; };
-const Pie = ({ ...props }: any) => { void props; return null; };
-const Cell = ({ ...props }: any) => { void props; return null; };
 
 import type {
   FullSubscription,
@@ -832,65 +811,14 @@ export const CategoryBudgetManager = ({
 
         {/* Allocations Tab */}
         <TabsContent value="allocations" className="space-y-4">
-          <Card
-            className={`${isStealthOps ? "tactical-surface border-2 border-gray-600" : "border-0"}`}
-            style={isStealthOps ? { borderRadius: "0.125rem" } : glassStyles}
-          >
-            <CardHeader>
-              <CardTitle className={textColors.primary}>
-                {isStealthOps ? "[WEEKLY ALLOCATION BREAKDOWN]" : "Weekly Allocation Breakdown"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={allocationChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
-                    <YAxis fontSize={12} />
-                    <Bar dataKey="allocated" fill="#3b82f6" name="Allocated" />
-                    <Bar dataKey="spent" fill="#ef4444" name="Spent" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+          <div className={`p-8 text-center ${textColors.muted}`}>
+            <p>Allocation charts have been temporarily disabled.</p>
+          </div>
         </TabsContent>
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card
-              className={`${isStealthOps ? "tactical-surface border-2 border-gray-600" : "border-0"}`}
-              style={isStealthOps ? { borderRadius: "0.125rem" } : glassStyles}
-            >
-              <CardHeader>
-                <CardTitle className={textColors.primary}>
-                  {isStealthOps ? "[SPENDING BY CATEGORY]" : "Spending by Category"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={allocationChartData}
-                        dataKey="spent"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label={({ name, value }: { name: string; value: number }) => `${name}: ${formatCurrency(value || 0)}`}
-                      >
-                        {allocationChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
 
             <Card
               className={`${isStealthOps ? "tactical-surface border-2 border-gray-600" : "border-0"}`}

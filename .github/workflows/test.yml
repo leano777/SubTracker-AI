@@ -365,12 +365,78 @@ jobs:
           echo "Please review the visual test results in the artifacts."
           exit 1
 
-  # E2E Tests
+  # ST-003 Smoke Tests (Critical Path Validation)
+  smoke-tests:
+    name: ST-003 Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [quality, build]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application server
+        run: |
+          npm run preview &
+          echo $! > app.pid
+          
+      - name: Wait for application
+        run: |
+          echo "Waiting for application to be ready..."
+          timeout 60 bash -c 'until curl -f http://localhost:5175; do sleep 2; done'
+
+      - name: Run ST-003 Smoke Tests
+        run: npm run test:smoke:ci
+        env:
+          CYPRESS_baseUrl: http://localhost:5175
+
+      - name: Stop application server
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill $(cat app.pid) || true
+            rm app.pid
+          fi
+
+      - name: Upload Smoke Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-results
+          path: |
+            test-results/smoke/
+            test-results/reports/
+            cypress/screenshots/
+            cypress/videos/
+          retention-days: 30
+
+      - name: Check Smoke Test Status
+        if: failure()
+        run: |
+          echo "🚨 ST-003 Smoke Tests Failed!"
+          echo "Critical application paths are broken. This PR cannot be merged."
+          echo "Please review the smoke test results and fix the failing tests."
+          exit 1
+
+  # E2E Tests (Extended Coverage)
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [quality, build]
+    needs: [smoke-tests] # Only run after smoke tests pass
     if: github.event_name == 'pull_request'
 
     strategy:
@@ -434,11 +500,11 @@ jobs:
             cypress/videos/
           retention-days: 30
 
-  # Visual Test Summary for PRs
-  visual-test-summary:
-    name: Visual Test Summary
+  # Comprehensive Test Summary for PRs
+  test-summary-pr:
+    name: Complete Test Summary
     runs-on: ubuntu-latest
-    needs: [visual-tests, e2e-tests]
+    needs: [smoke-tests, visual-tests, e2e-tests]
     if: always() && github.event_name == 'pull_request'
 
     steps:
@@ -455,45 +521,71 @@ jobs:
           merge-multiple: true
           path: e2e-results/
 
-      - name: Comment Visual Test Results on PR
+      - name: Comment Complete Test Results on PR
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             
-            let comment = '## 🎨 Visual Regression Test Results\n\n';
+            let comment = '## 🧪 ST-003 Complete Test Results\n\n';
             
-            // Check visual test status
+            // Check all test statuses
+            const smokePassed = '${{ needs.smoke-tests.result }}' === 'success';
             const visualPassed = '${{ needs.visual-tests.result }}' === 'success';
             const e2ePassed = '${{ needs.e2e-tests.result }}' === 'success';
             
+            // ST-003 Smoke Tests (Critical)
+            if (smokePassed) {
+              comment += '✅ **ST-003 Smoke Tests**: PASSED - All critical paths functional\n';
+            } else {
+              comment += '❌ **ST-003 Smoke Tests**: FAILED - Critical application paths broken\n';
+            }
+            
+            // Visual Regression Tests
             if (visualPassed) {
               comment += '✅ **Visual Regression Tests**: PASSED - No significant visual changes detected\n';
             } else {
               comment += '❌ **Visual Regression Tests**: FAILED - Visual differences exceed 0.1% threshold\n';
             }
             
+            // Extended E2E Tests
             if (e2ePassed) {
-              comment += '✅ **E2E Tests**: PASSED - All critical user flows working correctly\n';
+              comment += '✅ **E2E Tests**: PASSED - All user flows working correctly\n';
             } else {
-              comment += '❌ **E2E Tests**: FAILED - Critical user flows have issues\n';
+              comment += '❌ **E2E Tests**: FAILED - User flows have issues\n';
             }
             
-            comment += '\n### Test Coverage\n';
-            comment += '- 🔐 Authentication flows\n';
-            comment += '- ➕ Add subscription functionality\n';
-            comment += '- 💰 Budget management\n';
-            comment += '- 📱 Responsive design (Mobile/Tablet/Desktop)\n';
+            comment += '\n### 🎯 ST-003 Smoke Test Coverage\n';
+            comment += '- 🔐 **Login Flow**: Demo authentication and error handling\n';
+            comment += '- 🔄 **Tab Switching**: All tabs load without errors or white screens\n';
+            comment += '- ➕ **Subscription CRUD**: Create, Read, Update, Delete operations\n';
+            comment += '- 📊 **Planning Graphs**: Charts and visualizations render correctly\n';
+            comment += '- ⚡ **System Stability**: Complete workflow without crashes\n';
+            
+            comment += '\n### 📱 Additional Test Coverage\n';
             comment += '- 🎨 Component visual consistency\n';
             comment += '- 🌓 Theme switching\n';
+            comment += '- 📱 Responsive design (Mobile/Tablet/Desktop)\n';
+            comment += '- 💰 Budget management flows\n';
             
-            if (!visualPassed || !e2ePassed) {
-              comment += '\n⚠️ **Action Required**: Please review the test failures and update your changes.\n';
-              comment += 'Test artifacts are available for download in the workflow run.\n';
+            // Merge status
+            const canMerge = smokePassed;
+            if (canMerge) {
+              comment += '\n### ✅ Merge Status: APPROVED\n';
+              comment += 'Critical smoke tests passed. This PR is safe to merge.\n';
+            } else {
+              comment += '\n### 🚨 Merge Status: BLOCKED\n';
+              comment += '**Critical ST-003 smoke tests failed. This PR cannot be merged.**\n';
+              comment += 'Please fix the failing smoke tests before attempting to merge.\n';
+            }
+            
+            if (!smokePassed || !visualPassed || !e2ePassed) {
+              comment += '\n⚠️ **Action Required**: Review test failures and fix issues.\n';
+              comment += 'Test artifacts and detailed logs are available in the workflow run.\n';
             }
             
             comment += '\n---\n';
-            comment += '_This comment was automatically generated by the ST-040 Visual/E2E test suite._';
+            comment += '_Automated by ST-003 Smoke Test Suite + Visual/E2E Testing Pipeline_';
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -506,7 +598,7 @@ jobs:
 cleanup:
   name: Cleanup
   runs-on: ubuntu-latest
-  needs: [test-summary, visual-test-summary]
+  needs: [test-summary, test-summary-pr]
   if: always()
 
   steps:

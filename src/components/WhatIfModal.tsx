@@ -13,29 +13,6 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { useState, useMemo, useCallback } from "react";
-// Temporarily disabled recharts due to ES module issues
-// import {
-//   ResponsiveContainer,
-//   AreaChart,
-//   Area,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   BarChart,
-//   Bar,
-//   Legend,
-// } from "recharts";
-const ResponsiveContainer = ({ children, ...props }: any) => { void props; return <div className="w-full h-full">{children}</div>; };
-const AreaChart = ({ children, ...props }: any) => { void props; return <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded"><span className="text-gray-500 text-sm">Chart disabled</span></div>; };
-const Area = ({ ...props }: any) => { void props; return null; };
-const XAxis = ({ ...props }: any) => { void props; return null; };
-const YAxis = ({ ...props }: any) => { void props; return null; };
-const CartesianGrid = ({ ...props }: any) => { void props; return null; };
-const Tooltip = ({ ...props }: any) => { void props; return null; };
-const BarChart = ({ children, ...props }: any) => { void props; return <div className="w-full h-full flex items-center justify-center border border-dashed border-gray-300 rounded"><span className="text-gray-500 text-sm">Chart disabled</span></div>; };
-const Bar = ({ ...props }: any) => { void props; return null; };
-const Legend = ({ ...props }: any) => { void props; return null; };
 
 import type { FullSubscription, BudgetCategory } from "../types/subscription";
 import { formatCurrency, calculateWeeklyAmount, validateSubscriptionForCalculations } from "../utils/helpers";
@@ -835,30 +812,6 @@ export const WhatIfModal = ({
 
           {/* Results Visualization */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Comparison Chart */}
-            <Card className={isStealthOps ? "tactical-surface" : ""}>
-              <CardHeader>
-                <CardTitle className={textColors.primary}>
-                  {isStealthOps ? "[SCENARIO COMPARISON]" : "Scenario Comparison"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={comparisonChartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip formatter={(value: any) => formatCurrency(value as number)} />
-                      <Legend />
-                      <Bar dataKey="income" fill="#3b82f6" name="Income" />
-                      <Bar dataKey="spending" fill="#ef4444" name="Spending" />
-                      <Bar dataKey="surplus" fill="#10b981" name="Surplus" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Impact Analysis */}
             <Card className={isStealthOps ? "tactical-surface" : ""}>
