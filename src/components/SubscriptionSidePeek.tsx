@@ -477,17 +477,17 @@ export const SubscriptionSidePeek = ({
                           <p
                             className={`font-bold ${isDarkMode ? "text-gray-100" : "text-gray-900"}`}
                           >
-                            {formatCurrency(parseFloat(change.cost))}
+                            {formatCurrency(change.cost)}
                           </p>
                           <p
                             className={`text-xs ${
-                              parseFloat(change.cost) > subscription.price
+                              change.cost > subscription.price
                                 ? "text-red-500"
                                 : "text-green-500"
                             }`}
                           >
-                            {parseFloat(change.cost) > subscription.price ? "+" : ""}
-                            {formatCurrency(parseFloat(change.cost) - subscription.price)}
+                            {change.cost > subscription.price ? "+" : ""}
+                            {formatCurrency(change.cost - subscription.price)}
                           </p>
                         </div>
                       </div>

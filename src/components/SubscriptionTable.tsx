@@ -129,7 +129,7 @@ export const SubscriptionTable = ({
               <p>Current: {formatCurrency(subscription.cost)}</p>
               {subscription.variablePricing?.upcomingChanges?.map((change, index) => (
                 <p key={index} className="text-xs">
-                  {formatDate(change.date)}: {formatCurrency(parseFloat(change.cost))}
+                  {formatDate(change.date)}: {formatCurrency(change.cost)}
                   {change.description && (
                     <span className="block text-muted-foreground">{change.description}</span>
                   )}
@@ -158,7 +158,7 @@ export const SubscriptionTable = ({
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
 
       if (nextChange) {
-        const isIncrease = parseFloat(nextChange.cost) > subscription.cost;
+        const isIncrease = nextChange.cost > subscription.cost;
         const Icon = isIncrease ? TrendingUp : TrendingDown;
         const colorClass = isIncrease ? "text-red-600" : "text-green-600";
 
@@ -169,12 +169,12 @@ export const SubscriptionTable = ({
               <TooltipTrigger asChild>
                 <div className={`flex items-center space-x-1 text-xs ${colorClass} cursor-help`}>
                   <Icon className="w-3 h-3" />
-                  <span>{formatCurrency(parseFloat(nextChange.cost))}</span>
+                  <span>{formatCurrency(nextChange.cost)}</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>
-                  Changes to {formatCurrency(parseFloat(nextChange.cost))} on{" "}
+                  Changes to {formatCurrency(nextChange.cost)} on{" "}
                   {formatDate(nextChange.date)}
                 </p>
                 {nextChange.description && (

@@ -8,7 +8,10 @@ import type {
   BudgetPod,
   IncomeSource,
   PaycheckAllocation,
-  PayCycleSummary
+  PayCycleSummary,
+  PodFundingAnalysis,
+  FundingSuggestion,
+  FundingAutomationRule
 } from '../types/financial';
 
 // Helper to generate dates
@@ -28,7 +31,7 @@ export const demoPaymentCards: FullPaymentCard[] = [
     lastFour: '4242',
     type: 'visa',
     isDefault: true,
-    dateAdded: '2024-01-01',
+    dateAdded: '2025-01-01',
     color: '#003d82',
   },
   {
@@ -37,7 +40,7 @@ export const demoPaymentCards: FullPaymentCard[] = [
     lastFour: '8888',
     type: 'mastercard',
     isDefault: false,
-    dateAdded: '2024-02-15',
+    dateAdded: '2025-02-15',
     color: '#f5f5f7',
   },
   {
@@ -46,7 +49,7 @@ export const demoPaymentCards: FullPaymentCard[] = [
     lastFour: '1234',
     type: 'visa',
     isDefault: false,
-    dateAdded: '2024-03-10',
+    dateAdded: '2025-03-10',
     color: '#d03027',
   },
 ];
@@ -67,7 +70,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'personal',
     website: 'https://netflix.com',
     favicon: 'https://www.google.com/s2/favicons?domain=netflix.com',
-    dateAdded: '2023-01-15',
+    dateAdded: '2024-01-15',
     paymentCardId: 'card-1',
     notes: 'Family plan - sharing with 4 people',
     tags: ['Essential', 'Family', 'Shared'],
@@ -86,7 +89,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'personal',
     website: 'https://spotify.com',
     favicon: 'https://www.google.com/s2/favicons?domain=spotify.com',
-    dateAdded: '2023-02-20',
+    dateAdded: '2024-02-20',
     paymentCardId: 'card-2',
     notes: 'Individual plan',
     tags: ['Personal'],
@@ -105,7 +108,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'business',
     website: 'https://adobe.com',
     favicon: 'https://www.google.com/s2/favicons?domain=adobe.com',
-    dateAdded: '2023-03-10',
+    dateAdded: '2024-03-10',
     paymentCardId: 'card-3',
     businessExpense: true,
     taxDeductible: true,
@@ -126,7 +129,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'business',
     website: 'https://microsoft.com',
     favicon: 'https://www.google.com/s2/favicons?domain=microsoft.com',
-    dateAdded: '2023-04-01',
+    dateAdded: '2024-04-01',
     paymentCardId: 'card-3',
     businessExpense: true,
     taxDeductible: true,
@@ -147,7 +150,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'business',
     website: 'https://openai.com',
     favicon: 'https://www.google.com/s2/favicons?domain=openai.com',
-    dateAdded: '2023-11-01',
+    dateAdded: '2024-11-01',
     paymentCardId: 'card-1',
     businessExpense: true,
     notes: 'GPT-4 access for development',
@@ -167,7 +170,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'personal',
     website: 'https://amazon.com',
     favicon: 'https://www.google.com/s2/favicons?domain=amazon.com',
-    dateAdded: '2023-06-01',
+    dateAdded: '2024-06-01',
     paymentCardId: 'card-2',
     notes: 'Includes Prime Video and free shipping',
     tags: ['Family', 'Shared'],
@@ -185,7 +188,7 @@ export const demoSubscriptions: FullSubscription[] = [
     isActive: true,
     subscriptionType: 'personal',
     website: '',
-    dateAdded: '2023-01-01',
+    dateAdded: '2024-01-01',
     paymentCardId: 'card-1',
     notes: 'LA Fitness - includes pool and classes',
     tags: ['Personal', 'Health'],
@@ -204,7 +207,7 @@ export const demoSubscriptions: FullSubscription[] = [
     subscriptionType: 'personal',
     website: 'https://apple.com',
     favicon: 'https://www.google.com/s2/favicons?domain=apple.com',
-    dateAdded: '2023-07-15',
+    dateAdded: '2024-07-15',
     paymentCardId: 'card-2',
     notes: '2TB storage plan',
     tags: ['Essential', 'Family'],
@@ -311,7 +314,7 @@ export const demoBills: Bill[] = [
     isActive: true,
     autopay: true,
     provider: 'Spectrum',
-    dateAdded: '2023-01-01',
+    dateAdded: '2024-01-01',
     dueDay: 15,
     accountNumber: '****4567',
   },
@@ -329,7 +332,7 @@ export const demoBills: Bill[] = [
     isActive: true,
     autopay: true,
     provider: 'ConEd',
-    dateAdded: '2023-01-01',
+    dateAdded: '2024-01-01',
     dueDay: 20,
     averagePayment: 115.00,
   },
@@ -344,7 +347,7 @@ export const demoInvestments: Investment[] = [
     type: 'stock',
     quantity: 50,
     purchasePrice: 150.00,
-    purchaseDate: '2023-06-15',
+    purchaseDate: '2024-06-15',
     currentPrice: 195.00,
     lastUpdated: today.toISOString(),
     platform: 'robinhood',
@@ -361,7 +364,7 @@ export const demoInvestments: Investment[] = [
     type: 'crypto',
     quantity: 0.5,
     purchasePrice: 30000.00,
-    purchaseDate: '2023-01-01',
+    purchaseDate: '2024-01-01',
     currentPrice: 43000.00,
     lastUpdated: today.toISOString(),
     platform: 'coinbase',
@@ -377,7 +380,7 @@ export const demoInvestments: Investment[] = [
     type: 'etf',
     quantity: 25,
     purchasePrice: 380.00,
-    purchaseDate: '2023-03-01',
+    purchaseDate: '2024-03-01',
     currentPrice: 440.00,
     lastUpdated: today.toISOString(),
     platform: 'vanguard',
@@ -400,7 +403,7 @@ export const demoFinancialGoals: FinancialGoal[] = [
     deadline: addDays(today, 365),
     priority: 'critical',
     status: 'in_progress',
-    createdDate: '2023-01-01',
+    createdDate: '2024-01-01',
     monthlyContribution: 1000,
     autoContribute: true,
   },
@@ -414,7 +417,7 @@ export const demoFinancialGoals: FinancialGoal[] = [
     deadline: addDays(today, 180),
     priority: 'medium',
     status: 'in_progress',
-    createdDate: '2023-10-01',
+    createdDate: '2024-10-01',
     monthlyContribution: 500,
     autoContribute: true,
   },
@@ -452,8 +455,8 @@ export const demoNotifications: AppNotification[] = [
 export const demoNotebookEntries: NotebookEntry[] = [
   {
     id: 'note-1',
-    title: 'Q1 2024 Investment Strategy',
-    content: `# Investment Focus for Q1 2024
+    title: 'Q3 2025 Investment Strategy',
+    content: `# Investment Focus for Q3 2025
 
 ## Key Themes
 - AI/ML companies showing real revenue
@@ -743,7 +746,7 @@ export const demoIncomeSources: IncomeSource[] = [
     isActive: true,
     employer: 'Elite SD Construction',
     notes: 'Weekly payroll every Thursday. Direct deposit.',
-    createdDate: '2024-01-01T00:00:00.000Z',
+    createdDate: '2025-01-01T00:00:00.000Z',
     lastModified: new Date().toISOString(),
   },
   {
@@ -760,7 +763,7 @@ export const demoIncomeSources: IncomeSource[] = [
     isActive: true,
     employer: 'Various Clients',
     notes: 'Construction consulting projects. Payment varies by project.',
-    createdDate: '2024-03-01T00:00:00.000Z',
+    createdDate: '2025-03-01T00:00:00.000Z',
     lastModified: new Date().toISOString(),
   },
 ];
@@ -871,6 +874,222 @@ export const demoPayCycleSummary: PayCycleSummary = {
   ],
 };
 
+// Demo Pod Funding Analysis Data
+const demoPodFundingAnalyses: PodFundingAnalysis[] = [
+  {
+    podId: 'vehicle-pod',
+    currentUtilization: 85.4,
+    averageMonthlySpend: 427,
+    spendingTrend: 'increasing',
+    seasonalPatterns: [
+      { month: 1, averageSpend: 450, variance: 75 },
+      { month: 2, averageSpend: 380, variance: 40 },
+      { month: 3, averageSpend: 520, variance: 90 },
+    ],
+    recommendedFunding: 480,
+    confidence: 87,
+    reasoning: [
+      'Spending trend is increasing by ~12% monthly',
+      'Pod is heavily utilized, consider increasing allocation',
+      'Winter months show 15% higher maintenance costs'
+    ],
+    riskLevel: 'medium',
+    lastAnalyzed: new Date().toISOString(),
+  },
+  {
+    podId: 'entertainment-pod',
+    currentUtilization: 45.2,
+    averageMonthlySpend: 90,
+    spendingTrend: 'stable',
+    recommendedFunding: 120,
+    confidence: 72,
+    reasoning: [
+      'Pod is underutilized, funds could be reallocated',
+      'Spending pattern is consistent month-to-month'
+    ],
+    riskLevel: 'low',
+    lastAnalyzed: new Date().toISOString(),
+  },
+  {
+    podId: 'food-pod',
+    currentUtilization: 95.8,
+    averageMonthlySpend: 575,
+    spendingTrend: 'increasing',
+    recommendedFunding: 650,
+    confidence: 92,
+    reasoning: [
+      'Pod is at capacity, risk of overspending',
+      'Grocery costs trending upward due to inflation',
+      'Consider increasing allocation by 10-15%'
+    ],
+    riskLevel: 'high',
+    lastAnalyzed: new Date().toISOString(),
+  }
+];
+
+// Demo Funding Suggestions
+const demoFundingSuggestions: FundingSuggestion[] = [
+  {
+    id: 'suggestion-1',
+    podId: 'vehicle-pod',
+    suggestionType: 'increase',
+    priority: 'high',
+    currentAmount: 450,
+    suggestedAmount: 480,
+    monthlyImpact: 30,
+    reasonCode: 'trending_up',
+    title: 'Increase Vehicle funding',
+    description: 'Currently at 85.4% utilization with increasing spending trend. Recommend increasing allocation to prevent overspending.',
+    impactAnalysis: {
+      monthlySavings: 0,
+      riskReduction: 15,
+      utilizationOptimization: 20,
+    },
+    implementation: {
+      effectiveDate: addDays(new Date(), 30),
+      autoApply: false,
+      requiresReview: true,
+    },
+    supportingData: {
+      historicalSpend: [420, 435, 450, 465],
+      projectedSpend: [480, 495, 510],
+      confidence: 87,
+      dataPoints: 12,
+    },
+    createdDate: new Date().toISOString(),
+    status: 'pending',
+  },
+  {
+    id: 'suggestion-2',
+    podId: 'entertainment-pod',
+    suggestionType: 'decrease',
+    priority: 'low',
+    currentAmount: 200,
+    suggestedAmount: 150,
+    monthlyImpact: -50,
+    reasonCode: 'underutilized',
+    title: 'Optimize Entertainment funding',
+    description: 'Currently at 45.2% utilization with stable spending pattern. Consider reducing allocation to optimize budget efficiency.',
+    impactAnalysis: {
+      monthlySavings: 50,
+      riskReduction: 0,
+      utilizationOptimization: 30,
+    },
+    implementation: {
+      effectiveDate: addDays(new Date(), 14),
+      autoApply: true,
+      requiresReview: false,
+      rollbackAfter: 60,
+    },
+    supportingData: {
+      historicalSpend: [85, 95, 90, 88],
+      projectedSpend: [90, 92, 95],
+      confidence: 72,
+      dataPoints: 8,
+    },
+    createdDate: new Date().toISOString(),
+    status: 'pending',
+  },
+  {
+    id: 'suggestion-3',
+    podId: 'food-pod',
+    suggestionType: 'increase',
+    priority: 'critical',
+    currentAmount: 600,
+    suggestedAmount: 650,
+    monthlyImpact: 50,
+    reasonCode: 'overspent',
+    title: 'Critical: Increase Food pod funding',
+    description: 'Currently at 95.8% utilization with increasing trend. Urgent increase needed to prevent budget shortfall.',
+    impactAnalysis: {
+      monthlySavings: 0,
+      riskReduction: 35,
+      utilizationOptimization: 25,
+    },
+    implementation: {
+      effectiveDate: addDays(new Date(), 7),
+      autoApply: false,
+      requiresReview: true,
+    },
+    supportingData: {
+      historicalSpend: [550, 565, 575, 590],
+      projectedSpend: [605, 620, 635],
+      confidence: 92,
+      dataPoints: 15,
+    },
+    createdDate: new Date().toISOString(),
+    status: 'pending',
+  },
+];
+
+// Demo Automation Rules
+const demoAutomationRules: FundingAutomationRule[] = [
+  {
+    id: 'rule-1',
+    name: 'High Utilization Auto-Increase',
+    description: 'Automatically increase pod funding when utilization exceeds 90%',
+    isActive: true,
+    triggers: {
+      utilizationThreshold: 90,
+      timeInterval: 'monthly'
+    },
+    actions: {
+      adjustmentType: 'percentage',
+      maxAdjustment: 15,
+      minReviewThreshold: 50,
+      autoApprovalLimit: 100
+    },
+    scope: {
+      includePods: ['vehicle-pod', 'food-pod', 'utilities-pod'],
+      excludePods: ['entertainment-pod'],
+      maxTotalAdjustment: 200,
+      preserveTotalBudget: false
+    },
+    performance: {
+      totalSuggestions: 8,
+      acceptedSuggestions: 6,
+      averageImpact: 35.5,
+      userSatisfaction: 4,
+      lastTriggered: addDays(new Date(), -15)
+    },
+    createdDate: addDays(new Date(), -45),
+    lastModified: addDays(new Date(), -15),
+    createdBy: 'system'
+  },
+  {
+    id: 'rule-2',
+    name: 'Low Utilization Optimizer',
+    description: 'Suggest reallocation when pods are consistently under 50% utilization',
+    isActive: true,
+    triggers: {
+      utilizationThreshold: 50,
+      timeInterval: 'quarterly'
+    },
+    actions: {
+      adjustmentType: 'smart_algorithm',
+      maxAdjustment: 25,
+      minReviewThreshold: 30,
+      autoApprovalLimit: 75
+    },
+    scope: {
+      includePods: [],
+      excludePods: ['emergency-pod'],
+      maxTotalAdjustment: 150,
+      preserveTotalBudget: true
+    },
+    performance: {
+      totalSuggestions: 4,
+      acceptedSuggestions: 3,
+      averageImpact: 42.3,
+      userSatisfaction: 5,
+      lastTriggered: addDays(new Date(), -30)
+    },
+    createdDate: addDays(new Date(), -90),
+    lastModified: addDays(new Date(), -30),
+    createdBy: 'user'
+  }
+];
+
 export const initializeDemoData = () => {
   return {
     subscriptions: [...demoSubscriptions, ...demoWatchlistItems],
@@ -885,6 +1104,10 @@ export const initializeDemoData = () => {
     incomeSources: demoIncomeSources,
     paycheckAllocations: demoPaycheckAllocations,
     currentPayCycleSummary: demoPayCycleSummary,
+    // Pod Funding Intelligence data
+    podFundingAnalyses: demoPodFundingAnalyses,
+    fundingSuggestions: demoFundingSuggestions,
+    automationRules: demoAutomationRules,
   };
 };
 

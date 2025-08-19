@@ -10,7 +10,14 @@ import type {
   BudgetPod,
   IncomeSource,
   PaycheckAllocation,
-  PayCycleSummary
+  PayCycleSummary,
+  Transaction,
+  CashFlowPeriod,
+  TransactionCategory,
+  PodFundingAnalysis,
+  FundingSuggestion,
+  FundingAutomationRule,
+  PodFundingDashboardMetrics
 } from '../types/financial';
 
 interface FinancialStore {
@@ -34,8 +41,18 @@ interface FinancialStore {
   paycheckAllocations: PaycheckAllocation[];
   currentPayCycleSummary?: PayCycleSummary;
   
+  // Transaction History & Cash Flow
+  transactions: Transaction[];
+  transactionCategories: TransactionCategory[];
+  cashFlowHistory: CashFlowPeriod[];
+  
+  // Pod Funding Intelligence
+  podFundingAnalyses: PodFundingAnalysis[];
+  fundingSuggestions: FundingSuggestion[];
+  automationRules: FundingAutomationRule[];
+  
   // UI State
-  activeView: 'dashboard' | 'subscriptions' | 'watchlist' | 'portfolio' | 'notebooks' | 'budget' | 'settings';
+  activeView: 'dashboard' | 'subscriptions' | 'watchlist' | 'portfolio' | 'notebooks' | 'budget' | 'calculator' | 'goals' | 'transactions' | 'pod-intelligence' | 'settings';
   isMobileView: boolean;
   isLoading: boolean;
   
@@ -117,6 +134,38 @@ interface FinancialStore {
 
   // Actions - Pay Cycle Summary
   setPayCycleSummary: (summary: PayCycleSummary | undefined) => void;
+
+  // Actions - Transactions
+  setTransactions: (transactions: Transaction[]) => void;
+  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  updateTransaction: (id: string, updates: Partial<Transaction>) => void;
+  deleteTransaction: (id: string) => void;
+  
+  // Actions - Transaction Categories
+  setTransactionCategories: (categories: TransactionCategory[]) => void;
+  addTransactionCategory: (category: TransactionCategory) => void;
+  updateTransactionCategory: (id: string, updates: Partial<TransactionCategory>) => void;
+  deleteTransactionCategory: (id: string) => void;
+  
+  // Actions - Cash Flow
+  setCashFlowHistory: (history: CashFlowPeriod[]) => void;
+  addCashFlowPeriod: (period: CashFlowPeriod) => void;
+  updateCashFlowPeriod: (periodId: string, updates: Partial<CashFlowPeriod>) => void;
+  
+  // Actions - Pod Funding Intelligence
+  setPodFundingAnalyses: (analyses: PodFundingAnalysis[]) => void;
+  addPodFundingAnalysis: (analysis: PodFundingAnalysis) => void;
+  updatePodFundingAnalysis: (podId: string, updates: Partial<PodFundingAnalysis>) => void;
+  
+  setFundingSuggestions: (suggestions: FundingSuggestion[]) => void;
+  addFundingSuggestion: (suggestion: FundingSuggestion) => void;
+  updateFundingSuggestion: (id: string, updates: Partial<FundingSuggestion>) => void;
+  removeFundingSuggestion: (id: string) => void;
+  
+  setAutomationRules: (rules: FundingAutomationRule[]) => void;
+  addAutomationRule: (rule: FundingAutomationRule) => void;
+  updateAutomationRule: (id: string, updates: Partial<FundingAutomationRule>) => void;
+  deleteAutomationRule: (id: string) => void;
   
   // Actions - Notifications
   setNotifications: (notifications: AppNotification[]) => void;
@@ -199,6 +248,16 @@ const initialState = {
   incomeSources: [],
   paycheckAllocations: [],
   currentPayCycleSummary: undefined,
+  
+  // Transaction History & Cash Flow
+  transactions: [],
+  transactionCategories: [],
+  cashFlowHistory: [],
+  
+  // Pod Funding Intelligence
+  podFundingAnalyses: [],
+  fundingSuggestions: [],
+  automationRules: [],
   
   activeView: 'dashboard' as const,
   isMobileView: false,
@@ -418,6 +477,102 @@ export const useFinancialStore = create<FinancialStore>()(
 
       // Pay Cycle Summary
       setPayCycleSummary: (currentPayCycleSummary) => set({ currentPayCycleSummary }),
+
+      // Transactions
+      setTransactions: (transactions) => set({ transactions }),
+      addTransaction: (transactionData) => {
+        const transaction: Transaction = {
+          id: `transaction-${Date.now()}`,
+          ...transactionData,
+        };
+        set((state) => ({ transactions: [...state.transactions, transaction] }));
+      },
+      updateTransaction: (id, updates) =>
+        set((state) => ({
+          transactions: state.transactions.map((transaction) =>
+            transaction.id === id ? { ...transaction, ...updates } : transaction
+          ),
+        })),
+      deleteTransaction: (id) =>
+        set((state) => ({
+          transactions: state.transactions.filter((transaction) => transaction.id !== id),
+        })),
+
+      // Transaction Categories
+      setTransactionCategories: (transactionCategories) => set({ transactionCategories }),
+      addTransactionCategory: (category) =>
+        set((state) => ({ transactionCategories: [...state.transactionCategories, category] })),
+      updateTransactionCategory: (id, updates) =>
+        set((state) => ({
+          transactionCategories: state.transactionCategories.map((category) =>
+            category.id === id ? { ...category, ...updates } : category
+          ),
+        })),
+      deleteTransactionCategory: (id) =>
+        set((state) => ({
+          transactionCategories: state.transactionCategories.filter((category) => category.id !== id),
+        })),
+
+      // Cash Flow
+      setCashFlowHistory: (cashFlowHistory) => set({ cashFlowHistory }),
+      addCashFlowPeriod: (period) =>
+        set((state) => ({ cashFlowHistory: [...state.cashFlowHistory, period] })),
+      updateCashFlowPeriod: (periodId, updates) =>
+        set((state) => ({
+          cashFlowHistory: state.cashFlowHistory.map((period) =>
+            period.period === periodId ? { ...period, ...updates } : period
+          ),
+        })),
+      
+      // Pod Funding Intelligence
+      setPodFundingAnalyses: (podFundingAnalyses) => set({ podFundingAnalyses }),
+      addPodFundingAnalysis: (analysis) =>
+        set((state) => ({
+          podFundingAnalyses: [
+            ...state.podFundingAnalyses.filter(a => a.podId !== analysis.podId),
+            analysis
+          ]
+        })),
+      updatePodFundingAnalysis: (podId, updates) =>
+        set((state) => ({
+          podFundingAnalyses: state.podFundingAnalyses.map((analysis) =>
+            analysis.podId === podId ? { ...analysis, ...updates } : analysis
+          ),
+        })),
+      
+      setFundingSuggestions: (fundingSuggestions) => set({ fundingSuggestions }),
+      addFundingSuggestion: (suggestion) =>
+        set((state) => ({ 
+          fundingSuggestions: [...state.fundingSuggestions, suggestion] 
+        })),
+      updateFundingSuggestion: (id, updates) =>
+        set((state) => ({
+          fundingSuggestions: state.fundingSuggestions.map((suggestion) =>
+            suggestion.id === id ? { ...suggestion, ...updates } : suggestion
+          ),
+        })),
+      removeFundingSuggestion: (id) =>
+        set((state) => ({
+          fundingSuggestions: state.fundingSuggestions.filter((suggestion) => suggestion.id !== id),
+        })),
+      
+      setAutomationRules: (automationRules) => set({ automationRules }),
+      addAutomationRule: (rule) =>
+        set((state) => ({ automationRules: [...state.automationRules, rule] })),
+      updateAutomationRule: (id, updates) =>
+        set((state) => ({
+          automationRules: state.automationRules.map((rule) =>
+            rule.id === id ? { 
+              ...rule, 
+              ...updates, 
+              lastModified: new Date().toISOString() 
+            } : rule
+          ),
+        })),
+      deleteAutomationRule: (id) =>
+        set((state) => ({
+          automationRules: state.automationRules.filter((rule) => rule.id !== id),
+        })),
       
       // Notifications
       setNotifications: (notifications) => set({ notifications }),
@@ -554,6 +709,15 @@ export const useFinancialStore = create<FinancialStore>()(
         investments: state.investments,
         financialGoals: state.financialGoals,
         notebookEntries: state.notebookEntries,
+        budgetPods: state.budgetPods,
+        incomeSources: state.incomeSources,
+        paycheckAllocations: state.paycheckAllocations,
+        transactions: state.transactions,
+        transactionCategories: state.transactionCategories,
+        cashFlowHistory: state.cashFlowHistory,
+        podFundingAnalyses: state.podFundingAnalyses,
+        fundingSuggestions: state.fundingSuggestions,
+        automationRules: state.automationRules,
         appSettings: state.appSettings,
         weeklyBudgets: state.weeklyBudgets,
         budgetCategories: state.budgetCategories,

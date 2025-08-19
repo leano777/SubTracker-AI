@@ -21,16 +21,16 @@ import {
   Building,
   User
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Textarea } from '../ui/textarea';
-import { Switch } from '../ui/switch';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -38,19 +38,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import type { 
   IncomeSource, 
   PaycheckAllocation, 
   PayCycleSummary, 
   BudgetPod 
-} from '../../types/financial';
+} from '@/types/financial';
+import { IncomeSourceForm } from '@/components/forms/IncomeSourceForm';
+import { PaycheckAllocationForm } from '@/components/forms/PaycheckAllocationForm';
 
 interface IncomeAllocationProps {
   incomeSources: IncomeSource[];
@@ -99,6 +101,65 @@ export const IncomeAllocation = ({
   const [showAllocationForm, setShowAllocationForm] = useState(false);
   const [editingIncome, setEditingIncome] = useState<IncomeSource | null>(null);
   const [selectedPaycheck, setSelectedPaycheck] = useState<PaycheckAllocation | null>(null);
+  const [selectedIncomeForAllocation, setSelectedIncomeForAllocation] = useState<IncomeSource | null>(null);
+  const [editingAllocation, setEditingAllocation] = useState<PaycheckAllocation | null>(null);
+
+  // Handle income form actions
+  const handleIncomeFormSave = (incomeData: Omit<IncomeSource, 'id' | 'createdDate' | 'lastModified'>) => {
+    if (editingIncome) {
+      onUpdateIncomeSource(editingIncome.id, incomeData);
+    } else {
+      onAddIncomeSource(incomeData);
+    }
+    setShowIncomeForm(false);
+    setEditingIncome(null);
+  };
+
+  const handleIncomeFormCancel = () => {
+    setShowIncomeForm(false);
+    setEditingIncome(null);
+  };
+
+  const handleAddNewIncome = () => {
+    setEditingIncome(null);
+    setShowIncomeForm(true);
+  };
+
+  const handleEditIncome = (income: IncomeSource) => {
+    setEditingIncome(income);
+    setShowIncomeForm(true);
+  };
+
+  // Handle paycheck allocation form actions
+  const handleAllocationFormSave = (allocationData: Omit<PaycheckAllocation, 'id'>) => {
+    if (editingAllocation) {
+      onUpdatePaycheckAllocation(editingAllocation.id, allocationData);
+    } else {
+      onCreatePaycheckAllocation(allocationData);
+    }
+    setShowAllocationForm(false);
+    setSelectedIncomeForAllocation(null);
+    setEditingAllocation(null);
+  };
+
+  const handleAllocationFormCancel = () => {
+    setShowAllocationForm(false);
+    setSelectedIncomeForAllocation(null);
+    setEditingAllocation(null);
+  };
+
+  const handlePlanPaycheck = (incomeSource?: IncomeSource) => {
+    setSelectedIncomeForAllocation(incomeSource || incomeSources[0] || null);
+    setEditingAllocation(null);
+    setShowAllocationForm(true);
+  };
+
+  const handleEditAllocation = (allocation: PaycheckAllocation) => {
+    const incomeSource = incomeSources.find(s => s.id === allocation.incomeSourceId);
+    setSelectedIncomeForAllocation(incomeSource || null);
+    setEditingAllocation(allocation);
+    setShowAllocationForm(true);
+  };
 
   // Calculate summary statistics
   const summary = useMemo(() => {
@@ -194,10 +255,7 @@ export const IncomeAllocation = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => {
-                  setEditingIncome(source);
-                  setShowIncomeForm(true);
-                }}>
+                <DropdownMenuItem onClick={() => handleEditIncome(source)}>
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Source
                 </DropdownMenuItem>
@@ -271,9 +329,18 @@ export const IncomeAllocation = ({
                 })}
               </CardDescription>
             </div>
-            <Badge variant={allocation.isProcessed ? "default" : "outline"}>
-              {allocation.isProcessed ? 'Processed' : 'Planned'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant={allocation.isProcessed ? "default" : "outline"}>
+                {allocation.isProcessed ? 'Processed' : 'Planned'}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditAllocation(allocation)}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
 
@@ -340,11 +407,11 @@ export const IncomeAllocation = ({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowAllocationForm(true)}>
+          <Button variant="outline" onClick={() => handlePlanPaycheck()}>
             <Calculator className="w-4 h-4 mr-2" />
             Plan Paycheck
           </Button>
-          <Button onClick={() => setShowIncomeForm(true)}>
+          <Button onClick={handleAddNewIncome}>
             <Plus className="w-4 h-4 mr-2" />
             Add Income
           </Button>
@@ -469,7 +536,7 @@ export const IncomeAllocation = ({
                 <p className="text-muted-foreground mb-4">
                   Start by adding income sources and planning paycheck allocations
                 </p>
-                <Button onClick={() => setShowIncomeForm(true)}>
+                <Button onClick={handleAddNewIncome}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Your First Income Source
                 </Button>
@@ -488,7 +555,7 @@ export const IncomeAllocation = ({
                 <p className="text-muted-foreground mb-4">
                   Add your paychecks, freelance income, and other sources
                 </p>
-                <Button onClick={() => setShowIncomeForm(true)}>
+                <Button onClick={handleAddNewIncome}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Income Source
                 </Button>
@@ -513,7 +580,7 @@ export const IncomeAllocation = ({
                 <p className="text-muted-foreground mb-4">
                   Plan how to allocate your paychecks to budget pods
                 </p>
-                <Button onClick={() => setShowAllocationForm(true)}>
+                <Button onClick={() => handlePlanPaycheck()}>
                   <Calculator className="w-4 h-4 mr-2" />
                   Plan Your First Paycheck
                 </Button>
@@ -544,34 +611,64 @@ export const IncomeAllocation = ({
         </TabsContent>
       </Tabs>
 
-      {/* Modals will be added in the next step */}
+      {/* Income Source Form Modal */}
       <Dialog open={showIncomeForm} onOpenChange={setShowIncomeForm}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingIncome ? 'Edit Income Source' : 'Add New Income Source'}
             </DialogTitle>
             <DialogDescription>
-              Track your paychecks and other income sources
+              {editingIncome 
+                ? 'Update your income source details and settings' 
+                : 'Add a new paycheck, freelance income, or other income source'
+              }
             </DialogDescription>
           </DialogHeader>
-          <div className="text-center py-8 text-muted-foreground">
-            Income source form coming soon...
-          </div>
+          <IncomeSourceForm
+            incomeSource={editingIncome || undefined}
+            onSave={handleIncomeFormSave}
+            onCancel={handleIncomeFormCancel}
+            mode={editingIncome ? 'edit' : 'create'}
+          />
         </DialogContent>
       </Dialog>
 
       <Dialog open={showAllocationForm} onOpenChange={setShowAllocationForm}>
-        <DialogContent>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Plan Paycheck Allocation</DialogTitle>
+            <DialogTitle>
+              {editingAllocation ? 'Edit Paycheck Allocation' : 'Plan Paycheck Allocation'}
+            </DialogTitle>
             <DialogDescription>
-              Allocate your paycheck to budget pods and track remaining funds
+              {editingAllocation 
+                ? 'Update how your paycheck is allocated to budget pods and expenses'
+                : 'Plan how to allocate your paycheck to budget pods and track remaining funds'
+              }
             </DialogDescription>
           </DialogHeader>
-          <div className="text-center py-8 text-muted-foreground">
-            Paycheck allocation form coming soon...
-          </div>
+          {selectedIncomeForAllocation ? (
+            <PaycheckAllocationForm
+              incomeSource={selectedIncomeForAllocation}
+              budgetPods={budgetPods}
+              allocation={editingAllocation || undefined}
+              onSave={handleAllocationFormSave}
+              onCancel={handleAllocationFormCancel}
+              mode={editingAllocation ? 'edit' : 'create'}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calculator className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">No Income Source Selected</h3>
+              <p className="mb-4">
+                Please add an income source first before planning paycheck allocations
+              </p>
+              <Button onClick={handleAddNewIncome}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Income Source
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

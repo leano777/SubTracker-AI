@@ -332,6 +332,20 @@ export const PaymentCardForm = ({ card, onSave, onCancel }: PaymentCardFormProps
           </div>
           <p className="text-xs text-white/60 mt-2">Selected: {selectedColor.name}</p>
         </div>
+
+        {/* Default Card Toggle */}
+        <div className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            id="isDefault"
+            checked={formData.isDefault}
+            onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
+            className="w-4 h-4 text-blue-600 bg-white/15 border-white/20 rounded focus:ring-blue-500 focus:ring-2"
+          />
+          <Label htmlFor="isDefault" className="text-white/90 text-sm">
+            Set as default payment card
+          </Label>
+        </div>
       </div>
 
       {/* Action Buttons */}

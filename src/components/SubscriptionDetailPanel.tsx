@@ -143,7 +143,7 @@ export const SubscriptionDetailPanel = ({
           isVariable: true,
           upcomingChanges: (data.variablePricing.upcomingChanges || []).map(change => ({
             date: change.date || '',
-            cost: change.cost || '0',
+            cost: typeof change.cost === 'string' ? parseFloat(change.cost) || 0 : (change.cost || 0),
             description: change.description || ''
           })),
         } : undefined,
@@ -688,17 +688,17 @@ export const SubscriptionDetailPanel = ({
                           </div>
                           <div className="text-right">
                             <p className="font-bold">
-                              {formatCurrency(parseFloat(change.cost))}
+                              {formatCurrency(change.cost)}
                             </p>
                             <p
                               className={`text-xs ${
-                                parseFloat(change.cost) > subscription.cost
+                                change.cost > subscription.cost
                                   ? "text-red-500"
                                   : "text-green-500"
                               }`}
                             >
-                              {parseFloat(change.cost) > subscription.cost ? "+" : ""}
-                              {formatCurrency(parseFloat(change.cost) - subscription.cost)}
+                              {change.cost > subscription.cost ? "+" : ""}
+                              {formatCurrency(change.cost - subscription.cost)}
                             </p>
                           </div>
                         </div>

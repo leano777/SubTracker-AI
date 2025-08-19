@@ -22,17 +22,17 @@ import {
   Trash2,
   MoreVertical
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Progress } from '../../../components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+} from '../../../components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -40,14 +40,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Switch } from '../ui/switch';
-import type { BudgetPod, IncomeSource, PaycheckAllocation, PayCycleSummary } from '../../types/financial';
-import { BudgetPodForm } from '../forms/BudgetPodForm';
+} from '../../../components/ui/dialog';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Textarea } from '../../../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { Switch } from '../../../components/ui/switch';
+import { Alert, AlertDescription, AlertTitle } from '../../../components/ui/alert';
+import { ScrollArea } from '../../../components/ui/scroll-area';
+import type { BudgetPod, IncomeSource, PaycheckAllocation, PayCycleSummary } from '../../../types/financial';
+import { BudgetPodForm } from '../../../components/forms/BudgetPodForm';
 import { IncomeAllocation } from './IncomeAllocation';
 
 interface BudgetPodsProps {

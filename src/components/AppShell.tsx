@@ -439,7 +439,7 @@ const AppSidebar: React.FC<{
           transition={{ ...defaultTransition, delay: 0.5 }}
         >
           <div className={`text-xs ${safeTextColors.muted} text-center`}>
-            {isStealthOps ? "[TACTICAL MODE ACTIVE]" : "© 2024 SubTracker"}
+            {isStealthOps ? "[TACTICAL MODE ACTIVE]" : "© 2025 SubTracker"}
           </div>
         </motion.div>
       </SidebarFooter>

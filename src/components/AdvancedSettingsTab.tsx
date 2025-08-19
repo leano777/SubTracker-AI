@@ -12,8 +12,11 @@ import {
   Sun,
   Zap,
   Lightbulb,
+  Key,
 } from "lucide-react";
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { APIIntegrations } from "./settings/APIIntegrations";
 
 import type { AppSettings } from "../types/constants";
 
@@ -87,26 +90,35 @@ export const AdvancedSettingsTab = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2
-            className={`flex items-center space-x-2 ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""}`}
-          >
-            <Settings className={`w-6 h-6 ${isStealthOps ? "text-green-400" : ""}`} />
-            <span>{isStealthOps ? "[ADVANCED SETTINGS]" : "Advanced Settings"}</span>
-          </h2>
-          <p className={`${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}>
-            {isStealthOps
-              ? "[CUSTOMIZE YOUR SUBTRACKER EXPERIENCE]"
-              : "Customize your subscription tracker experience"}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          {hasChanges && (
-            <>
-              <Button
+    <Tabs defaultValue="general" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="general">General Settings</TabsTrigger>
+        <TabsTrigger value="integrations">
+          <Key className="w-4 h-4 mr-2" />
+          API Integrations
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="general" className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2
+              className={`flex items-center space-x-2 ${textColors.primary} ${isStealthOps ? "font-mono tracking-wide tactical-text-glow" : ""}`}
+            >
+              <Settings className={`w-6 h-6 ${isStealthOps ? "text-green-400" : ""}`} />
+              <span>{isStealthOps ? "[ADVANCED SETTINGS]" : "Advanced Settings"}</span>
+            </h2>
+            <p className={`${textColors.muted} ${isStealthOps ? "font-mono tracking-wide" : ""}`}>
+              {isStealthOps
+                ? "[CUSTOMIZE YOUR SUBTRACKER EXPERIENCE]"
+                : "Customize your subscription tracker experience"}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            {hasChanges && (
+              <>
+                <Button
                 variant="outline"
                 onClick={handleReset}
                 className={`${
@@ -119,22 +131,22 @@ export const AdvancedSettingsTab = ({
                 <RotateCcw className="w-4 h-4 mr-2" />
                 {isStealthOps ? "[RESET]" : "Reset"}
               </Button>
-              <Button
-                onClick={handleSave}
-                className={`${
-                  isStealthOps
-                    ? "bg-green-600 hover:bg-green-500 text-black font-mono tracking-wide tactical-glow"
-                    : ""
-                }`}
-                style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isStealthOps ? "[SAVE CHANGES]" : "Save Changes"}
-              </Button>
-            </>
-          )}
+                <Button
+                  onClick={handleSave}
+                  className={`${
+                    isStealthOps
+                      ? "bg-green-600 hover:bg-green-500 text-black font-mono tracking-wide tactical-glow"
+                      : ""
+                  }`}
+                  style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {isStealthOps ? "[SAVE CHANGES]" : "Save Changes"}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
       {hasChanges && (
         <div
@@ -938,6 +950,11 @@ export const AdvancedSettingsTab = ({
           </div>
         </div>
       </div>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="integrations" className="space-y-6">
+        <APIIntegrations />
+      </TabsContent>
+    </Tabs>
   );
 };

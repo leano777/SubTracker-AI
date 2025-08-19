@@ -13,9 +13,15 @@ import { SimpleLandingPage } from './components/SimpleLandingPage';
 import { ModernSubscriptionForm } from './components/forms/ModernSubscriptionForm';
 import { PaymentCardForm } from './components/PaymentCardForm';
 import { SmartPayPeriodCalculator } from './components/financial/SmartPayPeriodCalculator';
-import { BudgetPods } from './components/budget/BudgetPods';
+import { BudgetPods } from './features/budget/components/BudgetPods';
 import { InvestmentPortfolio } from './components/portfolio/InvestmentPortfolio';
+import { EnhancedInvestmentDashboard } from './components/portfolio/EnhancedInvestmentDashboard';
+import { PortfolioPerformance } from './components/portfolio/PortfolioPerformance';
+import { InvestmentThesisManager } from './components/portfolio/InvestmentThesis';
 import { FinancialNotebooks } from './components/notebooks/FinancialNotebooks';
+import { GoalManagementDashboard } from './components/goals/GoalManagementDashboard';
+import { TransactionDashboard } from './components/transactions/TransactionDashboard';
+import { PodFundingIntelligence } from './components/pods/PodFundingIntelligence';
 import { FloatingNotifications } from './components/FloatingNotifications';
 import { initializeDemoData } from './data/demoData';
 import {
@@ -39,10 +45,14 @@ import {
   Menu,
   X,
   Calculator,
-  PiggyBank
+  PiggyBank,
+  Target,
+  ArrowRightLeft,
+  Brain
 } from 'lucide-react';
 import { applyThemeClasses } from './utils/theme';
 import type { FullSubscription } from './types/subscription';
+import type { FinancialGoal } from './types/financial';
 
 const SimplifiedAppContent = () => {
   const { user, loading: authLoading, isAuthenticated, signOut } = useAuth();
@@ -111,6 +121,33 @@ const SimplifiedAppContent = () => {
     addNotebookEntry,
     updateNotebookEntry,
     deleteNotebookEntry,
+    // Transactions
+    transactions,
+    transactionCategories,
+    cashFlowHistory,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    // Financial goals
+    financialGoals,
+    addFinancialGoal,
+    updateFinancialGoal,
+    deleteFinancialGoal,
+    // Pod funding intelligence
+    podFundingAnalyses,
+    fundingSuggestions,
+    automationRules,
+    setPodFundingAnalyses,
+    setFundingSuggestions,
+    setAutomationRules,
+    addPodFundingAnalysis,
+    updatePodFundingAnalysis,
+    addFundingSuggestion,
+    updateFundingSuggestion,
+    removeFundingSuggestion,
+    addAutomationRule,
+    updateAutomationRule,
+    deleteAutomationRule,
   } = useFinancialStore();
 
   // Detect mobile/desktop
@@ -149,6 +186,10 @@ const SimplifiedAppContent = () => {
       setIncomeSources(demoData.incomeSources);
       setPaycheckAllocations(demoData.paycheckAllocations);
       setPayCycleSummary(demoData.currentPayCycleSummary);
+      // Initialize pod funding intelligence data
+      setPodFundingAnalyses(demoData.podFundingAnalyses || []);
+      setFundingSuggestions(demoData.fundingSuggestions || []);
+      setAutomationRules(demoData.automationRules || []);
       setDemoDataLoaded(true);
     }
   }, [isAuthenticated, demoDataLoaded, subscriptions.length, setSubscriptions, setPaymentCards, setNotifications, setWeeklyBudgets, setBills, setInvestments, setFinancialGoals, setNotebookEntries, setBudgetPods, setIncomeSources, setPaycheckAllocations, setPayCycleSummary]);
@@ -159,13 +200,13 @@ const SimplifiedAppContent = () => {
       updateSubscription(editingItems.subscription.id, subscriptionData);
     } else {
       const newSubscription: FullSubscription = {
+        ...subscriptionData as FullSubscription,
         id: `sub-${Date.now()}`,
         dateAdded: new Date().toISOString().split('T')[0],
         isActive: subscriptionData.status === 'active',
         cost: subscriptionData.price || 0,
         billingCycle: subscriptionData.frequency === 'monthly' ? 'monthly' : 
                       subscriptionData.frequency === 'yearly' ? 'yearly' : 'monthly',
-        ...subscriptionData as FullSubscription,
       };
       addSubscription(newSubscription);
     }
@@ -344,6 +385,33 @@ const SimplifiedAppContent = () => {
               </Button>
               
               <Button
+                variant={activeView === 'goals' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setActiveView('goals')}
+              >
+                <Target className="w-5 h-5" />
+                {isSidebarOpen && <span className="ml-3">Financial Goals</span>}
+              </Button>
+              
+              <Button
+                variant={activeView === 'transactions' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setActiveView('transactions')}
+              >
+                <ArrowRightLeft className="w-5 h-5" />
+                {isSidebarOpen && <span className="ml-3">Transactions</span>}
+              </Button>
+              
+              <Button
+                variant={activeView === 'pod-intelligence' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setActiveView('pod-intelligence')}
+              >
+                <Brain className="w-5 h-5" />
+                {isSidebarOpen && <span className="ml-3">Pod Intelligence</span>}
+              </Button>
+              
+              <Button
                 variant={activeView === 'notebooks' ? 'default' : 'ghost'}
                 className="w-full justify-start"
                 onClick={() => setActiveView('notebooks')}
@@ -410,8 +478,8 @@ const SimplifiedAppContent = () => {
                     onDelete={deleteSubscription}
                     onCancel={(id) => updateSubscription(id, { status: 'cancelled' })}
                     onReactivate={(id) => updateSubscription(id, { status: 'active' })}
-                    onActivateFromWatchlist={(sub) => {
-                      updateSubscription(sub.id, { status: 'active' });
+                    onActivateFromWatchlist={(id) => {
+                      updateSubscription(id, { status: 'active' });
                     }}
                     onAddNew={() => openModal('subscription')}
                     onAddToWatchlist={() => {
@@ -464,12 +532,7 @@ const SimplifiedAppContent = () => {
             )}
             
             {activeView === 'portfolio' && (
-              <InvestmentPortfolio
-                investments={investments}
-                onAddInvestment={addInvestment}
-                onUpdateInvestment={updateInvestment}
-                onDeleteInvestment={deleteInvestment}
-              />
+              <EnhancedInvestmentDashboard />
             )}
             
             {activeView === 'budget' && (
@@ -488,15 +551,263 @@ const SimplifiedAppContent = () => {
                   };
                   addBudgetPod(pod);
                 }}
-                onUpdatePod={updateBudgetPod}
+                onUpdatePod={(id, updates) => {
+                  updateBudgetPod(id, updates);
+                  
+                  // Trigger pod funding sync for updated pod
+                  if (updates.monthlyAmount || updates.currentAmount) {
+                    import('./utils/podFundingIntegration').then(({ syncPodFundingOnPodChange }) => {
+                      const syncResult = syncPodFundingOnPodChange(
+                        budgetPods.map(p => p.id === id ? { ...p, ...updates } : p),
+                        transactions,
+                        incomeSources,
+                        automationRules,
+                        [id]
+                      );
+                      
+                      // Update analysis for this pod
+                      syncResult.updatedAnalyses.forEach(analysis => {
+                        addPodFundingAnalysis(analysis);
+                      });
+                      
+                      // Add new suggestions if any
+                      syncResult.newSuggestions.forEach(suggestion => {
+                        addFundingSuggestion(suggestion);
+                      });
+                    });
+                  }
+                }}
                 onDeletePod={deleteBudgetPod}
                 onAddFunds={addToBudgetPod}
                 onWithdrawFunds={withdrawFromBudgetPod}
                 onAddIncomeSource={addIncomeSource}
-                onUpdateIncomeSource={updateIncomeSource}
+                onUpdateIncomeSource={(id, updates) => {
+                  const currentSource = incomeSources.find(s => s.id === id);
+                  updateIncomeSource(id, updates);
+                  
+                  // Check if income amount changed significantly
+                  if (currentSource && updates.netAmount && currentSource.netAmount !== updates.netAmount) {
+                    const changePercentage = ((updates.netAmount - currentSource.netAmount) / currentSource.netAmount) * 100;
+                    
+                    if (Math.abs(changePercentage) > 5) { // 5% threshold
+                      import('./utils/podFundingIntegration').then(({ syncPodFundingOnIncomeChange }) => {
+                        const syncResult = syncPodFundingOnIncomeChange(
+                          budgetPods,
+                          transactions,
+                          incomeSources.map(s => s.id === id ? { ...s, ...updates } : s),
+                          podFundingAnalyses,
+                          automationRules,
+                          changePercentage
+                        );
+                        
+                        // Update analyses
+                        syncResult.updatedAnalyses.forEach(analysis => {
+                          addPodFundingAnalysis(analysis);
+                        });
+                        
+                        // Add income-aware suggestions
+                        syncResult.newSuggestions.forEach(suggestion => {
+                          addFundingSuggestion(suggestion);
+                        });
+                      });
+                    }
+                  }
+                }}
                 onDeleteIncomeSource={deleteIncomeSource}
                 onCreatePaycheckAllocation={createPaycheckAllocation}
                 onUpdatePaycheckAllocation={updatePaycheckAllocation}
+              />
+            )}
+            
+            {activeView === 'goals' && (
+              <GoalManagementDashboard
+                goals={financialGoals}
+                analytics={[]} // TODO: Add analytics data
+                recommendations={[]} // TODO: Add recommendations
+                incomeSources={incomeSources}
+                budgetPods={budgetPods}
+                transactions={transactions}
+                onAddGoal={(goalData) => {
+                  const now = new Date().toISOString();
+                  const goal: FinancialGoal = {
+                    id: `goal-${Date.now()}`,
+                    createdDate: now,
+                    lastModified: now,
+                    ...goalData
+                  };
+                  addFinancialGoal(goal);
+                }}
+                onUpdateGoal={updateFinancialGoal}
+                onDeleteGoal={deleteFinancialGoal}
+                onAddContribution={(goalId, amount, note) => {
+                  // Add contribution logic - update goal's current amount and add to history
+                  const goal = financialGoals.find(g => g.id === goalId);
+                  if (goal) {
+                    updateFinancialGoal(goalId, {
+                      currentAmount: goal.currentAmount + amount,
+                      contributionHistory: [
+                        ...(goal.contributionHistory || []),
+                        {
+                          date: new Date().toISOString(),
+                          amount,
+                          note,
+                          source: 'manual'
+                        }
+                      ]
+                    });
+                  }
+                }}
+              />
+            )}
+            
+            {activeView === 'transactions' && (
+              <TransactionDashboard
+                transactions={transactions}
+                transactionCategories={transactionCategories}
+                cashFlowHistory={cashFlowHistory}
+                budgetPods={budgetPods}
+                incomeSources={incomeSources}
+                paycheckAllocations={paycheckAllocations}
+                onAddTransaction={(transactionData) => {
+                  addTransaction(transactionData);
+                  // Trigger pod funding analysis update if transaction affects a budget pod
+                  if (transactionData.budgetPodId) {
+                    import('./utils/podFundingIntegration').then(({ syncPodFundingOnTransactionChange }) => {
+                      const syncResult = syncPodFundingOnTransactionChange(
+                        budgetPods,
+                        transactions,
+                        incomeSources,
+                        automationRules,
+                        [transactionData.budgetPodId!]
+                      );
+                      
+                      // Update analyses for affected pods
+                      syncResult.updatedAnalyses.forEach(analysis => {
+                        addPodFundingAnalysis(analysis);
+                      });
+                      
+                      // Add new suggestions
+                      syncResult.newSuggestions.forEach(suggestion => {
+                        addFundingSuggestion(suggestion);
+                      });
+                    });
+                  }
+                }}
+                onUpdateTransaction={(id, updates) => {
+                  updateTransaction(id, updates);
+                  // Trigger pod funding sync for updated transactions
+                  const transaction = transactions.find(t => t.id === id);
+                  if (transaction?.budgetPodId || updates.budgetPodId) {
+                    const affectedPodIds = [transaction?.budgetPodId, updates.budgetPodId]
+                      .filter(Boolean) as string[];
+                    
+                    if (affectedPodIds.length > 0) {
+                      import('./utils/podFundingIntegration').then(({ syncPodFundingOnTransactionChange }) => {
+                        const syncResult = syncPodFundingOnTransactionChange(
+                          budgetPods,
+                          transactions,
+                          incomeSources,
+                          automationRules,
+                          affectedPodIds
+                        );
+                        
+                        syncResult.updatedAnalyses.forEach(analysis => {
+                          addPodFundingAnalysis(analysis);
+                        });
+                      });
+                    }
+                  }
+                }}
+                onDeleteTransaction={(id) => {
+                  const transaction = transactions.find(t => t.id === id);
+                  deleteTransaction(id);
+                  
+                  // Update pod analysis if transaction was linked to a pod
+                  if (transaction?.budgetPodId) {
+                    import('./utils/podFundingIntegration').then(({ syncPodFundingOnTransactionChange }) => {
+                      const syncResult = syncPodFundingOnTransactionChange(
+                        budgetPods,
+                        transactions.filter(t => t.id !== id), // Exclude deleted transaction
+                        incomeSources,
+                        automationRules,
+                        [transaction.budgetPodId!]
+                      );
+                      
+                      syncResult.updatedAnalyses.forEach(analysis => {
+                        addPodFundingAnalysis(analysis);
+                      });
+                    });
+                  }
+                }}
+              />
+            )}
+            
+            {activeView === 'pod-intelligence' && (
+              <PodFundingIntelligence
+                budgetPods={budgetPods}
+                transactions={transactions}
+                incomeSources={incomeSources}
+                podAnalyses={podFundingAnalyses}
+                fundingSuggestions={fundingSuggestions}
+                automationRules={automationRules}
+                onApplySuggestion={(suggestionId) => {
+                  // Find and apply the suggestion
+                  const suggestion = fundingSuggestions.find(s => s.id === suggestionId);
+                  if (suggestion) {
+                    // Update the budget pod with the suggested amount
+                    updateBudgetPod(suggestion.podId, {
+                      monthlyAmount: suggestion.suggestedAmount
+                    });
+                    // Mark suggestion as applied
+                    updateFundingSuggestion(suggestionId, { status: 'applied' });
+                  }
+                }}
+                onRejectSuggestion={(suggestionId) => {
+                  updateFundingSuggestion(suggestionId, { status: 'rejected' });
+                }}
+                onCreateAutomationRule={(rule) => {
+                  const newRule = {
+                    id: `rule-${Date.now()}`,
+                    createdDate: new Date().toISOString(),
+                    lastModified: new Date().toISOString(),
+                    ...rule
+                  };
+                  addAutomationRule(newRule);
+                }}
+                onUpdateAutomationRule={updateAutomationRule}
+                onRunAnalysis={() => {
+                  // Import and run analysis algorithms
+                  Promise.all([
+                    import('./utils/podFundingAlgorithms'),
+                    import('./utils/podFundingIntegration')
+                  ]).then(([algorithms, integration]) => {
+                    // Generate analysis for each pod
+                    const analyses = budgetPods.map(pod => 
+                      algorithms.generatePodFundingAnalysis(pod, transactions, incomeSources)
+                    );
+                    setPodFundingAnalyses(analyses);
+                    
+                    // Generate funding suggestions
+                    const suggestions = algorithms.generateFundingSuggestions(
+                      budgetPods, 
+                      analyses, 
+                      incomeSources, 
+                      transactions
+                    );
+                    setFundingSuggestions(suggestions);
+                    
+                    // Check for automation rule triggers
+                    const triggeredRules = integration.checkAutomationRuleTriggers(
+                      analyses, 
+                      automationRules
+                    );
+                    
+                    // Apply triggered rules (simplified implementation)
+                    if (triggeredRules.length > 0) {
+                      console.log('Triggered automation rules:', triggeredRules);
+                    }
+                  });
+                }}
               />
             )}
             

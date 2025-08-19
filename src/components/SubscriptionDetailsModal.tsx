@@ -184,7 +184,7 @@ export const SubscriptionDetailsModal = ({
                         >
                           <div>
                             <div className="font-medium">
-                              {formatCurrency(parseFloat(change.cost))}
+                              {formatCurrency(change.cost)}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {change.description}

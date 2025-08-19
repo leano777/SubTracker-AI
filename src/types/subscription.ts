@@ -43,7 +43,7 @@ export interface FullSubscription {
     maxPrice: number;
     averagePrice: number;
     isVariable?: boolean;
-    upcomingChanges?: { date: string; cost: string; description: string }[];
+    upcomingChanges?: { date: string; cost: number; description: string }[];
   };
   automationEnabled?: boolean;
   automationRules?: {

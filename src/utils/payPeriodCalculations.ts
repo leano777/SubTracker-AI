@@ -623,8 +623,7 @@ export function getUpcomingPricingChanges(subscriptions: FullSubscription[]): Ar
           (change) => parseDate(change.date) > normalizeDate(new Date())
         )
         .forEach((change) => {
-          const changeCost =
-            typeof change.cost === "string" ? parseFloat(change.cost) : change.cost;
+          const changeCost = change.cost;
           changes.push({
             subscription,
             change: {

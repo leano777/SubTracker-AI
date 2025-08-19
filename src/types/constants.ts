@@ -35,7 +35,7 @@ export interface Subscription {
     maxPrice: number;
     averagePrice: number;
     isVariable?: boolean;
-    upcomingChanges?: { date: string; cost: string; description: string }[];
+    upcomingChanges?: { date: string; cost: number; description: string }[];
   };
   planType?: "basic" | "premium" | "enterprise" | "custom" | "paid" | "free" | "trial";
   priority?: "essential" | "important" | "nice-to-have" | "medium" | "low" | "high";

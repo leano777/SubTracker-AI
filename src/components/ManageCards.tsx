@@ -421,6 +421,24 @@ export const ManageCards = ({
                   </div>
                 </div>
 
+                {/* Default Card Toggle */}
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="isDefault"
+                    checked={formData.isDefault || false}
+                    onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
+                    className={`w-4 h-4 text-blue-600 rounded focus:ring-blue-500 focus:ring-2 ${
+                      isDarkMode
+                        ? "bg-gray-700/50 border-gray-600"
+                        : "bg-white/50 border-gray-200"
+                    }`}
+                  />
+                  <Label htmlFor="isDefault" className={`${textOnGlass} text-sm`}>
+                    Set as default payment card
+                  </Label>
+                </div>
+
                 <div className="flex justify-end space-x-3 pt-4 border-t border-white/10">
                   <Button
                     type="button"

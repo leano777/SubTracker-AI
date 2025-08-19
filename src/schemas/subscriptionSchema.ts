@@ -70,7 +70,7 @@ export const subscriptionSchema = z.object({
     isVariable: z.boolean().default(false),
     upcomingChanges: z.array(z.object({
       date: z.string().optional(),
-      cost: z.string().optional(),
+      cost: z.number().optional(),
       description: z.string().optional(),
     })).optional(),
   }).optional(),
