@@ -25,6 +25,57 @@ Object.defineProperty(global, "IntersectionObserver", {
   value: MockIntersectionObserver,
 });
 
+// Mock HTMLCanvasElement for accessibility tests
+class MockCanvasRenderingContext2D {
+  fillStyle = "";
+  strokeStyle = "";
+  lineWidth = 1;
+  font = "";
+  textAlign = "start";
+  textBaseline = "alphabetic";
+  
+  clearRect = vi.fn();
+  fillRect = vi.fn();
+  strokeRect = vi.fn();
+  fillText = vi.fn();
+  strokeText = vi.fn();
+  measureText = vi.fn(() => ({ width: 100 }));
+  beginPath = vi.fn();
+  moveTo = vi.fn();
+  lineTo = vi.fn();
+  stroke = vi.fn();
+  fill = vi.fn();
+  arc = vi.fn();
+  rect = vi.fn();
+  closePath = vi.fn();
+  save = vi.fn();
+  restore = vi.fn();
+  translate = vi.fn();
+  rotate = vi.fn();
+  scale = vi.fn();
+  transform = vi.fn();
+  setTransform = vi.fn();
+  resetTransform = vi.fn();
+  createLinearGradient = vi.fn(() => ({ addColorStop: vi.fn() }));
+  createRadialGradient = vi.fn(() => ({ addColorStop: vi.fn() }));
+  createPattern = vi.fn();
+  getImageData = vi.fn(() => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }));
+  putImageData = vi.fn();
+  drawImage = vi.fn();
+}
+
+const mockGetContext = vi.fn((contextType: string) => {
+  if (contextType === '2d') {
+    return new MockCanvasRenderingContext2D();
+  }
+  return null;
+});
+
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+  value: mockGetContext,
+  writable: true,
+});
+
 // Mock ResizeObserver
 class MockResizeObserver {
   observe = vi.fn();

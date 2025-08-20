@@ -2,10 +2,16 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles/globals.css'
 
+// Initialize Sentry error tracking for production
+import { initSentry } from './utils/sentry';
+
 // Using simplified app with Zustand state management
 import SimplifiedApp from "./SimplifiedApp.tsx";
 // Global error boundary for the entire app
 import { SimpleErrorBoundary } from "./components/SimpleErrorBoundary";
+
+// Initialize Sentry before app starts
+initSentry();
 
 // Global fallback UI for critical app errors
 const AppFallback = () => (

@@ -15,10 +15,8 @@ export const wcagAAConfig = {
     'color-contrast-enhanced': { enabled: false }, // AAA level - disabled for AA compliance
 
     // Keyboard accessibility
-    'keyboard': { enabled: true },
-    'focus-order-semantics': { enabled: true },
     'tabindex': { enabled: true },
-    'focusable-content': { enabled: true },
+    'focus-order': { enabled: true },
 
     // ARIA rules
     'aria-allowed-attr': { enabled: true },

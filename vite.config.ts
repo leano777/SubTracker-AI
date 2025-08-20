@@ -16,6 +16,8 @@ export default defineConfig({
       "@contexts": path.resolve(__dirname, "./src/contexts"),
       "@styles": path.resolve(__dirname, "./src/styles"),
       "@data": path.resolve(__dirname, "./src/data"),
+      // Fix es-toolkit import issue with Recharts
+      "es-toolkit/compat/get": path.resolve(__dirname, "node_modules/es-toolkit/dist/compat/object/get.js"),
     },
   },
   css: {
@@ -83,12 +85,16 @@ export default defineConfig({
       'react',
       'react-dom',
       'lucide-react',
-      '@supabase/supabase-js'
-    ],
-    exclude: [
-      // Exclude heavy dependencies that should be lazy loaded
+      '@supabase/supabase-js',
+      'es-toolkit',
       'recharts'
-    ]
+    ],
+    esbuildOptions: {
+      // Fix for es-toolkit CommonJS/ESM interop
+      define: {
+        global: 'globalThis',
+      },
+    }
   },
   
   // Enable tree shaking
