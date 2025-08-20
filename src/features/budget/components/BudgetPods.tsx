@@ -51,6 +51,7 @@ import { ScrollArea } from '../../../components/ui/scroll-area';
 import type { BudgetPod, IncomeSource, PaycheckAllocation, PayCycleSummary } from '../../../types/financial';
 import { BudgetPodForm } from '../../../components/forms/BudgetPodForm';
 import { IncomeAllocation } from './IncomeAllocation';
+import { TransactionHistory } from './TransactionHistory';
 
 interface BudgetPodsProps {
   budgetPods: BudgetPod[];
@@ -550,15 +551,7 @@ export const BudgetPods = ({
         </TabsContent>
         
         <TabsContent value="transactions" className="space-y-4">
-          <Card>
-            <CardContent className="text-center py-12">
-              <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Transaction History</h3>
-              <p className="text-muted-foreground">
-                Recent activity across all your budget pods will appear here
-              </p>
-            </CardContent>
-          </Card>
+          <TransactionHistory budgetPods={budgetPods} />
         </TabsContent>
       </Tabs>
 
