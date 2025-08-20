@@ -25,13 +25,13 @@ export interface OnboardingData {
   primaryPaymentMethods: {
     nickname: string;
     lastFour: string;
-    type: 'visa' | 'mastercard' | 'amex' | 'discover' | 'other';
+    type: 'visa' | 'mastercard' | 'amex' | 'discover' | 'other' | 'credit' | 'debit';
     isDefault: boolean;
   }[];
   existingSubscriptions: {
     name: string;
     cost: number;
-    billingCycle: 'monthly' | 'yearly' | 'quarterly' | 'weekly';
+    billingCycle: 'monthly' | 'yearly' | 'quarterly' | 'weekly' | 'variable';
     category: string;
     nextPayment?: string;
   }[];
@@ -359,9 +359,18 @@ class UserSetupService {
           (dates[1].getTime() - dates[0].getTime()) / (1000 * 60 * 60 * 24) : 30;
         
         let billingCycle: FullSubscription['billingCycle'] = 'monthly';
-        if (daysBetween > 350) billingCycle = 'yearly';
-        else if (daysBetween > 85) billingCycle = 'quarterly';
-        else if (daysBetween < 10) billingCycle = 'weekly';
+        let frequency: FullSubscription['frequency'] = 'monthly';
+        
+        if (daysBetween > 350) {
+          billingCycle = 'yearly';
+          frequency = 'yearly';
+        } else if (daysBetween > 85) {
+          billingCycle = 'quarterly';
+          frequency = 'quarterly';
+        } else if (daysBetween < 10) {
+          billingCycle = 'monthly'; // Use monthly for billing, weekly for frequency
+          frequency = 'weekly';
+        }
 
         potentialSubscriptions.push({
           id: `imported-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -369,7 +378,7 @@ class UserSetupService {
           cost: firstTransaction.amount,
           price: firstTransaction.amount,
           billingCycle,
-          frequency: billingCycle,
+          frequency,
           category,
           status: 'active',
           isActive: true,
@@ -406,6 +415,9 @@ class UserSetupService {
         break;
       case 'yearly':
         nextPayment.setFullYear(now.getFullYear() + 1);
+        break;
+      case 'variable':
+        nextPayment.setMonth(now.getMonth() + 1); // Default to monthly for variable
         break;
       default:
         nextPayment.setMonth(now.getMonth() + 1);
