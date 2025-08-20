@@ -147,6 +147,7 @@ class IntelligenceService {
       if (processed.has(subscriptions[i].id)) continue;
       
       const similar: FullSubscription[] = [subscriptions[i]];
+      let bestSimilarity = { overall: 0, name: 0, category: 0, functionalOverlap: [] as string[] };
       
       for (let j = i + 1; j < subscriptions.length; j++) {
         if (processed.has(subscriptions[j].id)) continue;
@@ -159,6 +160,11 @@ class IntelligenceService {
         if (similarity.overall > this.SIMILARITY_THRESHOLD) {
           similar.push(subscriptions[j]);
           processed.add(subscriptions[j].id);
+          
+          // Keep track of the best similarity for metadata
+          if (similarity.overall > bestSimilarity.overall) {
+            bestSimilarity = similarity;
+          }
         }
       }
       
@@ -169,14 +175,14 @@ class IntelligenceService {
         duplicates.push({
           id: `duplicate-${Date.now()}-${i}`,
           subscriptions: similar,
-          type: similarity.overall > 0.9 ? 'exact' : 'similar',
-          confidence: similarity.overall,
+          type: bestSimilarity.overall > 0.9 ? 'exact' : 'similar',
+          confidence: bestSimilarity.overall,
           potentialSavings: totalCost - cheapestCost,
           recommendation: this.generateDuplicateRecommendation(similar),
           details: {
-            nameSimilarity: similarity.name,
-            categorySimilarity: similarity.category,
-            functionalOverlap: similarity.functionalOverlap,
+            nameSimilarity: bestSimilarity.name,
+            categorySimilarity: bestSimilarity.category,
+            functionalOverlap: bestSimilarity.functionalOverlap,
           },
         });
       }

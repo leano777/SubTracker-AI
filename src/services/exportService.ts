@@ -473,11 +473,11 @@ class ExportService {
   /**
    * Generate filename
    */
-  private generateFilename(format: string, dateRange: { start: Date; end: Date }): string {
+  private generateFilename(fileFormat: string, dateRange: { start: Date; end: Date }): string {
     const startStr = format(dateRange.start, 'yyyy-MM-dd');
     const endStr = format(dateRange.end, 'yyyy-MM-dd');
     const timestamp = format(new Date(), 'yyyy-MM-dd-HHmm');
-    return `subtracker-export-${startStr}-to-${endStr}-${timestamp}.${format}`;
+    return `subtracker-export-${startStr}-to-${endStr}-${timestamp}.${fileFormat}`;
   }
 
   /**
