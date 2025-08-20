@@ -14,6 +14,7 @@ import {
   CreditCard,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
 
 import type { FullSubscription } from "../types/subscription";
 import { getDisplayDate, getDaysUntil } from "../utils/dateUtils";
@@ -28,6 +29,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 interface SubscriptionCardProps {
   subscription: FullSubscription;
@@ -42,6 +53,7 @@ export const SubscriptionCard = ({
   onDelete,
   onViewDetails,
 }: SubscriptionCardProps) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -221,7 +233,7 @@ export const SubscriptionCard = ({
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(subscription.id);
+                setShowDeleteDialog(true);
               }}
               className="text-destructive"
             >
@@ -346,6 +358,29 @@ export const SubscriptionCard = ({
           )}
         </div>
       </CardContent>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{subscription.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onDelete(subscription.id);
+                setShowDeleteDialog(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

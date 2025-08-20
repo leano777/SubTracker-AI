@@ -5,8 +5,8 @@ import './styles/globals.css'
 // Initialize Sentry error tracking for production
 import { initSentry } from './utils/sentry';
 
-// Using simplified app with Zustand state management
-import SimplifiedApp from "./SimplifiedApp.tsx";
+// Using router-based app with authentication
+import { AppRouter } from "./AppRouter";
 // Global error boundary for the entire app
 import { SimpleErrorBoundary } from "./components/SimpleErrorBoundary";
 
@@ -59,7 +59,7 @@ const AppFallback = () => (
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SimpleErrorBoundary fallback={<AppFallback />}>
-      <SimplifiedApp />
+      <AppRouter />
     </SimpleErrorBoundary>
   </StrictMode>
 );

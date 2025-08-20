@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { APIIntegrations } from "./settings/APIIntegrations";
+import { ExportButton } from "./export/ExportButton";
 
 import type { AppSettings } from "../types/constants";
 
@@ -33,7 +34,7 @@ import { Switch } from "./ui/switch";
 interface AdvancedSettingsTabProps {
   settings: AppSettings;
   onUpdateSettings: (settings: AppSettings) => void;
-  onExportData: () => void;
+  onExportData?: () => void;
   onImportData: () => void;
   onResetApp: () => void;
 }
@@ -757,12 +758,11 @@ export const AdvancedSettingsTab = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Export Data Card */}
           <Card
-            className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
+            className={`transition-all duration-200 ${
               isStealthOps
-                ? "tactical-surface border border-gray-600 hover:border-green-400 hover:tactical-glow"
+                ? "tactical-surface border border-gray-600"
                 : "hover:shadow-lg"
             }`}
-            onClick={onExportData}
             style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
           >
             <CardContent className="p-6 text-center space-y-4">
@@ -795,6 +795,14 @@ export const AdvancedSettingsTab = ({
                     ? "[DOWNLOAD ALL YOUR SUBSCRIPTION DATA]"
                     : "Download all your subscriptions, cards, and settings"}
                 </p>
+                <ExportButton 
+                  variant="outline"
+                  className={`mt-4 ${
+                    isStealthOps
+                      ? "bg-transparent border-green-400 text-green-400 hover:bg-green-400/10"
+                      : ""
+                  }`}
+                />
               </div>
             </CardContent>
           </Card>

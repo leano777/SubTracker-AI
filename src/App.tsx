@@ -5,6 +5,7 @@ import { initializeAccessibility, announce } from "./utils/accessibility/focusMa
 import { useTabReducer } from "./hooks/useTabReducer";
 
 import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
+import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
 import { AppHeader } from "./components/AppHeader";
 import { DashboardTab } from "./components/DashboardTab";
 import { DebugToolButton } from "./components/DebugToolButton";
@@ -772,6 +773,10 @@ const AppContent = () => {
               onUpdateCategories={() => {/* TODO: Implement */}}
             />
           );
+        case "analytics":
+          return (
+            <AnalyticsDashboard />
+          );
         case "intelligence":
           return (
             <IntelligenceTab
@@ -1076,7 +1081,6 @@ const AppContent = () => {
           <AdvancedSettingsTab
             settings={appSettings || defaultAppSettings}
             onUpdateSettings={handleUpdateSettings}
-            onExportData={() => handleExportData("json")}
             onImportData={modalHandlers.openImportDialog}
             onResetApp={handleResetApp}
           />

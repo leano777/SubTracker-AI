@@ -58,6 +58,7 @@ export interface FullSubscription {
   priority?: "essential" | "important" | "nice-to-have" | "medium" | "low" | "high";
   businessExpense?: boolean;
   taxDeductible?: boolean;
+  notificationsEnabled?: boolean;
 }
 
 export interface PaymentCard {

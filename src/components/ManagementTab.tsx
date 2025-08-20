@@ -19,6 +19,7 @@ import { formatCurrency } from "../utils/helpers";
 
 import { ImportDialog } from "./ImportDialog";
 import { ManageCards } from "./ManageCards";
+import { ExportButton } from "./export/ExportButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +49,6 @@ interface ManagementTabProps {
   onBulkEdit: (ids: string[], updates: Partial<FullSubscription>) => void;
   onBulkDelete: (ids: string[]) => void;
   onImportData: (data: any) => void;
-  onExportData: (format: "json" | "csv") => void;
   onUpdateSettings: (settings: AppSettings) => void;
   onResetApp: () => void;
   onDataSync: (data: any) => void;
@@ -64,7 +64,6 @@ export const ManagementTab = ({
   onDeleteCard,
   onSetDefaultCard,
   onImportData,
-  onExportData,
   onUpdateSettings,
   onResetApp,
 }: ManagementTabProps) => {
@@ -330,32 +329,14 @@ export const ManagementTab = ({
             <p className={`text-sm mb-4 ${textMuted}`}>
               Download your subscription data in JSON or CSV format for backup or migration
             </p>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => onExportData("json")}
-                variant="outline"
-                className={`${
-                  isDarkMode
-                    ? "bg-gray-700/50 hover:bg-gray-600 text-gray-100 border-gray-600"
-                    : "bg-white/50 hover:bg-white/70 text-gray-900 border-gray-200"
-                }`}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export JSON
-              </Button>
-              <Button
-                onClick={() => onExportData("csv")}
-                variant="outline"
-                className={`${
-                  isDarkMode
-                    ? "bg-gray-700/50 hover:bg-gray-600 text-gray-100 border-gray-600"
-                    : "bg-white/50 hover:bg-white/70 text-gray-900 border-gray-200"
-                }`}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
-            </div>
+            <ExportButton 
+              variant="outline" 
+              className={
+                isDarkMode
+                  ? "bg-gray-700/50 hover:bg-gray-600 text-gray-100 border-gray-600"
+                  : "bg-white/50 hover:bg-white/70 text-gray-900 border-gray-200"
+              }
+            />
           </div>
 
           {/* Import Section */}

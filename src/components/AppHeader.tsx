@@ -56,6 +56,7 @@ const tabs = [
   { id: "overview", label: "Overview" },
   { id: "subscriptions", label: "Subscriptions" },
   { id: "planning", label: "Planning" },
+  { id: "analytics", label: "Analytics" },
   { id: "intelligence", label: "Intelligence" },
 ];
 

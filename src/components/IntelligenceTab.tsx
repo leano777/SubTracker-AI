@@ -10,6 +10,7 @@ import { getTextColors } from "../utils/theme";
 // import { EnhancedAIInsightCard } from "./EnhancedAIInsightCard";
 // import { SmartAutomationTab } from "./SmartAutomationTab";
 // import { ForceSyncTest } from "../tests/ForceSyncTest";
+import { RealTimeSync } from "./RealTimeSync";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -603,7 +604,7 @@ export const IntelligenceTab = ({
 
       {/* Enhanced Intelligence Tools with Stealth Ops Support */}
       <Tabs value={activeView} onValueChange={setActiveView} className="space-y-6">
-        <TabsList className={`grid w-full grid-cols-2 ${isStealthOps ? "tactical-surface" : ""}`}>
+        <TabsList className={`grid w-full grid-cols-3 ${isStealthOps ? "tactical-surface" : ""}`}>
           <TabsTrigger
             value="insights"
             className={`flex items-center space-x-2 ${
@@ -621,6 +622,15 @@ export const IntelligenceTab = ({
           >
             <Bot className="w-4 h-4" />
             <span>{isStealthOps ? "[SMART AUTOMATION]" : "Smart Automation"}</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="sync"
+            className={`flex items-center space-x-2 ${
+              isStealthOps ? "font-mono tracking-wide" : ""
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            <span>{isStealthOps ? "[REAL-TIME SYNC]" : "Real-time Sync"}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -646,6 +656,20 @@ export const IntelligenceTab = ({
             <p className="text-center text-gray-600">Smart Automation temporarily disabled for debugging</p>
             <p className="text-center text-gray-500 text-sm mt-2">SmartAutomationTab will be restored</p>
           </div>
+        </TabsContent>
+
+        <TabsContent value="sync">
+          <RealTimeSync
+            subscriptions={subscriptions}
+            cards={cards}
+            onDataSync={(data) => {
+              console.log("Sync data:", data);
+              triggerDataSync?.();
+            }}
+            onConflictResolution={(conflicts) => {
+              console.log("Resolving conflicts:", conflicts);
+            }}
+          />
         </TabsContent>
       </Tabs>
 

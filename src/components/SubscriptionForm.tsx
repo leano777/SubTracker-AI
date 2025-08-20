@@ -68,6 +68,8 @@ export const SubscriptionForm = ({
     hasLinkedCard: !!subscription?.cardId,
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -146,11 +148,17 @@ export const SubscriptionForm = ({
               type="number"
               step="0.01"
               value={formData.cost}
-              onChange={(e) => setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 })}
+              onChange={(e) => {
+                setFormData({ ...formData, cost: parseFloat(e.target.value) || 0 });
+                if (errors.cost) setErrors({ ...errors, cost: "" });
+              }}
               placeholder="29.99"
-              className="pl-10"
+              className={`pl-10 ${errors.cost ? "border-red-500" : ""}`}
               required
             />
+            {errors.cost && (
+              <p className="text-sm text-red-500 mt-1">{errors.cost}</p>
+            )}
           </div>
         </div>
 
