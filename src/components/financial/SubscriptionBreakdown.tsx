@@ -5,7 +5,29 @@
 
 import React, { useState, useEffect } from 'react';
 import { financialService } from '../../services/financialService';
-import { SubscriptionSummary, SubscriptionPayment } from '../../types/financialTransactions';
+import { SubscriptionCategory } from '../../types/financialTransactions';
+
+// Define types locally to avoid import issues
+interface SubscriptionPayment {
+  id: string;
+  date: string;
+  name: string;
+  serviceName: string;
+  amount: number;
+  category: SubscriptionCategory;
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'quarterly';
+  isActive: boolean;
+  nextPaymentDate?: string;
+}
+
+interface SubscriptionSummary {
+  category: SubscriptionCategory;
+  displayName: string;
+  totalAmount: number;
+  subscriptions: SubscriptionPayment[];
+  activeCount: number;
+  monthlyRecurring: number;
+}
 
 interface SubscriptionBreakdownProps {
   month: number;

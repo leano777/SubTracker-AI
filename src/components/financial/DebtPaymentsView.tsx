@@ -5,8 +5,31 @@
 
 import React, { useState, useEffect } from 'react';
 import { financialService } from '../../services/financialService';
-import { DebtSummary, DebtPayment } from '../../types/financialTransactions';
+import { DebtType } from '../../types/financialTransactions';
 import { CreditCard, TrendingDown, AlertCircle, DollarSign } from 'lucide-react';
+
+// Define types locally to avoid import issues
+interface DebtPayment {
+  id: string;
+  date: string;
+  name: string;
+  amount: number;
+  type: DebtType;
+  creditor: string;
+  remainingBalance?: number;
+  interestRate?: number;
+  minimumPayment?: number;
+  dueDate?: string;
+}
+
+interface DebtSummary {
+  type: DebtType;
+  displayName: string;
+  totalAmount: number;
+  paymentCount: number;
+  payments: DebtPayment[];
+  averagePayment: number;
+}
 
 interface DebtPaymentsViewProps {
   month: number;

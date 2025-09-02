@@ -10,6 +10,7 @@ import { AppHeader } from "./components/AppHeader";
 import { DashboardTab } from "./components/DashboardTab";
 import { FinancialOverview } from "./components/financial/FinancialOverview";
 import { Sidebar } from "./components/Sidebar";
+import { TestBanner } from "./components/TestBanner";
 import { DebugToolButton } from "./components/DebugToolButton";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
@@ -936,6 +937,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen">
+      <TestBanner />
       {/* Skip Links - Hidden until focused */}
       <a 
         href="#main-content" 

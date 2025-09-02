@@ -9,7 +9,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  X
+  X,
+  PieChart,
+  BarChart,
+  FileText,
+  Settings
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,12 +26,15 @@ interface SidebarProps {
 }
 
 const navigationItems = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { id: 'budgetpods', label: 'Budget Pods', icon: PieChart },
+  { id: 'investments', label: 'Investments', icon: BarChart },
+  { id: 'notebooks', label: 'Notebooks', icon: FileText },
+  { id: 'calendar', label: 'Calendar', icon: Calendar },
+  { id: 'cards', label: 'Payment Cards', icon: CreditCard },
   { id: 'financials', label: 'Financials', icon: TrendingUp },
-  { id: 'planning', label: 'Planning', icon: Calendar },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'intelligence', label: 'Intelligence', icon: Brain },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -158,4 +165,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
       `} />
     </>
   );
-};// Test change
+};

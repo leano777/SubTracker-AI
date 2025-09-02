@@ -5,7 +5,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { financialService } from '../../services/financialService';
-import { CalendarTransaction } from '../../types/financialTransactions';
+import { TransactionCategory } from '../../types/financialTransactions';
+
+// Define CalendarTransaction locally to avoid import issues
+type CalendarTransaction = {
+  date: number;
+  transactions: Array<{
+    name: string;
+    amount: number;
+    type: 'subscription' | 'debt' | 'utility' | 'transport' | 'other';
+    category: TransactionCategory;
+  }>;
+  totalAmount: number;
+};
 
 interface CalendarViewProps {
   month: number;

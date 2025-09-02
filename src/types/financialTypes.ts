@@ -1,6 +1,5 @@
 /**
- * Financial Transaction Types
- * Comprehensive types for monthly financial data tracking
+ * Financial Types - Working Export File
  */
 
 export enum TransactionCategory {
@@ -46,7 +45,7 @@ export enum SubscriptionCategory {
 
 export interface Transaction {
   id: string;
-  date: string; // ISO date string
+  date: string;
   name: string;
   amount: number;
   category: TransactionCategory;
@@ -121,9 +120,6 @@ export interface FinancialSummary {
   monthOverMonthChange: number;
 }
 
-// CalendarTransaction type moved to individual files to avoid export issues
-// See financialService.ts and CalendarView.tsx for local definitions
-
 export interface DebtSummary {
   type: DebtType;
   displayName: string;
@@ -142,70 +138,13 @@ export interface SubscriptionSummary {
   monthlyRecurring: number;
 }
 
-// Sample data structure matching your HTML dashboard
-export const SAMPLE_AUGUST_2025_DATA: MonthlyFinancialData = {
-  month: 'August',
-  year: 2025,
-  totalSpending: 4185.39,
-  totalIncome: 0,
-  netAmount: -4185.39,
-  transportationCosts: 1208.00,
-  utilityCosts: 950.00,
-  debtTotal: 1013.73,
-  subscriptionTotal: 313.37,
-  categories: [
-    {
-      category: TransactionCategory.TRANSPORTATION,
-      displayName: 'Transportation',
-      amount: 1208.00,
-      percentage: 29,
-      transactionCount: 2,
-      icon: '🚗',
-      color: '#8884d8',
-      transactions: []
-    },
-    {
-      category: TransactionCategory.DEBT_PAYMENTS,
-      displayName: 'Debt Payments',
-      amount: 1013.73,
-      percentage: 25,
-      transactionCount: 16,
-      icon: '💳',
-      color: '#82ca9d',
-      transactions: []
-    },
-    {
-      category: TransactionCategory.UTILITIES,
-      displayName: 'Utilities',
-      amount: 950.00,
-      percentage: 23,
-      transactionCount: 2,
-      icon: '⚡',
-      color: '#ffc658',
-      transactions: []
-    },
-    {
-      category: TransactionCategory.SUBSCRIPTIONS,
-      displayName: 'Subscriptions',
-      amount: 313.37,
-      percentage: 8,
-      transactionCount: 16,
-      icon: '📱',
-      color: '#ff7300',
-      transactions: []
-    },
-    {
-      category: TransactionCategory.OTHER,
-      displayName: 'Other',
-      amount: 642.29,
-      percentage: 15,
-      transactionCount: 8,
-      icon: '📊',
-      color: '#8dd1e1',
-      transactions: []
-    }
-  ],
-  transactions: [],
-  debtPayments: [],
-  subscriptions: []
+export type CalendarTransaction = {
+  date: number;
+  transactions: Array<{
+    name: string;
+    amount: number;
+    type: 'subscription' | 'debt' | 'utility' | 'transport' | 'other';
+    category: TransactionCategory;
+  }>;
+  totalAmount: number;
 };

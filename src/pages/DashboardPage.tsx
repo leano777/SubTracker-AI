@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { DashboardTab } from "../components/DashboardTab";
+import { Sidebar } from "../components/Sidebar";
+import { TestBanner } from "../components/TestBanner";
+import { TestComponent } from "../components/TestComponent";
 import SubscriptionsView from "../components/views/SubscriptionsView";
 import BudgetPodsView from "../components/views/BudgetPodsView";
 import { EnhancedBudgetPodsView } from "../components/views/EnhancedBudgetPodsView";
@@ -9,6 +12,7 @@ import NotebooksView from "../components/views/NotebooksView";
 import CalendarView from "../components/views/CalendarView";
 import { PaymentCardsView } from "../components/views/PaymentCardsView";
 import { SettingsView } from "../components/views/SettingsView";
+import { FinancialOverview } from "../components/financial/FinancialOverview";
 import { useAuth } from "../contexts/AuthContext";
 import { useDataManagement } from "../hooks/useDataManagement";
 import { 
@@ -29,6 +33,8 @@ export const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
 
   // Initialize with demo data on first load
   useEffect(() => {
@@ -174,6 +180,10 @@ export const DashboardPage = () => {
         return (
           <PaymentCardsView userId={user?.id || 'local-user-001'} />
         );
+      case 'financials':
+        return (
+          <FinancialOverview />
+        );
       case 'settings':
         return (
           <SettingsView />
@@ -194,119 +204,56 @@ export const DashboardPage = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <header className="bg-white dark:bg-gray-800 shadow">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                SubTracker AI
-              </h1>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {user?.email || 'Local User'}
-                </span>
-                <button
-                  onClick={() => signOut()}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-                >
-                  Sign Out
-                </button>
+      <TestComponent />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+        {/* Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={setSidebarCollapsed}
+          isMobileOpen={sidebarMobileOpen}
+          onMobileToggle={setSidebarMobileOpen}
+        />
+        
+        {/* Main Content */}
+        <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+          <header className="bg-white dark:bg-gray-800 shadow">
+            <div className="px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  {/* Mobile menu button */}
+                  <button
+                    onClick={() => setSidebarMobileOpen(!sidebarMobileOpen)}
+                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </button>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    SubTracker AI
+                  </h1>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {user?.email || 'Local User'}
+                  </span>
+                  <button
+                    onClick={() => signOut()}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </header>
-        
-        {/* Navigation Tabs */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex space-x-8" aria-label="Tabs">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`${
-                  activeTab === 'dashboard'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('subscriptions')}
-                className={`${
-                  activeTab === 'subscriptions'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Subscriptions
-              </button>
-              <button
-                onClick={() => setActiveTab('budgetpods')}
-                className={`${
-                  activeTab === 'budgetpods'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Budget Pods
-              </button>
-              <button
-                onClick={() => setActiveTab('investments')}
-                className={`${
-                  activeTab === 'investments'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Investments
-              </button>
-              <button
-                onClick={() => setActiveTab('notebooks')}
-                className={`${
-                  activeTab === 'notebooks'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Notebooks
-              </button>
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`${
-                  activeTab === 'calendar'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Calendar
-              </button>
-              <button
-                onClick={() => setActiveTab('cards')}
-                className={`${
-                  activeTab === 'cards'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Payment Cards
-              </button>
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`${
-                  activeTab === 'settings'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                Settings
-              </button>
-            </nav>
-          </div>
+          </header>
+          
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+            {renderContent()}
+          </main>
         </div>
-        
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {renderContent()}
-        </main>
       </div>
     </ProtectedRoute>
   );

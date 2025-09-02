@@ -4,7 +4,76 @@
  */
 
 import React from 'react';
-import { MonthlyFinancialData, CategoryBreakdown } from '../../types/financialTransactions';
+import { 
+  TransactionCategory
+} from '../../types/financialTransactions';
+
+// Define types locally to avoid import issues
+interface Transaction {
+  id: string;
+  date: string;
+  name: string;
+  amount: number;
+  category: TransactionCategory;
+  subcategory?: string;
+  recurring: boolean;
+  notes?: string;
+  paymentMethod?: string;
+  vendor?: string;
+  tags?: string[];
+}
+
+interface DebtPayment {
+  id: string;
+  date: string;
+  name: string;
+  amount: number;
+  type: string;
+  creditor: string;
+  remainingBalance?: number;
+  interestRate?: number;
+  minimumPayment?: number;
+  dueDate?: string;
+}
+
+interface SubscriptionPayment {
+  id: string;
+  date: string;
+  name: string;
+  serviceName: string;
+  amount: number;
+  category: string;
+  frequency: 'monthly' | 'yearly' | 'weekly' | 'quarterly';
+  isActive: boolean;
+  nextPaymentDate?: string;
+}
+
+interface CategoryBreakdown {
+  category: TransactionCategory;
+  displayName: string;
+  amount: number;
+  percentage: number;
+  transactionCount: number;
+  icon?: string;
+  color?: string;
+  transactions: Transaction[];
+}
+
+interface MonthlyFinancialData {
+  month: string;
+  year: number;
+  totalSpending: number;
+  totalIncome: number;
+  netAmount: number;
+  categories: CategoryBreakdown[];
+  transactions: Transaction[];
+  debtPayments: DebtPayment[];
+  subscriptions: SubscriptionPayment[];
+  transportationCosts: number;
+  utilityCosts: number;
+  debtTotal: number;
+  subscriptionTotal: number;
+}
 
 interface ExpenseBreakdownProps {
   data: MonthlyFinancialData;

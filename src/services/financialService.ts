@@ -4,19 +4,44 @@
  */
 
 import {
-  Transaction,
   TransactionCategory,
-  DebtPayment,
   DebtType,
+  SubscriptionCategory
+} from '../types/financialTransactions';
+
+import type {
+  Transaction,
+  DebtPayment,
   SubscriptionPayment,
-  SubscriptionCategory,
   MonthlyFinancialData,
-  CategoryBreakdown,
-  CalendarTransaction,
   DebtSummary,
   SubscriptionSummary,
   FinancialSummary
 } from '../types/financialTransactions';
+
+// Define CategoryBreakdown locally to avoid import issues
+interface CategoryBreakdown {
+  category: TransactionCategory;
+  displayName: string;
+  amount: number;
+  percentage: number;
+  transactionCount: number;
+  icon?: string;
+  color?: string;
+  transactions: Transaction[];
+}
+
+// Define CalendarTransaction locally to avoid import issues
+type CalendarTransaction = {
+  date: number;
+  transactions: Array<{
+    name: string;
+    amount: number;
+    type: 'subscription' | 'debt' | 'utility' | 'transport' | 'other';
+    category: TransactionCategory;
+  }>;
+  totalAmount: number;
+};
 
 class FinancialService {
   private static instance: FinancialService;

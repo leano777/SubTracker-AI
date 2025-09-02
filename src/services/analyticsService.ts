@@ -3,8 +3,20 @@
  * Provides advanced financial analytics, trends, and predictions
  */
 
-import { MonthlyFinancialData, Transaction, CategoryBreakdown } from '../types/financialTransactions';
+import { MonthlyFinancialData, Transaction, TransactionCategory } from '../types/financialTransactions';
 import { financialService } from './financialService';
+
+// Define CategoryBreakdown locally to avoid import issues
+interface CategoryBreakdown {
+  category: TransactionCategory;
+  displayName: string;
+  amount: number;
+  percentage: number;
+  transactionCount: number;
+  icon?: string;
+  color?: string;
+  transactions: Transaction[];
+}
 
 export interface SpendingTrend {
   category: string;
