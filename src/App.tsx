@@ -8,6 +8,8 @@ import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
 import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
 import { AppHeader } from "./components/AppHeader";
 import { DashboardTab } from "./components/DashboardTab";
+import { FinancialOverview } from "./components/financial/FinancialOverview";
+import { Sidebar } from "./components/Sidebar";
 import { DebugToolButton } from "./components/DebugToolButton";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { DataRecoveryDialog } from "./components/DataRecoveryDialog";
@@ -109,6 +111,13 @@ const AppContent = () => {
     isImportDialogOpen: false,
     isDataRecoveryOpen: false,
   });
+
+  // Sidebar State
+  const [sidebarState, setSidebarState] = useState({
+    isCollapsed: false,
+    isMobileOpen: false,
+  });
+  console.log('Sidebar state initialized:', sidebarState);
 
   // Editing State - Separate for clear ownership
   const [editingState, setEditingState] = useState({
@@ -395,6 +404,28 @@ const AppContent = () => {
       closeDataRecovery: () => {
         if (isMountedRef.current) {
           setModalState((prev) => ({ ...prev, isDataRecoveryOpen: false }));
+        }
+      },
+    }),
+    []
+  );
+
+  // Sidebar handlers
+  const sidebarHandlers = useMemo(
+    () => ({
+      toggleCollapse: () => {
+        if (isMountedRef.current) {
+          setSidebarState((prev) => ({ ...prev, isCollapsed: !prev.isCollapsed }));
+        }
+      },
+      toggleMobile: () => {
+        if (isMountedRef.current) {
+          setSidebarState((prev) => ({ ...prev, isMobileOpen: !prev.isMobileOpen }));
+        }
+      },
+      closeMobile: () => {
+        if (isMountedRef.current) {
+          setSidebarState((prev) => ({ ...prev, isMobileOpen: false }));
         }
       },
     }),
@@ -777,6 +808,10 @@ const AppContent = () => {
           return (
             <AnalyticsDashboard />
           );
+        case "financials":
+          return (
+            <FinancialOverview />
+          );
         case "intelligence":
           return (
             <IntelligenceTab
@@ -917,6 +952,17 @@ const AppContent = () => {
       >
         Skip to main content
       </a>
+      
+      {/* Sidebar */}
+      {console.log('Rendering Sidebar component with state:', sidebarState)}
+      <Sidebar
+        activeTab={uiState.activeTab}
+        onTabChange={setActiveTab}
+        isCollapsed={sidebarState.isCollapsed}
+        onToggleCollapse={sidebarHandlers.toggleCollapse}
+        isMobileOpen={sidebarState.isMobileOpen}
+        onMobileToggle={sidebarHandlers.toggleMobile}
+      />
       
       {/* Header */}
       <AppHeader

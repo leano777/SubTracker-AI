@@ -4,6 +4,7 @@ import React from "react";
 import type { SyncStatus } from "../utils/dataSync";
 import { getSyncStatusColor, getSyncStatusIcon, getSyncStatusText } from "../utils/syncStatus";
 import { getGlassSecondaryStyles, getTextColors } from "../utils/theme";
+import { NotificationBell } from "./notifications/NotificationBell";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -55,6 +56,7 @@ interface AppHeaderProps {
 const tabs = [
   { id: "overview", label: "Overview" },
   { id: "subscriptions", label: "Subscriptions" },
+  { id: "financials", label: "Financials" },
   { id: "planning", label: "Planning" },
   { id: "analytics", label: "Analytics" },
   { id: "intelligence", label: "Intelligence" },
@@ -181,78 +183,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               </span>
             </h1>
 
-            {/* Desktop Tab Navigation - SIMPLIFIED AND WORKING */}
-            <nav className="hidden lg:flex space-x-2 p-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm rounded-lg border border-white/10 dark:border-gray-700/20">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  data-tab={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                  }}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
 
-            {/* Mobile Menu Button with tactical styling and FIXED ACCESSIBILITY */}
-            {isMobile && (
-              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`lg:hidden h-9 w-9 p-0 backdrop-blur-sm transition-all duration-300 ${
-                      isStealthOps
-                        ? "tactical-button border border-gray-600 hover:border-green-400 text-green-400"
-                        : `${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-white/50 hover:bg-white/70"} rounded-lg`
-                    }`}
-                    aria-label="Open menu"
-                    style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
-                  >
-                    <Menu
-                      className={`w-4 h-4 ${isStealthOps ? "text-green-400" : safeTextColors.primary}`}
-                    />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="left"
-                  className={`w-64 p-0 border-0 ${isStealthOps ? "tactical-surface" : ""}`}
-                  style={glassSecondaryStyles}
-                  aria-describedby="mobile-navigation-description"
-                >
-                  <SheetHeader className="py-6">
-                    <SheetTitle className={`text-lg font-semibold ${safeTextColors.onGlass}`}>
-                      {isStealthOps ? "[NAVIGATION]" : "Navigation"}
-                    </SheetTitle>
-                    <SheetDescription
-                      id="mobile-navigation-description"
-                      className={safeTextColors.muted}
-                    >
-                      {isStealthOps
-                        ? "[NAVIGATE BETWEEN APP SECTIONS]"
-                        : "Navigate between app sections"}
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="pb-6">
-                    <MobileNavigation
-                      activeTab={activeTab}
-                      setActiveTab={setActiveTab}
-                      setIsMobileMenuOpen={setIsMobileMenuOpen}
-                      textColors={safeTextColors}
-                      isStealthOps={isStealthOps}
-                      isDarkMode={isDarkMode}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-            )}
           </div>
 
           {/* Right: Actions and Profile with enhanced tactical styling */}
@@ -353,6 +284,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
               />
             </div>
+
+            {/* Notification Bell */}
+            <NotificationBell />
 
             {/* Sync Button with tactical styling */}
             <Button

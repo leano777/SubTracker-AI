@@ -47,6 +47,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [googleAuthAvailable, setGoogleAuthAvailable] = useState(true);
   const [session, setSession] = useState<any>(null);
 
+  // Check for local/demo mode
+  const USE_LOCAL_AUTH = import.meta.env.VITE_USE_LOCAL_AUTH === 'true' || !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://your-project.supabase.co';
+
   // Helper function to clear corrupted auth data (ONLY auth tokens, NOT user data)
   const clearCorruptedAuthData = () => {
     try {
@@ -109,6 +112,44 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Initialize auth state and listen for changes
   useEffect(() => {
+    // Use local auth for demo/personal use
+    if (USE_LOCAL_AUTH) {
+      // Check if user already exists in localStorage
+      const localUser = localStorage.getItem('subtracker_local_user');
+      if (localUser) {
+        try {
+          const userData = JSON.parse(localUser);
+          setUser(userData);
+          setSession({ user: userData });
+        } catch {
+          // Create default local user
+          const defaultUser: User = {
+            id: 'local-user-001',
+            email: 'user@local.demo',
+            name: 'Local User',
+            createdAt: new Date().toISOString(),
+          };
+          localStorage.setItem('subtracker_local_user', JSON.stringify(defaultUser));
+          setUser(defaultUser);
+          setSession({ user: defaultUser });
+        }
+      } else {
+        // Create default local user
+        const defaultUser: User = {
+          id: 'local-user-001',
+          email: 'user@local.demo',
+          name: 'Local User',
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem('subtracker_local_user', JSON.stringify(defaultUser));
+        setUser(defaultUser);
+        setSession({ user: defaultUser });
+      }
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     // Get initial session with enhanced error handling
     const getInitialSession = async () => {
       try {
@@ -253,20 +294,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
 
     try {
-      // Development demo mode
-      if (email === 'demo@demo.com' && password === 'demo123') {
-        const demoUser: User = {
-          id: 'demo-user-id',
-          email: 'demo@demo.com',
-          name: 'Demo User',
+      // Local auth mode or demo mode
+      if (USE_LOCAL_AUTH || (email === 'demo@demo.com' && password === 'demo123')) {
+        const localUser: User = {
+          id: 'local-user-001',
+          email: email || 'user@local.demo',
+          name: email?.split('@')[0] || 'Local User',
           avatarUrl: undefined,
           createdAt: new Date().toISOString(),
         };
-        setUser(demoUser);
+        localStorage.setItem('subtracker_local_user', JSON.stringify(localUser));
+        setUser(localUser);
+        setSession({ user: localUser });
         setError(null);
         setLoading(false);
-        console.log('🔐 Demo mode activated!');
-        return { success: true, user: demoUser };
+        console.log('🔐 Local/Demo mode activated!');
+        return { success: true, user: localUser };
       }
 
       if (!supabase?.auth) {

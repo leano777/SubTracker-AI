@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubTracker AI - Data Backup Utility</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .backup-section, .restore-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        .data-preview {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SubTracker AI Data Backup Utility</h1>
+        <p class="subtitle">Manage your financial data backups</p>
+        
+        <div class="backup-section">
+            <h2>Backup Data</h2>
+            <p>Export all your SubTracker AI data to a JSON file</p>
+            <button onclick="backupData()">Download Backup</button>
+            <button onclick="viewData()">View Current Data</button>
+            <div id="dataPreview" class="data-preview" style="display:none;"></div>
+        </div>
+        
+        <div class="restore-section">
+            <h2>Restore Data</h2>
+            <p>Import data from a previous backup</p>
+            <input type="file" id="restoreFile" accept=".json">
+            <br>
+            <button onclick="restoreData()">Restore from File</button>
+            <button onclick="clearAllData()" style="background: #dc3545;">Clear All Data</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${type}`;
+            statusEl.textContent = message;
+            statusEl.style.display = 'block';
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function backupData() {
+            try {
+                const allData = {};
+                
+                // Collect all localStorage data related to SubTracker
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.includes('subtracker') || key.includes('auth') || 
+                        key.includes('subscription') || key.includes('budget') || 
+                        key.includes('investment') || key.includes('notebook')) {
+                        allData[key] = localStorage.getItem(key);
+                    }
+                }
+                
+                // Create backup object with metadata
+                const backup = {
+                    version: '1.0.0',
+                    timestamp: new Date().toISOString(),
+                    data: allData
+                };
+                
+                // Create and download file
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `subtracker-backup-${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus(`Backup created successfully! ${Object.keys(allData).length} items exported.`, 'success');
+            } catch (error) {
+                showStatus(`Error creating backup: ${error.message}`, 'error');
+            }
+        }
+
+        function viewData() {
+            const preview = document.getElementById('dataPreview');
+            const allData = {};
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.includes('subtracker') || key.includes('auth') || 
+                    key.includes('subscription') || key.includes('budget') || 
+                    key.includes('investment') || key.includes('notebook')) {
+                    const value = localStorage.getItem(key);
+                    try {
+                        allData[key] = JSON.parse(value);
+                    } catch {
+                        allData[key] = value;
+                    }
+                }
+            }
+            
+            preview.textContent = JSON.stringify(allData, null, 2);
+            preview.style.display = 'block';
+            showStatus(`Found ${Object.keys(allData).length} data items`, 'info');
+        }
+
+        function restoreData() {
+            const fileInput = document.getElementById('restoreFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('Please select a backup file', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    if (!backup.data) {
+                        throw new Error('Invalid backup file format');
+                    }
+                    
+                    if (confirm(`This will restore ${Object.keys(backup.data).length} items from ${backup.timestamp}. Continue?`)) {
+                        // Restore each item
+                        Object.entries(backup.data).forEach(([key, value]) => {
+                            localStorage.setItem(key, value);
+                        });
+                        
+                        showStatus(`Data restored successfully! ${Object.keys(backup.data).length} items imported.`, 'success');
+                        
+                        // Refresh the page after 2 seconds
+                        setTimeout(() => {
+                            if (confirm('Data restored. Reload the SubTracker app to see changes?')) {
+                                window.location.href = 'http://localhost:5175';
+                            }
+                        }, 2000);
+                    }
+                } catch (error) {
+                    showStatus(`Error restoring backup: ${error.message}`, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('WARNING: This will delete ALL SubTracker data. Are you sure?')) {
+                if (confirm('This action cannot be undone. Please confirm again.')) {
+                    const keysToRemove = [];
+                    
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key.includes('subtracker') || key.includes('auth') || 
+                            key.includes('subscription') || key.includes('budget') || 
+                            key.includes('investment') || key.includes('notebook')) {
+                            keysToRemove.push(key);
+                        }
+                    }
+                    
+                    keysToRemove.forEach(key => localStorage.removeItem(key));
+                    
+                    showStatus(`Cleared ${keysToRemove.length} data items`, 'success');
+                }
+            }
+        }
+
+        // Check if we're on the same origin as the app
+        window.onload = function() {
+            showStatus('Backup utility ready. Make sure SubTracker AI is running on localhost:5175', 'info');
+        };
+    </script>
+</body>
+</html>

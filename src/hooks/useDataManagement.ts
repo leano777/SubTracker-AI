@@ -13,6 +13,7 @@ import { saveUserDataToCache, loadUserDataFromCache, clearUserDataCache } from "
 import { dataSyncManager } from "../utils/dataSync";
 import type { SyncStatus } from "../utils/dataSync";
 import { calculatePayPeriodRequirements } from "../utils/payPeriodCalculations";
+import { notificationService } from "../services/notificationService";
 
 // Enhanced data migration function with robust validation
 const migrateSubscriptionData = (subscription: any): FullSubscription => {
@@ -523,6 +524,9 @@ export const useDataManagement = (
       // Check if we're in email confirmation flow
       const isEmailConfirmation = isEmailConfirmationFlow();
 
+      // Check if this is a local auth user (demo mode)
+      const isLocalAuthUser = userId === 'local-user-001';
+
       // For authenticated users, assume they are established unless proven otherwise
       // This simplifies the logic and prevents cache clearing issues
       const isNewUser = false;
@@ -534,11 +538,44 @@ export const useDataManagement = (
 
       // First, attempt data recovery if needed (but not during email confirmation for new users or truly new users)
       const recoveredData =
-        !isEmailConfirmation && !isNewUser ? await attemptDataRecovery(userId) : null;
+        !isEmailConfirmation && !isNewUser && !isLocalAuthUser ? await attemptDataRecovery(userId) : null;
 
       // Always try to load from cache first for immediate UI
       const cachedData = recoveredData || loadUserDataFromCache(userId);
       let dataToUse = cachedData;
+
+      // Check if demo init was requested
+      const demoInitRequested = localStorage.getItem('subtracker_demo_init') === 'true';
+      
+      // For local auth users with no data, or if demo init was requested, initialize with demo data
+      if ((isLocalAuthUser && cachedData.subscriptions.length === 0 && !cachedData.hasInitialized) || demoInitRequested) {
+        console.log("🎯 Initializing with demo data");
+        
+        // Clear the demo init flag
+        if (demoInitRequested) {
+          localStorage.removeItem('subtracker_demo_init');
+        }
+        
+        // Set demo data
+        setSubscriptionsWithMigration(INITIAL_SUBSCRIPTIONS);
+        setPaymentCards(INITIAL_PAYMENT_CARDS);
+        setNotifications(INITIAL_NOTIFICATIONS);
+        setAppSettings(INITIAL_APP_SETTINGS);
+        setHasInitialized(true);
+        
+        // Save demo data to cache
+        const demoData = {
+          subscriptions: INITIAL_SUBSCRIPTIONS,
+          paymentCards: INITIAL_PAYMENT_CARDS,
+          notifications: INITIAL_NOTIFICATIONS,
+          appSettings: INITIAL_APP_SETTINGS,
+          hasInitialized: true,
+          dataCleared: false,
+          weeklyBudgets: [],
+        };
+        saveUserDataToCache(userId, demoData);
+        return;
+      }
 
       // Set cached/recovered data immediately for responsive UI (but not for new users)
       if (!isNewUser && (cachedData.subscriptions.length > 0 || cachedData.hasInitialized)) {
@@ -990,6 +1027,24 @@ export const useDataManagement = (
       setWeeklyBudgets([]);
     }
   }, [subscriptions]);
+
+  // Check subscriptions for notifications
+  useEffect(() => {
+    if (subscriptions.length > 0 && paymentCards.length >= 0) {
+      try {
+        // Check for upcoming renewals, expiring cards, etc.
+        notificationService.checkSubscriptions(subscriptions, paymentCards);
+        
+        // Generate weekly summary on Mondays
+        const today = new Date().getDay();
+        if (today === 1) { // Monday
+          notificationService.generateWeeklySummary(subscriptions);
+        }
+      } catch (error) {
+        console.warn("⚠️ Error checking notifications:", error);
+      }
+    }
+  }, [subscriptions, paymentCards]);
 
   const clearUserDataCacheFunction = () => {
     if (stableUserId) {

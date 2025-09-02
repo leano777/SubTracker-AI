@@ -12,6 +12,8 @@ import {
   Eye,
 } from "lucide-react";
 import { useState, useMemo } from "react";
+import { notificationService } from "../services/notificationService";
+import { NotificationType, NotificationPriority } from "../types/notifications";
 
 import type { AppSettings, AppNotification } from "../types/constants";
 import type { FullSubscription, FullPaymentCard } from "../types/subscription";
@@ -270,6 +272,58 @@ export const DashboardTab = ({
     </Card>
   );
 
+  // Check if no data exists
+  if (subscriptions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Welcome to SubTracker AI
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+            Your personal financial dashboard for managing subscriptions, budgets, and investments.
+          </p>
+        </div>
+        
+        <div className="flex flex-col gap-4">
+          <Button
+            onClick={() => {
+              // Initialize with demo data
+              localStorage.setItem('subtracker_demo_init', 'true');
+              window.location.reload();
+            }}
+            className="px-8 py-3 text-lg"
+            size="lg"
+          >
+            <Zap className="w-5 h-5 mr-2" />
+            Load Demo Data
+          </Button>
+          
+          <Button
+            onClick={onAddNew}
+            variant="outline"
+            className="px-8 py-3"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add Your First Subscription
+          </Button>
+        </div>
+        
+        <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg max-w-2xl">
+          <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">
+            🚀 Quick Start Guide
+          </h3>
+          <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-400">
+            <li>• Click "Load Demo Data" to explore with sample subscriptions</li>
+            <li>• Use "Add Subscription" to start tracking your real expenses</li>
+            <li>• Navigate between Dashboard, Subscriptions, Budget Pods, and more</li>
+            <li>• All data is stored locally in your browser for privacy</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -483,6 +537,41 @@ export const DashboardTab = ({
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {isStealthOps ? "[ADD NEW SUBSCRIPTION]" : "Add New Subscription"}
+              </Button>
+              
+              {/* Test Notification Button - Remove in production */}
+              <Button
+                onClick={() => {
+                  // Create test notifications
+                  notificationService.create(
+                    NotificationType.PAYMENT_DUE,
+                    'Netflix Payment Due',
+                    'Your Netflix subscription payment of $15.99 is due tomorrow',
+                    { priority: NotificationPriority.HIGH }
+                  );
+                  notificationService.create(
+                    NotificationType.TRIAL_ENDING,
+                    'Adobe Trial Ending',
+                    'Your Adobe Creative Cloud trial ends in 3 days',
+                    { priority: NotificationPriority.MEDIUM }
+                  );
+                  notificationService.create(
+                    NotificationType.CARD_EXPIRING,
+                    'Card Expiring Soon',
+                    'Your card ending in 4242 expires next month',
+                    { priority: NotificationPriority.MEDIUM }
+                  );
+                }}
+                className={`w-full justify-start ${
+                  isStealthOps
+                    ? "tactical-button border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black font-mono tracking-wide"
+                    : ""
+                }`}
+                variant="outline"
+                style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                {isStealthOps ? "[TEST NOTIFICATIONS]" : "Test Notifications"}
               </Button>
               <Button
                 onClick={() => {
