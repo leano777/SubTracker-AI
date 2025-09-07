@@ -21,7 +21,8 @@ import {
   Settings
 } from 'lucide-react';
 import { financialService } from '../../services/financialService';
-import { TransactionCategory, DebtType, SubscriptionCategory } from '../../types/financialTransactions';
+import { useTheme } from '../../contexts/ThemeContext';
+import type { TransactionCategory, DebtType, SubscriptionCategory } from '../../types/financialTransactions';
 
 // Define types locally to avoid import issues
 interface Transaction {
@@ -117,6 +118,7 @@ interface FinancialOverviewProps {
 type ViewMode = 'breakdown' | 'calendar' | 'subscriptions' | 'debt' | 'analytics' | 'optimizer';
 
 export const FinancialOverview: React.FC<FinancialOverviewProps> = ({ className }) => {
+  const { theme, isTacticalMode } = useTheme();
   const [currentView, setCurrentView] = useState<ViewMode>('breakdown');
   const [monthlyData, setMonthlyData] = useState<MonthlyFinancialData | null>(null);
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
@@ -162,7 +164,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({ className 
   if (!monthlyData || !summary) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-gray-500 dark:text-gray-400">
+        <div className="text-muted">
           No financial data available for {getMonthName(selectedMonth)} {selectedYear}
         </div>
       </div>
@@ -174,10 +176,10 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({ className 
       {/* Header */}
       <div className="mb-6 md:mb-8 flex justify-between items-start">
         <div>
-          <h1 className="text-2xl md:text-4xl font-light text-gray-900 dark:text-white mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className={`text-2xl md:text-4xl font-light mb-2 ${isTacticalMode ? 'text-tactical-primary' : 'text-primary'}`}>
             Financial Dashboard
           </h1>
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-sm md:text-base text-secondary">
             {getMonthName(selectedMonth)} {selectedYear} Transaction Analysis
           </p>
         </div>

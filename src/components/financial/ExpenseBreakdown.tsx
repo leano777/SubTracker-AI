@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { 
+import type { 
   TransactionCategory
 } from '../../types/financialTransactions';
 

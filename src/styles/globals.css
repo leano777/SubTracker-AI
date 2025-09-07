@@ -1,3 +1,6 @@
+/* Import Design System CSS */
+@import '../design-system/theme/design-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

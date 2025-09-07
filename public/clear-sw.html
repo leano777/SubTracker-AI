@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Service Workers</title>
+</head>
+<body>
+    <h1>Service Worker Cleanup</h1>
+    <button onclick="clearServiceWorkers()">Clear All Service Workers</button>
+    <div id="status"></div>
+    
+    <script>
+        async function clearServiceWorkers() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = 'Clearing service workers...<br>';
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    
+                    if (registrations.length === 0) {
+                        statusDiv.innerHTML += 'No service workers found.<br>';
+                    } else {
+                        for (let registration of registrations) {
+                            await registration.unregister();
+                            statusDiv.innerHTML += `Unregistered: ${registration.scope}<br>`;
+                        }
+                        statusDiv.innerHTML += `<strong>Successfully cleared ${registrations.length} service worker(s)!</strong><br>`;
+                    }
+                    
+                    // Clear all caches
+                    const cacheNames = await caches.keys();
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        statusDiv.innerHTML += `Deleted cache: ${cacheName}<br>`;
+                    }
+                    
+                    statusDiv.innerHTML += '<strong>All caches cleared!</strong><br>';
+                    statusDiv.innerHTML += '<br><a href="/">Return to App</a>';
+                    
+                } catch (error) {
+                    statusDiv.innerHTML += `Error: ${error.message}<br>`;
+                }
+            } else {
+                statusDiv.innerHTML += 'Service workers not supported in this browser.<br>';
+            }
+        }
+        
+        // Auto-run on page load
+        window.addEventListener('load', clearServiceWorkers);
+    </script>
+</body>
+</html>

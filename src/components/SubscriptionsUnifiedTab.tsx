@@ -32,20 +32,16 @@ import {
 } from "../utils/helpers";
 
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "./ui/dropdown-menu";
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Badge } from "../design-system/primitives/Badge/Badge";
+import { Button } from "../design-system/primitives/Button/Button";
+import { Card } from "../design-system/primitives/Card/Card";
+import { Input } from "../design-system/primitives/Input/Input";
+import { Select } from "../design-system/primitives/Select/Select";
+import { Tabs } from "../design-system/navigation/Tabs/Tabs";
+import { Menu, MenuItem, MenuContent, MenuTrigger, MenuSeparator } from "../design-system/navigation/Menu/Menu";
+import { Modal } from "../design-system/components/Modal/Modal";
+import { Stack, HStack, VStack } from "../design-system/layout/Stack/Stack";
+import { Grid } from "../design-system/layout/Grid/Grid";
 
 interface SubscriptionsUnifiedTabProps {
   subscriptions: FullSubscription[];
@@ -237,9 +233,8 @@ export const SubscriptionsUnifiedTab = ({
     const card = cards.find((c) => c.id === subscription.cardId);
 
     return (
-      <Card className="overflow-hidden hover:shadow-md transition-all duration-200 group">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
+      <Card className="overflow-hidden hover:shadow-md transition-all duration-200 group" padding="md">
+        <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-3">
               {subscription.logoUrl ? (
                 <ImageWithFallback
@@ -260,17 +255,17 @@ export const SubscriptionsUnifiedTab = ({
                   <Badge
                     variant={
                       subscription.status === "active"
-                        ? "default"
+                        ? "success"
                         : subscription.status === "cancelled"
-                          ? "destructive"
-                          : "secondary"
+                          ? "error"
+                          : "default"
                     }
-                    className="text-xs"
+                    size="sm"
                   >
                     {subscription.status}
                   </Badge>
                   {subscription.planType && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" size="sm">
                       {subscription.planType}
                     </Badge>
                   )}
@@ -411,7 +406,6 @@ export const SubscriptionsUnifiedTab = ({
               </div>
             )}
           </div>
-        </CardContent>
       </Card>
     );
   };
@@ -422,9 +416,8 @@ export const SubscriptionsUnifiedTab = ({
     const card = cards.find((c) => c.id === subscription.cardId);
 
     return (
-      <Card className="overflow-hidden">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
+      <Card className="overflow-hidden" padding="md">
+        <div className="flex items-center gap-4">
             {subscription.logoUrl ? (
               <ImageWithFallback
                 src={subscription.logoUrl}
@@ -546,7 +539,6 @@ export const SubscriptionsUnifiedTab = ({
               </div>
             </div>
           </div>
-        </CardContent>
       </Card>
     );
   };
@@ -659,49 +651,49 @@ export const SubscriptionsUnifiedTab = ({
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
+        <Card padding="md">
+          <div className="text-center">
             <div className="text-2xl font-bold text-green-600">{stats.active}</div>
             <div className="text-sm text-muted-foreground">Active</div>
-          </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
+        <Card padding="md">
+          <div className="text-center">
             <div className="text-2xl font-bold text-primary">
               {formatCurrency(stats.totalMonthly)}
             </div>
             <div className="text-sm text-muted-foreground">Monthly</div>
-          </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
+        <Card padding="md">
+          <div className="text-center">
             <div className="text-2xl font-bold text-orange-600">{stats.upcoming}</div>
             <div className="text-sm text-muted-foreground">Due Soon</div>
-          </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
+        <Card padding="md">
+          <div className="text-center">
             <div className="text-2xl font-bold text-gray-600">{stats.watchlist}</div>
             <div className="text-sm text-muted-foreground">Watchlist</div>
-          </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
+        <Card padding="md">
+          <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-2xl font-bold text-emerald-600">
               <CreditCard className="w-5 h-5" />
               {stats.cardsLinked}
             </div>
             <div className="text-sm text-muted-foreground">Cards Linked</div>
-          </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
+        <Card padding="md">
+          <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-2xl font-bold text-blue-600">
               <Zap className="w-5 h-5" />
               {stats.automationEnabled}
             </div>
             <div className="text-sm text-muted-foreground">Automated</div>
-          </CardContent>
+          </div>
         </Card>
       </div>
 
@@ -908,8 +900,8 @@ export const SubscriptionsUnifiedTab = ({
               </div>
             )
           ) : (
-            <Card>
-              <CardContent className="p-12 text-center">
+            <Card padding="xl">
+              <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
                   <CreditCard className="w-8 h-8 text-muted-foreground" />
                 </div>
@@ -962,7 +954,7 @@ export const SubscriptionsUnifiedTab = ({
                     {currentTab === "watchlist" ? "Add to Watchlist" : "Add Subscription"}
                   </Button>
                 )}
-              </CardContent>
+              </div>
             </Card>
           )}
         </TabsContent>

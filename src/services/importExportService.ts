@@ -3,7 +3,7 @@
  * Handles CSV import, PDF/Excel export functionality
  */
 
-import { 
+import type { 
   TransactionCategory,
   DebtType,
   SubscriptionCategory

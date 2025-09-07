@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { financialService } from '../../services/financialService';
-import { TransactionCategory } from '../../types/financialTransactions';
+import type { TransactionCategory } from '../../types/financialTransactions';
 
 // Define CalendarTransaction locally to avoid import issues
 type CalendarTransaction = {

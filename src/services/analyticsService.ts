@@ -3,7 +3,7 @@
  * Provides advanced financial analytics, trends, and predictions
  */
 
-import { MonthlyFinancialData, Transaction, TransactionCategory } from '../types/financialTransactions';
+import type { MonthlyFinancialData, Transaction, TransactionCategory } from '../types/financialTransactions';
 import { financialService } from './financialService';
 
 // Define CategoryBreakdown locally to avoid import issues

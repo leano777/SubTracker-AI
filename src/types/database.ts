@@ -46,7 +46,11 @@ export interface BudgetPod {
   
   // Budget Configuration
   budgetType: 'fixed' | 'percentage' | 'envelope' | 'goal';
+  type?: 'expense' | 'savings' | 'investment';
   amount: number;
+  monthlyAmount?: number;
+  currentAmount?: number;
+  targetAmount?: number;
   percentageOfIncome?: number;
   
   // Time Period
@@ -59,6 +63,7 @@ export interface BudgetPod {
   rolloverEnabled: boolean;
   rolloverType?: 'accumulate' | 'reset' | 'carryforward';
   maxRolloverAmount?: number;
+  rolloverUnused?: boolean;
   
   // Category Rules
   categories: string[];
@@ -74,6 +79,17 @@ export interface BudgetPod {
   goalDeadline?: Date;
   goalProgress?: number;
   
+  // Automation
+  autoTransfer?: boolean;
+  transferDay?: number;
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  
+  // Alerts
+  warningThreshold?: number;
+  
+  // Notes
+  notes?: string;
+  
   // Sharing (for family plans)
   sharedWith?: string[]; // User IDs
   permissions?: PodPermission[];
@@ -84,6 +100,8 @@ export interface BudgetPod {
   createdAt: Date;
   updatedAt: Date;
   lastResetAt: Date;
+  createdDate: Date;
+  lastModified: Date;
 }
 
 export interface CategoryRule {

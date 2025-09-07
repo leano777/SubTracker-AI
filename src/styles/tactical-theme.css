@@ -1,0 +1,211 @@
+/* TACTICAL DARK THEME - Military Grade Design System */
+
+/* Tactical Dark Theme Variables */
+[data-theme="tactical-dark"] {
+  /* === BACKGROUND HIERARCHY === */
+  --bg-primary: #0a0e13;
+  --bg-secondary: #111922;
+  --bg-elevated: #1a2332;
+  --bg-surface: #243242;
+  --bg-hover: #2d3f52;
+  --bg-active: #364a62;
+  --bg-overlay: rgba(10, 14, 19, 0.95);
+
+  /* === TEXT HIERARCHY === */
+  --text-primary: #f0f4f8;
+  --text-secondary: #cbd5e0;
+  --text-muted: #a0aec0;
+  --text-disabled: #718096;
+  
+  /* === TACTICAL ACCENT COLORS === */
+  --tactical-primary: #4ade80;
+  --tactical-primary-hover: #22c55e;
+  --tactical-secondary: #60a5fa;
+  --tactical-accent: #00ff41;
+  
+  /* === STATUS COLORS === */
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-info: #3b82f6;
+  
+  /* === BORDERS === */
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+  --border-focus: #4ade80;
+  
+  /* === Update base colors === */
+  --color-primary: var(--tactical-primary);
+  --color-primary-hover: var(--tactical-primary-hover);
+  --color-background: var(--bg-primary);
+  --color-surface: var(--bg-secondary);
+  --color-surface-elevated: var(--bg-elevated);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border-primary);
+  --color-border-focus: var(--border-focus);
+}
+
+/* Tactical-specific component styles */
+[data-theme="tactical-dark"] body {
+  background: linear-gradient(135deg, #0a0e13 0%, #111922 100%);
+  min-height: 100vh;
+}
+
+[data-theme="tactical-dark"] .tactical-card,
+[data-theme="tactical-dark"] .card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="tactical-dark"] .btn-primary,
+[data-theme="tactical-dark"] .btn--primary {
+  background: var(--tactical-primary);
+  color: #0a0e13;
+  border: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="tactical-dark"] .btn-primary:hover,
+[data-theme="tactical-dark"] .btn--primary:hover {
+  background: var(--tactical-primary-hover);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+}
+
+[data-theme="tactical-dark"] input,
+[data-theme="tactical-dark"] select,
+[data-theme="tactical-dark"] textarea {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="tactical-dark"] input:focus,
+[data-theme="tactical-dark"] select:focus,
+[data-theme="tactical-dark"] textarea:focus {
+  border-color: var(--tactical-primary);
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+  outline: none;
+}
+
+/* Tactical glow effects */
+[data-theme="tactical-dark"] .glow-primary {
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+}
+
+[data-theme="tactical-dark"] .text-glow {
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+/* Financial metric cards */
+[data-theme="tactical-dark"] .financial-metric {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  border-left: 3px solid var(--tactical-primary);
+  transition: all 0.3s ease;
+}
+
+[data-theme="tactical-dark"] .financial-metric:hover {
+  background: var(--bg-hover);
+  border-left-color: var(--tactical-accent);
+  transform: translateX(4px);
+}
+
+/* Navigation styling */
+[data-theme="tactical-dark"] .app-header {
+  background: rgba(17, 25, 34, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--tactical-primary);
+}
+
+[data-theme="tactical-dark"] .nav-link:hover {
+  color: var(--tactical-primary);
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+/* Data tables */
+[data-theme="tactical-dark"] table {
+  background: var(--bg-secondary);
+}
+
+[data-theme="tactical-dark"] th {
+  background: var(--bg-elevated);
+  color: var(--tactical-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="tactical-dark"] tr:hover {
+  background: var(--bg-hover);
+}
+
+/* Charts and visualizations */
+[data-theme="tactical-dark"] .chart-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Loading states */
+[data-theme="tactical-dark"] .loading-spinner {
+  border-color: var(--tactical-primary);
+  border-top-color: transparent;
+}
+
+/* Scrollbar styling */
+[data-theme="tactical-dark"]::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+[data-theme="tactical-dark"]::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+[data-theme="tactical-dark"]::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 5px;
+}
+
+[data-theme="tactical-dark"]::-webkit-scrollbar-thumb:hover {
+  background: var(--tactical-primary);
+}
+
+/* Selection color */
+[data-theme="tactical-dark"] ::selection {
+  background: var(--tactical-primary);
+  color: var(--bg-primary);
+}
+
+/* Focus visible */
+[data-theme="tactical-dark"] :focus-visible {
+  outline: 2px solid var(--tactical-primary);
+  outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes tactical-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+[data-theme="tactical-dark"] .pulse {
+  animation: tactical-pulse 2s infinite;
+}
+
+@keyframes tactical-glow {
+  0% { box-shadow: 0 0 5px rgba(74, 222, 128, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(74, 222, 128, 0.5); }
+}
+
+[data-theme="tactical-dark"] .glow-animation {
+  animation: tactical-glow 2s infinite;
+}

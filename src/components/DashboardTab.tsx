@@ -30,6 +30,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface DashboardTabProps {
   subscriptions: FullSubscription[];
@@ -53,6 +54,7 @@ export const DashboardTab = ({
   onManageCards,
   onCheckWatchlist,
 }: DashboardTabProps) => {
+  const { theme, isTacticalMode } = useTheme();
   console.log("🏠 DashboardTab rendered with:", {
     subscriptionsCount: subscriptions?.length || 0,
     cardsCount: cards?.length || 0,
@@ -62,12 +64,12 @@ export const DashboardTab = ({
   // Safety checks
   if (!subscriptions) {
     console.warn("DashboardTab: subscriptions is null/undefined");
-    return <div className="p-4">Loading dashboard...</div>;
+    return <div className="p-4 text-secondary">Loading dashboard...</div>;
   }
 
   if (!settings) {
     console.warn("DashboardTab: settings is null/undefined");
-    return <div className="p-4">Loading dashboard...</div>;
+    return <div className="p-4 text-secondary">Loading dashboard...</div>;
   }
 
   const [selectedTimeframe, setSelectedTimeframe] = useState<"month" | "quarter" | "year">("month");

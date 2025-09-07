@@ -3,13 +3,10 @@
  * Manages financial transaction data and calculations
  */
 
-import {
+import type {
   TransactionCategory,
   DebtType,
-  SubscriptionCategory
-} from '../types/financialTransactions';
-
-import type {
+  SubscriptionCategory,
   Transaction,
   DebtPayment,
   SubscriptionPayment,
@@ -17,6 +14,12 @@ import type {
   DebtSummary,
   SubscriptionSummary,
   FinancialSummary
+} from '../types/financialTransactions';
+
+import {
+  TransactionCategoryEnum,
+  DebtTypeEnum,
+  SubscriptionCategoryEnum
 } from '../types/financialTransactions';
 
 // Define CategoryBreakdown locally to avoid import issues
@@ -80,7 +83,7 @@ class FinancialService {
         date: '2025-08-28',
         name: 'Car Insurance',
         amount: 256.00,
-        category: TransactionCategory.TRANSPORTATION,
+        category: 'transportation' as TransactionCategory,
         recurring: true,
         vendor: 'Insurance Company'
       },
@@ -89,7 +92,7 @@ class FinancialService {
         date: '2025-08-30',
         name: 'Car Payment',
         amount: 952.00,
-        category: TransactionCategory.TRANSPORTATION,
+        category: 'transportation' as TransactionCategory,
         recurring: true,
         vendor: 'Auto Lender'
       }
@@ -102,7 +105,7 @@ class FinancialService {
         date: '2025-08-27',
         name: 'SDGE + Cethron',
         amount: 475.00,
-        category: TransactionCategory.UTILITIES,
+        category: 'utilities' as TransactionCategory,
         recurring: true,
         vendor: 'SDGE'
       },
@@ -111,7 +114,7 @@ class FinancialService {
         date: '2025-08-28',
         name: 'SDGE + Cethron',
         amount: 475.00,
-        category: TransactionCategory.UTILITIES,
+        category: 'utilities' as TransactionCategory,
         recurring: true,
         vendor: 'SDGE'
       }
@@ -136,7 +139,7 @@ class FinancialService {
         date: payment.date,
         name: 'Affirm Payment',
         amount: payment.amount,
-        type: DebtType.AFFIRM,
+        type: 'affirm' as DebtType,
         creditor: 'Affirm'
       });
     });
@@ -156,7 +159,7 @@ class FinancialService {
         date: payment.date,
         name: payment.name || 'Credit Card Payment',
         amount: payment.amount,
-        type: DebtType.CREDIT_CARD,
+        type: 'credit_card' as DebtType,
         creditor: 'Credit Card'
       });
     });
@@ -167,7 +170,7 @@ class FinancialService {
       date: '2025-08-12',
       name: 'Student Loan Payment',
       amount: 23.78,
-      type: DebtType.STUDENT_LOAN,
+      type: 'student_loan' as DebtType,
       creditor: 'Student Loan Servicer'
     });
 
@@ -177,7 +180,7 @@ class FinancialService {
       date: '2025-08-30',
       name: 'Credit Builder',
       amount: 40.00,
-      type: DebtType.CREDIT_BUILDER,
+      type: 'credit_builder' as DebtType,
       creditor: 'Credit Builder'
     });
 
@@ -201,7 +204,7 @@ class FinancialService {
         name: `${sub.name} (${sub.service})`,
         serviceName: sub.name,
         amount: sub.amount,
-        category: SubscriptionCategory.BUSINESS_TOOLS,
+        category: 'business_tools' as SubscriptionCategory,
         frequency: 'monthly',
         isActive: true
       });
@@ -222,7 +225,7 @@ class FinancialService {
         name: sub.service ? `${sub.name} (${sub.service})` : sub.name,
         serviceName: sub.name,
         amount: sub.amount,
-        category: SubscriptionCategory.PERSONAL,
+        category: 'personal' as SubscriptionCategory,
         frequency: 'monthly',
         isActive: true
       });
@@ -236,7 +239,7 @@ class FinancialService {
         name: 'General Subscriptions',
         serviceName: 'Various',
         amount: 38.00,
-        category: SubscriptionCategory.OTHER,
+        category: 'other' as SubscriptionCategory,
         frequency: 'monthly',
         isActive: true
       },
@@ -246,7 +249,7 @@ class FinancialService {
         name: 'AI Subs (Various)',
         serviceName: 'AI Services',
         amount: 20.00,
-        category: SubscriptionCategory.AI_SERVICES,
+        category: 'ai_services' as SubscriptionCategory,
         frequency: 'monthly',
         isActive: true
       }
@@ -267,15 +270,15 @@ class FinancialService {
         date: expense.date,
         name: expense.name,
         amount: expense.amount,
-        category: TransactionCategory.OTHER,
+        category: 'other' as TransactionCategory,
         recurring: false
       });
     });
 
     // Calculate categories
     const categories = this.calculateCategories([...transactions, 
-      ...debtPayments.map(d => ({...d, category: TransactionCategory.DEBT_PAYMENTS} as Transaction)),
-      ...subscriptions.map(s => ({...s, category: TransactionCategory.SUBSCRIPTIONS} as Transaction))
+      ...debtPayments.map(d => ({...d, category: 'debt_payments' as TransactionCategory} as Transaction)),
+      ...subscriptions.map(s => ({...s, category: 'subscriptions' as TransactionCategory} as Transaction))
     ]);
 
     return {
@@ -300,11 +303,11 @@ class FinancialService {
     const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
 
     const categoryConfig = {
-      [TransactionCategory.TRANSPORTATION]: { name: 'Transportation', icon: '🚗', color: '#8884d8' },
-      [TransactionCategory.DEBT_PAYMENTS]: { name: 'Debt Payments', icon: '💳', color: '#82ca9d' },
-      [TransactionCategory.UTILITIES]: { name: 'Utilities', icon: '⚡', color: '#ffc658' },
-      [TransactionCategory.SUBSCRIPTIONS]: { name: 'Subscriptions', icon: '📱', color: '#ff7300' },
-      [TransactionCategory.OTHER]: { name: 'Other', icon: '📊', color: '#8dd1e1' }
+      ['transportation']: { name: 'Transportation', icon: '🚗', color: '#8884d8' },
+      ['debt_payments']: { name: 'Debt Payments', icon: '💳', color: '#82ca9d' },
+      ['utilities']: { name: 'Utilities', icon: '⚡', color: '#ffc658' },
+      ['subscriptions']: { name: 'Subscriptions', icon: '📱', color: '#ff7300' },
+      ['other']: { name: 'Other', icon: '📊', color: '#8dd1e1' }
     };
 
     transactions.forEach(transaction => {
@@ -413,8 +416,8 @@ class FinancialService {
     
     // Process all transactions
     [...data.transactions, 
-     ...data.debtPayments.map(d => ({...d, category: TransactionCategory.DEBT_PAYMENTS} as Transaction)),
-     ...data.subscriptions.map(s => ({...s, category: TransactionCategory.SUBSCRIPTIONS} as Transaction))
+     ...data.debtPayments.map(d => ({...d, category: 'debt_payments' as TransactionCategory} as Transaction)),
+     ...data.subscriptions.map(s => ({...s, category: 'subscriptions' as TransactionCategory} as Transaction))
     ].forEach(transaction => {
       const date = new Date(transaction.date);
       const day = date.getDate();
@@ -442,13 +445,13 @@ class FinancialService {
 
   private getTransactionType(category: TransactionCategory): 'subscription' | 'debt' | 'utility' | 'transport' | 'other' {
     switch (category) {
-      case TransactionCategory.SUBSCRIPTIONS:
+      case 'subscriptions':
         return 'subscription';
-      case TransactionCategory.DEBT_PAYMENTS:
+      case 'debt_payments':
         return 'debt';
-      case TransactionCategory.UTILITIES:
+      case 'utilities':
         return 'utility';
-      case TransactionCategory.TRANSPORTATION:
+      case 'transportation':
         return 'transport';
       default:
         return 'other';
@@ -489,15 +492,15 @@ class FinancialService {
 
   private getDebtDisplayName(type: DebtType): string {
     const names: Record<DebtType, string> = {
-      [DebtType.AFFIRM]: 'Affirm',
-      [DebtType.KLARNA]: 'Klarna',
-      [DebtType.CREDIT_CARD]: 'Credit Cards',
-      [DebtType.STUDENT_LOAN]: 'Student Loans',
-      [DebtType.CREDIT_BUILDER]: 'Credit Builder',
-      [DebtType.PERSONAL_LOAN]: 'Personal Loan',
-      [DebtType.AUTO_LOAN]: 'Auto Loan',
-      [DebtType.MORTGAGE]: 'Mortgage',
-      [DebtType.OTHER]: 'Other Debt'
+      ['affirm']: 'Affirm',
+      ['klarna']: 'Klarna',
+      ['credit_card']: 'Credit Cards',
+      ['student_loan']: 'Student Loans',
+      ['credit_builder']: 'Credit Builder',
+      ['personal_loan']: 'Personal Loan',
+      ['auto_loan']: 'Auto Loan',
+      ['mortgage']: 'Mortgage',
+      ['other']: 'Other Debt'
     };
     return names[type] || type;
   }
@@ -532,14 +535,14 @@ class FinancialService {
 
   private getSubscriptionCategoryName(category: SubscriptionCategory): string {
     const names: Record<SubscriptionCategory, string> = {
-      [SubscriptionCategory.BUSINESS_TOOLS]: 'Business Tools',
-      [SubscriptionCategory.PERSONAL]: 'Personal',
-      [SubscriptionCategory.ENTERTAINMENT]: 'Entertainment',
-      [SubscriptionCategory.PRODUCTIVITY]: 'Productivity',
-      [SubscriptionCategory.CLOUD_STORAGE]: 'Cloud Storage',
-      [SubscriptionCategory.AI_SERVICES]: 'AI Services',
-      [SubscriptionCategory.DEVELOPMENT]: 'Development',
-      [SubscriptionCategory.OTHER]: 'Other'
+      ['business_tools']: 'Business Tools',
+      ['personal']: 'Personal',
+      ['entertainment']: 'Entertainment',
+      ['productivity']: 'Productivity',
+      ['cloud_storage']: 'Cloud Storage',
+      ['ai_services']: 'AI Services',
+      ['development']: 'Development',
+      ['other']: 'Other'
     };
     return names[category] || category;
   }
@@ -567,8 +570,8 @@ class FinancialService {
     // Recalculate categories
     monthData.categories = this.calculateCategories([
       ...monthData.transactions,
-      ...monthData.debtPayments.map(d => ({...d, category: TransactionCategory.DEBT_PAYMENTS} as Transaction)),
-      ...monthData.subscriptions.map(s => ({...s, category: TransactionCategory.SUBSCRIPTIONS} as Transaction))
+      ...monthData.debtPayments.map(d => ({...d, category: 'debt_payments' as TransactionCategory} as Transaction)),
+      ...monthData.subscriptions.map(s => ({...s, category: 'subscriptions' as TransactionCategory} as Transaction))
     ]);
     
     this.saveData();

@@ -4,11 +4,11 @@ import { Toaster } from "sonner";
 import { initializeAccessibility, announce } from "./utils/accessibility/focusManagement";
 import { useTabReducer } from "./hooks/useTabReducer";
 
-import { AdvancedSettingsTab } from "./components/AdvancedSettingsTab";
+import { AdvancedSettingsTabDS } from "./components/AdvancedSettingsTab-DS";
 import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
 import { AppHeader } from "./components/AppHeader";
 import { DashboardTab } from "./components/DashboardTab";
-import { FinancialOverview } from "./components/financial/FinancialOverview";
+import { FinancialOverviewDS } from "./components/financial/FinancialOverview-DS";
 import { Sidebar } from "./components/Sidebar";
 import { TestBanner } from "./components/TestBanner";
 import { DebugToolButton } from "./components/DebugToolButton";
@@ -32,6 +32,7 @@ import {
   DialogDescription,
 } from "./components/ui/dialog";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAppHandlers } from "./hooks/useAppHandlers";
 import { useDataManagement } from "./hooks/useDataManagement";
 import { useIsDesktop, useIsMobile } from "./hooks/useDeviceDetection";
@@ -811,7 +812,7 @@ const AppContent = () => {
           );
         case "financials":
           return (
-            <FinancialOverview />
+            <FinancialOverviewDS />
           );
         case "intelligence":
           return (
@@ -956,7 +957,6 @@ const AppContent = () => {
       </a>
       
       {/* Sidebar */}
-      {console.log('Rendering Sidebar component with state:', sidebarState)}
       <Sidebar
         activeTab={uiState.activeTab}
         onTabChange={setActiveTab}
@@ -1126,7 +1126,7 @@ const AppContent = () => {
               settings.
             </DialogDescription>
           </DialogHeader>
-          <AdvancedSettingsTab
+          <AdvancedSettingsTabDS
             settings={appSettings || defaultAppSettings}
             onUpdateSettings={handleUpdateSettings}
             onImportData={modalHandlers.openImportDialog}
@@ -1170,7 +1170,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </AuthProvider>
   );
 };

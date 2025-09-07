@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { financialService } from '../../services/financialService';
-import { DebtType } from '../../types/financialTransactions';
+import type { DebtType } from '../../types/financialTransactions';
 import { CreditCard, TrendingDown, AlertCircle, DollarSign } from 'lucide-react';
 
 // Define types locally to avoid import issues

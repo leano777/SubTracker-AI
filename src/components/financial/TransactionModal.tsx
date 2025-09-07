@@ -266,13 +266,26 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {/* Close button - Mobile Optimized */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 md:top-4 md:right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors touch-manipulation"
+            className="absolute top-3 right-3 md:top-4 md:right-4 p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-all touch-manipulation active:scale-95 z-10"
+            aria-label="Close modal"
           >
-            <X className="w-6 h-6 md:w-5 md:h-5 text-gray-400 hover:text-white" />
+            <X className="w-6 h-6 text-white" />
           </button>
 
           {/* Content */}
-          {renderContent()}
+          <div className="pb-16 md:pb-0">
+            {renderContent()}
+          </div>
+
+          {/* Bottom Close Button - More visible on mobile */}
+          <div className="absolute bottom-4 left-4 right-4 md:hidden">
+            <button
+              onClick={onClose}
+              className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors touch-manipulation active:scale-95 font-medium"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </>

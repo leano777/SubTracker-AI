@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { ProtectedRoute } from "../components/ProtectedRoute";
-import { DashboardTab } from "../components/DashboardTab";
+import { CleanDashboard } from "../components/CleanDashboard";
 import { Sidebar } from "../components/Sidebar";
-import { TestBanner } from "../components/TestBanner";
-import { TestComponent } from "../components/TestComponent";
-import SubscriptionsView from "../components/views/SubscriptionsView";
+import { OptimizedSubscriptionsView } from "../components/views/OptimizedSubscriptionsView";
 import BudgetPodsView from "../components/views/BudgetPodsView";
 import { EnhancedBudgetPodsView } from "../components/views/EnhancedBudgetPodsView";
 import InvestmentsView from "../components/views/InvestmentsView";
@@ -14,6 +12,7 @@ import { PaymentCardsView } from "../components/views/PaymentCardsView";
 import { SettingsView } from "../components/views/SettingsView";
 import { FinancialOverview } from "../components/financial/FinancialOverview";
 import { useAuth } from "../contexts/AuthContext";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { useDataManagement } from "../hooks/useDataManagement";
 import { 
   INITIAL_SUBSCRIPTIONS, 
@@ -101,24 +100,40 @@ export const DashboardPage = () => {
     }
   }, [subscriptions, paymentCards, notifications, appSettings, hasInitialized, user]);
 
-  const handleAddNew = () => {
-    // TODO: Implement add new subscription
-    console.log('Add new subscription');
+  const handleNavigate = (view: string) => {
+    setActiveTab(view);
   };
 
-  const handleViewCalendar = () => {
-    // TODO: Implement view calendar
-    console.log('View calendar');
-  };
-
-  const handleManageCards = () => {
-    // TODO: Implement manage cards
-    console.log('Manage cards');
-  };
-
-  const handleCheckWatchlist = () => {
-    // TODO: Implement check watchlist
-    console.log('Check watchlist');
+  const handleQuickAction = (action: string, data?: any) => {
+    switch(action) {
+      case 'add-subscription':
+        setActiveTab('subscriptions');
+        // TODO: Open add modal
+        break;
+      case 'review-unused':
+      case 'review-all-unused':
+        setActiveTab('subscriptions');
+        // TODO: Filter to show unused
+        break;
+      case 'cancel-subscription':
+        // TODO: Handle cancel
+        console.log('Cancel subscription', data);
+        break;
+      case 'keep-subscription':
+        // TODO: Mark as reviewed
+        console.log('Keep subscription', data);
+        break;
+      case 'view-subscription':
+        setActiveTab('subscriptions');
+        // TODO: Focus on specific subscription
+        break;
+      case 'export-data':
+        // TODO: Export functionality
+        console.log('Export data');
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
   };
 
   if (isLoading) {
@@ -138,20 +153,15 @@ export const DashboardPage = () => {
     switch(activeTab) {
       case 'dashboard':
         return (
-          <DashboardTab
+          <CleanDashboard
             subscriptions={subscriptions}
-            cards={paymentCards}
-            settings={appSettings}
-            notifications={notifications}
-            onAddNew={handleAddNew}
-            onViewCalendar={handleViewCalendar}
-            onManageCards={handleManageCards}
-            onCheckWatchlist={handleCheckWatchlist}
+            monthlyBudget={appSettings.monthlyBudget || 500}
+            onNavigate={handleNavigate}
           />
         );
       case 'subscriptions':
         return (
-          <SubscriptionsView
+          <OptimizedSubscriptionsView
             subscriptions={subscriptions}
             setSubscriptions={setSubscriptions}
             paymentCards={paymentCards}
@@ -189,23 +199,19 @@ export const DashboardPage = () => {
           <SettingsView />
         );
       default:
-        return <DashboardTab
-          subscriptions={subscriptions}
-          cards={paymentCards}
-          settings={appSettings}
-          notifications={notifications}
-          onAddNew={handleAddNew}
-          onViewCalendar={handleViewCalendar}
-          onManageCards={handleManageCards}
-          onCheckWatchlist={handleCheckWatchlist}
-        />;
+        return (
+          <CleanDashboard
+            subscriptions={subscriptions}
+            monthlyBudget={appSettings.monthlyBudget || 500}
+            onNavigate={handleNavigate}
+          />
+        );
     }
   };
 
   return (
     <ProtectedRoute>
-      <TestComponent />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      <div className="min-h-screen bg-primary flex">
         {/* Sidebar */}
         <Sidebar
           activeTab={activeTab}
@@ -218,30 +224,31 @@ export const DashboardPage = () => {
         
         {/* Main Content */}
         <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-          <header className="bg-white dark:bg-gray-800 shadow">
+          <header className="bg-secondary border-b border-primary shadow-sm">
             <div className="px-4 sm:px-6 lg:px-8 py-4">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
                   {/* Mobile menu button */}
                   <button
                     onClick={() => setSidebarMobileOpen(!sidebarMobileOpen)}
-                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="lg:hidden p-2 rounded-lg hover:bg-hover transition-colors text-primary"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                   </button>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-2xl font-bold text-primary">
                     SubTracker AI
                   </h1>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <ThemeToggle />
+                  <span className="text-sm text-secondary">
                     {user?.email || 'Local User'}
                   </span>
                   <button
                     onClick={() => signOut()}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                    className="px-4 py-2 bg-error hover:opacity-90 text-white rounded-lg transition-all"
                   >
                     Sign Out
                   </button>

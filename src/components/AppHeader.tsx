@@ -5,6 +5,7 @@ import type { SyncStatus } from "../utils/dataSync";
 import { getSyncStatusColor, getSyncStatusIcon, getSyncStatusText } from "../utils/syncStatus";
 import { getGlassSecondaryStyles, getTextColors } from "../utils/theme";
 import { NotificationBell } from "./notifications/NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -284,6 +285,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 style={isStealthOps ? { borderRadius: "0.125rem" } : undefined}
               />
             </div>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Notification Bell */}
             <NotificationBell />

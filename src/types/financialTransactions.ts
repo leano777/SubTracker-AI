@@ -3,46 +3,84 @@
  * Comprehensive types for monthly financial data tracking
  */
 
-export enum TransactionCategory {
-  TRANSPORTATION = 'transportation',
-  DEBT_PAYMENTS = 'debt_payments',
-  UTILITIES = 'utilities',
-  SUBSCRIPTIONS = 'subscriptions',
-  RENT = 'rent',
-  GROCERIES = 'groceries',
-  DINING = 'dining',
-  SHOPPING = 'shopping',
-  ENTERTAINMENT = 'entertainment',
-  HEALTHCARE = 'healthcare',
-  INSURANCE = 'insurance',
-  SAVINGS = 'savings',
-  INVESTMENTS = 'investments',
-  TAXES = 'taxes',
-  OTHER = 'other'
-}
+export type TransactionCategory = 
+  | 'transportation'
+  | 'debt_payments'
+  | 'utilities'
+  | 'subscriptions'
+  | 'rent'
+  | 'groceries'
+  | 'dining'
+  | 'shopping'
+  | 'entertainment'
+  | 'healthcare'
+  | 'insurance'
+  | 'savings'
+  | 'investments'
+  | 'taxes'
+  | 'other';
 
-export enum DebtType {
-  AFFIRM = 'affirm',
-  KLARNA = 'klarna',
-  CREDIT_CARD = 'credit_card',
-  STUDENT_LOAN = 'student_loan',
-  CREDIT_BUILDER = 'credit_builder',
-  PERSONAL_LOAN = 'personal_loan',
-  AUTO_LOAN = 'auto_loan',
-  MORTGAGE = 'mortgage',
-  OTHER = 'other'
-}
+export const TransactionCategoryEnum = {
+  TRANSPORTATION: 'transportation' as TransactionCategory,
+  DEBT_PAYMENTS: 'debt_payments' as TransactionCategory,
+  UTILITIES: 'utilities' as TransactionCategory,
+  SUBSCRIPTIONS: 'subscriptions' as TransactionCategory,
+  RENT: 'rent' as TransactionCategory,
+  GROCERIES: 'groceries' as TransactionCategory,
+  DINING: 'dining' as TransactionCategory,
+  SHOPPING: 'shopping' as TransactionCategory,
+  ENTERTAINMENT: 'entertainment' as TransactionCategory,
+  HEALTHCARE: 'healthcare' as TransactionCategory,
+  INSURANCE: 'insurance' as TransactionCategory,
+  SAVINGS: 'savings' as TransactionCategory,
+  INVESTMENTS: 'investments' as TransactionCategory,
+  TAXES: 'taxes' as TransactionCategory,
+  OTHER: 'other' as TransactionCategory,
+} as const;
 
-export enum SubscriptionCategory {
-  BUSINESS_TOOLS = 'business_tools',
-  PERSONAL = 'personal',
-  ENTERTAINMENT = 'entertainment',
-  PRODUCTIVITY = 'productivity',
-  CLOUD_STORAGE = 'cloud_storage',
-  AI_SERVICES = 'ai_services',
-  DEVELOPMENT = 'development',
-  OTHER = 'other'
-}
+export type DebtType = 
+  | 'affirm'
+  | 'klarna'
+  | 'credit_card'
+  | 'student_loan'
+  | 'credit_builder'
+  | 'personal_loan'
+  | 'auto_loan'
+  | 'mortgage'
+  | 'other';
+
+export const DebtTypeEnum = {
+  AFFIRM: 'affirm' as DebtType,
+  KLARNA: 'klarna' as DebtType,
+  CREDIT_CARD: 'credit_card' as DebtType,
+  STUDENT_LOAN: 'student_loan' as DebtType,
+  CREDIT_BUILDER: 'credit_builder' as DebtType,
+  PERSONAL_LOAN: 'personal_loan' as DebtType,
+  AUTO_LOAN: 'auto_loan' as DebtType,
+  MORTGAGE: 'mortgage' as DebtType,
+  OTHER: 'other' as DebtType,
+} as const;
+
+export type SubscriptionCategory = 
+  | 'business_tools'
+  | 'personal'
+  | 'entertainment'
+  | 'productivity'
+  | 'cloud_storage'
+  | 'ai_services'
+  | 'development'
+  | 'other';
+
+export const SubscriptionCategoryEnum = {
+  BUSINESS_TOOLS: 'business_tools' as SubscriptionCategory,
+  PERSONAL: 'personal' as SubscriptionCategory,
+  ENTERTAINMENT: 'entertainment' as SubscriptionCategory,
+  PRODUCTIVITY: 'productivity' as SubscriptionCategory,
+  CLOUD_STORAGE: 'cloud_storage' as SubscriptionCategory,
+  AI_SERVICES: 'ai_services' as SubscriptionCategory,
+  DEVELOPMENT: 'development' as SubscriptionCategory,
+  OTHER: 'other' as SubscriptionCategory,
+} as const;
 
 export interface Transaction {
   id: string;
@@ -121,9 +159,6 @@ export interface FinancialSummary {
   monthOverMonthChange: number;
 }
 
-// CalendarTransaction type moved to individual files to avoid export issues
-// See financialService.ts and CalendarView.tsx for local definitions
-
 export interface DebtSummary {
   type: DebtType;
   displayName: string;
@@ -155,7 +190,7 @@ export const SAMPLE_AUGUST_2025_DATA: MonthlyFinancialData = {
   subscriptionTotal: 313.37,
   categories: [
     {
-      category: TransactionCategory.TRANSPORTATION,
+      category: 'transportation',
       displayName: 'Transportation',
       amount: 1208.00,
       percentage: 29,
@@ -165,7 +200,7 @@ export const SAMPLE_AUGUST_2025_DATA: MonthlyFinancialData = {
       transactions: []
     },
     {
-      category: TransactionCategory.DEBT_PAYMENTS,
+      category: 'debt_payments',
       displayName: 'Debt Payments',
       amount: 1013.73,
       percentage: 25,
@@ -175,7 +210,7 @@ export const SAMPLE_AUGUST_2025_DATA: MonthlyFinancialData = {
       transactions: []
     },
     {
-      category: TransactionCategory.UTILITIES,
+      category: 'utilities',
       displayName: 'Utilities',
       amount: 950.00,
       percentage: 23,
@@ -185,7 +220,7 @@ export const SAMPLE_AUGUST_2025_DATA: MonthlyFinancialData = {
       transactions: []
     },
     {
-      category: TransactionCategory.SUBSCRIPTIONS,
+      category: 'subscriptions',
       displayName: 'Subscriptions',
       amount: 313.37,
       percentage: 8,
@@ -195,7 +230,7 @@ export const SAMPLE_AUGUST_2025_DATA: MonthlyFinancialData = {
       transactions: []
     },
     {
-      category: TransactionCategory.OTHER,
+      category: 'other',
       displayName: 'Other',
       amount: 642.29,
       percentage: 15,

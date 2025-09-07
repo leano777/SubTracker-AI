@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-overlay z-40 lg:hidden"
           onClick={onMobileToggle}
         />
       )}
@@ -58,32 +58,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Toggle Button */}
       <button
         onClick={onMobileToggle}
-        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors lg:hidden"
+        className="fixed top-4 left-4 z-50 p-2 bg-secondary hover:bg-hover rounded-lg transition-colors lg:hidden"
       >
         {isMobileOpen ? (
-          <X className="w-6 h-6 text-white" />
+          <X className="w-6 h-6 text-primary" />
         ) : (
-          <Menu className="w-6 h-6 text-white" />
+          <Menu className="w-6 h-6 text-primary" />
         )}
       </button>
 
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-full bg-gray-900 border-r border-gray-700 z-50 lg:z-30
+          fixed top-0 left-0 h-full bg-secondary border-r border-primary z-50 lg:z-30
           transition-all duration-300 ease-in-out
           ${isCollapsed ? 'w-16' : 'w-64'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-primary">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <LayoutDashboard className="w-5 h-5 text-primary-text" />
               </div>
-              <h1 className="text-xl font-semibold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-xl font-semibold text-primary">
                 SubTracker
               </h1>
             </div>
@@ -92,12 +92,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Desktop Collapse Toggle */}
           <button
             onClick={onToggleCollapse}
-            className="hidden lg:flex p-1.5 hover:bg-gray-800 rounded-lg transition-colors"
+            className="hidden lg:flex p-1.5 hover:bg-hover rounded-lg transition-colors"
           >
             {isCollapsed ? (
-              <ChevronRight className="w-5 h-5 text-gray-400" />
+              <ChevronRight className="w-5 h-5 text-secondary" />
             ) : (
-              <ChevronLeft className="w-5 h-5 text-gray-400" />
+              <ChevronLeft className="w-5 h-5 text-secondary" />
             )}
           </button>
         </div>
@@ -121,8 +121,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   w-full flex items-center space-x-3 px-3 py-3 rounded-lg
                   transition-all duration-200 ease-in-out group
                   ${isActive 
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    ? 'bg-primary text-primary-text shadow-lg' 
+                    : 'text-secondary hover:bg-hover hover:text-primary'
                   }
                   ${isCollapsed ? 'justify-center' : 'justify-start'}
                 `}
@@ -130,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 <Icon className={`
                   w-5 h-5 flex-shrink-0
-                  ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}
+                  ${isActive ? 'text-primary-text' : 'text-muted group-hover:text-primary'}
                   transition-colors duration-200
                 `} />
                 
@@ -141,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
                 
                 {isActive && !isCollapsed && (
-                  <div className="w-2 h-2 bg-white rounded-full ml-auto animate-pulse" />
+                  <div className="w-2 h-2 bg-primary-text rounded-full ml-auto animate-pulse" />
                 )}
               </button>
             );
@@ -150,8 +150,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Footer */}
         {!isCollapsed && (
-          <div className="p-4 border-t border-gray-700">
-            <div className="text-xs text-gray-500 text-center">
+          <div className="p-4 border-t border-primary">
+            <div className="text-xs text-muted text-center">
               SubTracker AI
             </div>
           </div>

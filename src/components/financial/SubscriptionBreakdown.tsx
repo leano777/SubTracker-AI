@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { financialService } from '../../services/financialService';
-import { SubscriptionCategory } from '../../types/financialTransactions';
+import type { SubscriptionCategory } from '../../types/financialTransactions';
 
 // Define types locally to avoid import issues
 interface SubscriptionPayment {
