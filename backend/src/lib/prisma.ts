@@ -30,11 +30,4 @@ export async function disconnectDatabase(): Promise<void> {
   await prisma.$disconnect()
 }
 
-// Transaction wrapper utility
-export async function executeTransaction<T>(
-  callback: (prisma: any) => Promise<T>
-): Promise<T> {
-  return await prisma.$transaction(callback)
-}
-
 export default prisma

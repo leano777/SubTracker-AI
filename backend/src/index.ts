@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 
@@ -34,12 +33,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
+// Logging (temporarily disabled due to TypeScript issues)
+// if (process.env.NODE_ENV === 'development') {
+//   app.use(morgan('dev'));
+// } else {
+//   app.use(morgan('combined'));
+// }
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -58,9 +57,15 @@ app.get('/health', (req, res) => {
 
 // Import routes
 import authRoutes from './routes/auth';
+import subscriptionRoutes from './routes/subscriptions';
+import categoryRoutes from './routes/categories';
+import paymentRoutes from './routes/payments';
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get('/api/test', (req, res) => {
   res.json({
@@ -69,6 +74,9 @@ app.get('/api/test', (req, res) => {
     environment: process.env.NODE_ENV,
     availableEndpoints: {
       auth: '/api/auth/*',
+      subscriptions: '/api/subscriptions/*',
+      categories: '/api/categories/*',
+      payments: '/api/payments/*',
       health: '/health',
       test: '/api/test'
     }

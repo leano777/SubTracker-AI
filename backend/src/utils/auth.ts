@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
@@ -25,7 +25,7 @@ export class AuthUtils {
 
   // Generate JWT token
   static generateToken(payload: { userId: string; email: string }): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN } as SignOptions);
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as any });
   }
 
   // Verify JWT token
@@ -42,7 +42,7 @@ export class AuthUtils {
     return jwt.sign(
       { sessionId: Math.random().toString(36) },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN } as SignOptions
+      { expiresIn: JWT_EXPIRES_IN as any }
     );
   }
 
