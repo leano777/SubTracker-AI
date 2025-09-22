@@ -56,12 +56,22 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes will go here
+// Import routes
+import authRoutes from './routes/auth';
+
+// API routes
+app.use('/api/auth', authRoutes);
+
 app.get('/api/test', (req, res) => {
   res.json({
     message: 'Subscription Tracker API is running!',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
+    availableEndpoints: {
+      auth: '/api/auth/*',
+      health: '/health',
+      test: '/api/test'
+    }
   });
 });
 
