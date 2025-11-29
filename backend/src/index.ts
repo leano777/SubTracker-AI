@@ -8,18 +8,27 @@ import rateLimit from 'express-rate-limit';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
+
+// CORS configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5190',
+  'http://localhost:5175',
+  'http://localhost:3000',
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? allowedOrigins
+    : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: process.env.NODE_ENV === 'production'
+}));
 
 // Security middleware
 app.use(helmet());
-
-// CORS configuration
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
 
 // Rate limiting
 const limiter = rateLimit({
