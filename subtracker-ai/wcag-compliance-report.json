@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-09-21T15:52:02.973Z",
+  "summary": {
+    "totalTests": 15,
+    "passed": 15,
+    "failed": 0,
+    "passRate": "100.0",
+    "codeViolations": 0
+  },
+  "colorTests": [
+    {
+      "theme": "light",
+      "variable": "--text-primary",
+      "foreground": "#1a1a1a",
+      "background": "#ffffff",
+      "ratio": "17.40",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "light",
+      "variable": "--text-secondary",
+      "foreground": "#525252",
+      "background": "#ffffff",
+      "ratio": "7.81",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "light",
+      "variable": "--text-muted",
+      "foreground": "#737373",
+      "background": "#ffffff",
+      "ratio": "4.74",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "light",
+      "variable": "--color-primary",
+      "foreground": "#2563eb",
+      "background": "#ffffff",
+      "ratio": "5.17",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "light",
+      "variable": "--color-primary-hover",
+      "foreground": "#1d4ed8",
+      "background": "#ffffff",
+      "ratio": "6.70",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "dark",
+      "variable": "--text-primary",
+      "foreground": "#f0f6fc",
+      "background": "#0a0a0b",
+      "ratio": "18.18",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "dark",
+      "variable": "--text-secondary",
+      "foreground": "#b3b3b3",
+      "background": "#0a0a0b",
+      "ratio": "9.44",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "dark",
+      "variable": "--text-muted",
+      "foreground": "#8c8c8c",
+      "background": "#0a0a0b",
+      "ratio": "5.89",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "dark",
+      "variable": "--color-primary",
+      "foreground": "#4285f4",
+      "background": "#0a0a0b",
+      "ratio": "5.55",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "dark",
+      "variable": "--color-primary-hover",
+      "foreground": "#5a95f5",
+      "background": "#0a0a0b",
+      "ratio": "6.65",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "tactical",
+      "variable": "--text-primary",
+      "foreground": "#f5f5f5",
+      "background": "#1a1a1a",
+      "ratio": "15.96",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "tactical",
+      "variable": "--text-secondary",
+      "foreground": "#cccccc",
+      "background": "#1a1a1a",
+      "ratio": "10.84",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "tactical",
+      "variable": "--text-muted",
+      "foreground": "#999999",
+      "background": "#1a1a1a",
+      "ratio": "6.11",
+      "passesAA": true,
+      "passesAAA": false,
+      "level": "AA"
+    },
+    {
+      "theme": "tactical",
+      "variable": "--color-primary",
+      "foreground": "#00ff88",
+      "background": "#1a1a1a",
+      "ratio": "12.98",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    },
+    {
+      "theme": "tactical",
+      "variable": "--color-primary-hover",
+      "foreground": "#33ff99",
+      "background": "#1a1a1a",
+      "ratio": "13.18",
+      "passesAA": true,
+      "passesAAA": true,
+      "level": "AAA"
+    }
+  ],
+  "wcagStandards": {
+    "AA_NORMAL": 4.5,
+    "AA_LARGE": 3,
+    "AAA_NORMAL": 7,
+    "AAA_LARGE": 4.5
+  }
+}

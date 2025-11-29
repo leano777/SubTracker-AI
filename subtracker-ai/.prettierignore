@@ -1,0 +1,12 @@
+dist/
+node_modules/
+*.min.js
+*.min.css
+public/
+.next/
+.nuxt/
+coverage/
+*.log
+.env*
+.DS_Store
+*.lock

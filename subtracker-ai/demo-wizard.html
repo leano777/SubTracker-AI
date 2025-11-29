@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Setup Wizard - Demo</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .demo-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        .demo-button:hover {
+            background: #1d4ed8;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        .feature {
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .feature h3 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+        }
+        .feature p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .status {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🎯 Income Setup Wizard Demo</h1>
+        
+        <div class="status">
+            ✅ Development server is running on http://localhost:5177
+        </div>
+        
+        <p>The Income Setup Wizard has been completely redesigned with a clean, simple UX that's perfect for both desktop and mobile use.</p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🎨 Clean Design</h3>
+                <p>Simplified layout with better visual hierarchy and less clutter</p>
+            </div>
+            <div class="feature">
+                <h3>📱 Mobile First</h3>
+                <p>Optimized touch interactions and responsive design for all devices</p>
+            </div>
+            <div class="feature">
+                <h3>✅ Smart Validation</h3>
+                <p>Real-time feedback and validation to prevent errors</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ 5-Minute Setup</h3>
+                <p>Streamlined flow gets you from start to finish quickly</p>
+            </div>
+        </div>
+
+        <h2>Key Improvements Made:</h2>
+        <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+            <li><strong>Simplified Header:</strong> Removed complex sidebar, added clean progress indicators</li>
+            <li><strong>Better Welcome Step:</strong> Clear value proposition and visual walkthrough</li>
+            <li><strong>Streamlined Income Step:</strong> One-click templates, collapsible advanced options</li>
+            <li><strong>Mobile-Optimized Layout:</strong> Touch-friendly buttons, proper spacing</li>
+            <li><strong>Smart Validation:</strong> Prevents users from continuing with incomplete data</li>
+            <li><strong>Visual Feedback:</strong> Color-coded sections, clear success states</li>
+        </ul>
+
+        <div style="margin-top: 40px;">
+            <a href="http://localhost:5177" class="demo-button">
+                🚀 Open Live Demo
+            </a>
+            <a href="http://localhost:5177" class="demo-button" style="background: #059669;">
+                📱 Test on Mobile
+            </a>
+        </div>
+
+        <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
+            Navigate to the Budget Pods tab to see the wizard in action!
+        </p>
+    </div>
+</body>
+</html>

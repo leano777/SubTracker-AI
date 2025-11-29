@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-09-21T15:45:04.228Z",
+  "filesScanned": 209,
+  "violationsFound": 0,
+  "problematicFiles": 0,
+  "themeAwareClasses": 1975,
+  "successRate": "100.0",
+  "details": []
+}

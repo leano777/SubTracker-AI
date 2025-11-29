@@ -1,0 +1,137 @@
+import { defineConfig, devices } from '@playwright/test';
+
+/**
+ * @see https://playwright.dev/docs/test-configuration
+ */
+export default defineConfig({
+  /* Run tests in files in parallel */
+  fullyParallel: true,
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  forbidOnly: !!process.env.CI,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
+  /* Opt out of parallel tests on CI. */
+  workers: process.env.CI ? 1 : undefined,
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/playwright-results.json' }],
+    ['junit', { outputFile: 'test-results/playwright-results.xml' }]
+  ],
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  use: {
+    /* Base URL to use in actions like `await page.goto('/')`. */
+    baseURL: 'http://localhost:5175',
+    
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    trace: 'on-first-retry',
+    
+    /* Screenshot on failure */
+    screenshot: 'only-on-failure',
+    
+    /* Video recording */
+    video: 'retain-on-failure',
+  },
+
+  /* Configure projects for different types of tests */
+  projects: [
+    // Visual regression tests (original)
+    {
+      name: 'visual-chromium',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
+
+    {
+      name: 'visual-firefox',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
+
+    {
+      name: 'visual-webkit',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['Desktop Safari'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
+    
+    // Comprehensive E2E tests
+    {
+      name: 'e2e-chromium',
+      testDir: './tests/e2e-playwright',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
+    
+    // Mobile E2E tests
+    {
+      name: 'e2e-mobile',
+      testDir: './tests/e2e-playwright',
+      use: { 
+        ...devices['Pixel 5'],
+        viewport: { width: 393, height: 851 }
+      },
+    },
+
+    /* Test against mobile viewports for visual testing */
+    {
+      name: 'visual-mobile-chrome',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['Pixel 5'],
+        viewport: { width: 393, height: 851 }
+      },
+    },
+
+    {
+      name: 'visual-mobile-safari',
+      testDir: './tests/visual',
+      use: { 
+        ...devices['iPhone 12'],
+        viewport: { width: 390, height: 844 }
+      },
+    },
+  ],
+
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:5175',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes
+  },
+
+  /* Global test timeout */
+  timeout: 30 * 1000,
+
+  /* Global setup */
+  globalSetup: require.resolve('./tests/setup/global-setup.ts'),
+
+  /* Expect options for visual testing */
+  expect: {
+    // Threshold for pixel difference in screenshot comparison
+    // 0.1% threshold as specified in requirements
+    toHaveScreenshot: { 
+      threshold: 0.001, // 0.1% = 0.001
+      mode: 'strict',
+      animations: 'disabled'
+    },
+    toMatchSnapshot: { 
+      threshold: 0.001,
+      mode: 'strict'
+    }
+  },
+
+  /* Output directories */
+  outputDir: 'test-results/playwright'
+});
